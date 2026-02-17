@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>For you, Always. 💕</title>
+  <meta name="description" content="Ada hadiah spesial untukmu" />
+
+  <!-- Prevent indexing oleh search engine -->
+  <meta name="robots" content="noindex, nofollow" />
+
+  <!-- Open Graph (untuk preview link di WhatsApp) -->
+  <meta property="og:title" content="Ada hadiah untukmu 💕" />
+  <meta property="og:description" content="Buka untuk melihat hadiah spesial dari seseorang yang menyayangimu." />
+  <meta property="og:type" content="website" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ============================================
+    STATE: LOADING
+    Tampil saat gift.js sedang fetch config dari API
+  ============================================ -->
+  <div id="state-loading" class="fullscreen-center">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <!-- ============================================
+    STATE: ERROR (gift tidak ditemukan)
+  ============================================ -->
+  <div id="state-error" class="fullscreen-center hidden">
+    <div class="error-container">
+      <span class="error-icon">💔</span>
+      <h2>Gift tidak ditemukan</h2>
+      <p>Link ini mungkin salah atau sudah tidak aktif.</p>
+    </div>
+  </div>
+
+  <!-- ============================================
+    STATE: PASSWORD GATE
+    Tampil jika gift diproteksi password
+  ============================================ -->
+  <div id="state-password" class="fullscreen-center hidden">
+    <div class="password-card">
+      <span class="password-icon">🔒</span>
+      <h2 class="password-title">Ada hadiah yang menunggumu</h2>
+      <input id="password-input" type="text" placeholder="Masukkan password..." autocomplete="off"
+        class="password-field" />
+      <p id="password-error" class="password-error hidden">Password salah, coba lagi.</p>
+      <button id="btn-unlock" class="unlock-btn">
+        ❤️ Buka Hadiah
+      </button>
+      <p class="password-hint">Tidak tahu passwordnya? Tanya pengirimnya 😊</p>
+    </div>
+  </div>
+
+  <!-- ============================================
+    STATE: GIFT PAGE (konten utama)
+    Dirender oleh gift.js setelah config berhasil dimuat
+  ============================================ -->
+  <div id="state-gift" class="hidden" data-theme="rose">
+
+
+    <!-- VOICE NOTE SECTION (dirender oleh player.js jika ada) -->
+    <section id="gift-voice" class="voice-section fade-in-up hidden" style="--delay: 0.3s">
+      <!-- Diisi oleh player.js -->
+    </section>
+
+
+    <!-- FLOATING BRAND BADGE -->
+    <a href="/studio/" class="watermark-badge" target="_blank" title="Buat gift-mu di For you, Always.">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined scale-75" style="font-variation-settings: 'FILL' 1, 'wght' 700;">
+          diamond
+        </span>
+        <span class="font-bold uppercase tracking-widest text-xs opacity-90">
+          FOR YOU, ALWAYS
+        </span>
+      </div>
+    </a>
+
+    <!-- Scripts -->
+    <script src="js/player.js"></script>
+    <script src="js/gallery.js"></script>
+    <script src="js/gift.js"></script>
+
+</body>
+
+</html>

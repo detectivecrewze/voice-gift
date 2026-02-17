@@ -1,0 +1,8 @@
+# Cloudflare Pages _redirects
+# File ini wajib ada agar routing /studio/* dan /gift/* berfungsi
+
+# Studio Editor — semua URL /studio/* diarahkan ke studio/index.html
+/studio/*  /studio/index.html  200
+
+# Gift Page — semua URL /gift/* diarahkan ke gift/index.html
+/gift/*    /gift/index.html    200

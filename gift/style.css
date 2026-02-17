@@ -1,0 +1,609 @@
+/* ============================================================
+   For you, Always. — Infinite Memoir (Beige Kelam)
+   ============================================================ */
+
+:root {
+  --font-display: 'Cormorant Garamond', serif;
+  --font-sans: 'DM Sans', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --noise-opacity: 0.08;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+html,
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Mesh Gradient Background (Beige Kelam) ── */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  position: relative;
+  transition: background 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--mesh);
+}
+
+/* Texture Overlay (Analog Grain) */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Ffilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: var(--noise-opacity);
+  pointer-events: none;
+}
+
+/* ── Theme Definitions (Muted & Warm) ── */
+[data-theme="rose"] {
+  --bg: #2a1b1b;
+  --surface: rgba(234, 218, 202, 0.08);
+  --primary: #c4867d;
+  --accent: #8b5a53;
+  --text: #e8dbcf;
+  --text-muted: #b09c8d;
+  --border: rgba(196, 134, 125, 0.2);
+  --mesh: radial-gradient(at 0% 0%, #3d2b27 0px, transparent 50%),
+    radial-gradient(at 100% 0%, #2a1b1b 0px, transparent 50%),
+    radial-gradient(at 100% 100%, #1e1414 0px, transparent 50%),
+    radial-gradient(at 0% 100%, #362823 0px, transparent 50%);
+}
+
+[data-theme="gold"],
+:root {
+  --bg: #262118;
+  --surface: rgba(230, 215, 180, 0.08);
+  --primary: #d4ae6a;
+  --accent: #9c7b45;
+  --text: #e6d7b4;
+  --text-muted: #b5a17e;
+  --border: rgba(212, 174, 106, 0.2);
+  --mesh: radial-gradient(at 0% 0%, #3b3123 0px, transparent 50%),
+    radial-gradient(at 100% 0%, #262118 0px, transparent 50%),
+    radial-gradient(at 100% 100%, #1a1610 0px, transparent 50%),
+    radial-gradient(at 0% 100%, #332b1f 0px, transparent 50%);
+}
+
+[data-theme="midnight"] {
+  --bg: #1a1b26;
+  --surface: rgba(160, 170, 200, 0.08);
+  --primary: #8fa1c4;
+  --accent: #5d6d8c;
+  --text: #d0d7e6;
+  --text-muted: #9ba6bf;
+  --border: rgba(143, 161, 196, 0.2);
+  --mesh: radial-gradient(at 0% 0%, #262a36 0px, transparent 50%),
+    radial-gradient(at 100% 0%, #1a1b26 0px, transparent 50%),
+    radial-gradient(at 100% 100%, #12121a 0px, transparent 50%),
+    radial-gradient(at 0% 100%, #222431 0px, transparent 50%);
+}
+
+#state-gift {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.voice-section {
+  width: 100%;
+  max-width: 380px;
+  /* Downsized from 480 */
+  perspective: 2500px;
+}
+
+/* ── The Memoir Station (V3 - Precision Edition) ── */
+.music-box-container {
+  position: relative;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(35, 32, 28, 0.8), rgba(20, 18, 15, 0.95)),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.05'/%3E%3C/svg%3E");
+  backdrop-filter: blur(50px);
+  -webkit-backdrop-filter: blur(50px);
+
+  /* Double Trim Border */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  outline: 1px solid rgba(212, 174, 106, 0.15);
+  outline-offset: -8px;
+
+  border-radius: 56px;
+  padding: 85px 24px 110px;
+  /* Adjusted padding after removing text brand */
+  box-shadow:
+    0 80px 160px -40px rgba(0, 0, 0, 0.9),
+    inset 0 1px 2px rgba(255, 255, 255, 0.05);
+  text-align: center;
+  overflow: hidden;
+}
+
+/* Metallic Nameplate Badge (Simplified) */
+.console-plate {
+  position: absolute;
+  top: 45px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 6px;
+  background: linear-gradient(135deg, #2a2825, #1a1815);
+  border: 1px solid rgba(212, 174, 106, 0.4);
+  border-radius: 20px;
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+/* Mechanical Corner Screws */
+.console-screw {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: radial-gradient(circle at 30% 30%, #555, #222);
+  border-radius: 50%;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  z-index: 5;
+}
+
+.console-screw::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 2px;
+  background: #111;
+  border-radius: 1px;
+}
+
+.top-left {
+  top: 25px;
+  left: 25px;
+  transform: rotate(45deg);
+}
+
+.top-right {
+  top: 25px;
+  right: 25px;
+  transform: rotate(-45deg);
+}
+
+.bottom-left {
+  bottom: 25px;
+  left: 25px;
+  transform: rotate(-15deg);
+}
+
+.bottom-right {
+  bottom: 25px;
+  right: 25px;
+  transform: rotate(30deg);
+}
+
+/* Photo Styling (Clean Version) */
+.printer-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+  filter: sepia(0.1) contrast(1.1);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── The Lens Viewport (240px) ── */
+.printer-viewport {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  margin: 0 auto 30px;
+  background: #080706;
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 12px rgba(0, 0, 0, 0.5),
+    inset 0 0 60px rgba(0, 0, 0, 1);
+  display: flex;
+  align-items: center;
+}
+
+.printer-viewport::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.4) 100%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Dynamic Light Leaks (Analog Flicker) */
+.light-leak-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 70% 30%,
+      rgba(255, 120, 30, 0.15) 0%,
+      rgba(255, 60, 0, 0.05) 50%,
+      transparent 100%);
+  mix-blend-mode: color-dodge;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 15;
+  transition: opacity 0.3s ease;
+}
+
+.is-cranking .light-leak-overlay {
+  opacity: 1;
+  animation: light-leak-flicker 0.4s steps(4) infinite;
+}
+
+@keyframes light-leak-flicker {
+
+  0%,
+  100% {
+    background-position: 0% 0%;
+    filter: hue-rotate(0deg) brightness(1);
+  }
+
+  25% {
+    background-position: 10% 20%;
+    filter: hue-rotate(15deg) brightness(1.2);
+    opacity: 0.8;
+  }
+
+  50% {
+    background-position: -5% 10%;
+    filter: hue-rotate(-10deg) brightness(1.1);
+    opacity: 1;
+  }
+
+  75% {
+    background-position: 20% -10%;
+    filter: hue-rotate(5deg) brightness(1.3);
+    opacity: 0.9;
+  }
+}
+
+/* Metallic Printer Slot (Right Side) */
+.printer-slot {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 12px;
+  height: 100%;
+  background: linear-gradient(to right,
+      rgba(0, 0, 0, 0.9) 0%,
+      #333 30%,
+      #111 60%,
+      rgba(0, 0, 0, 0.9) 100%);
+  z-index: 20;
+  box-shadow:
+    -2px 0 10px rgba(0, 0, 0, 0.8),
+    inset 2px 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.printer-tray {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+}
+
+.printer-photo {
+  flex-shrink: 0;
+  width: 240px;
+  height: 100%;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.printer-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.is-cranking .printer-photo img {
+  transform: scale(1.03) rotate(0.4deg);
+}
+
+/* ── Recessed Brass Crank (Mechanically Low) ── */
+.music-box-crank-area {
+  position: absolute;
+  bottom: -40px;
+  /* Lowered Significantly */
+  left: 0;
+  width: 100%;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 30;
+}
+
+.crank-handle-wrapper {
+  position: relative;
+  width: 140px;
+  /* Reduced from 180 */
+  height: 90px;
+  /* Reduced from 110 */
+  cursor: grab;
+  touch-action: none;
+}
+
+/* 3D Circular Recess Pit (Downsized) */
+.crank-base {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  /* Reduced from 54 */
+  height: 40px;
+  background: #0a0a09;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 3px 8px rgba(0, 0, 0, 0.8),
+    inset 0 -1px 3px rgba(255, 255, 255, 0.05),
+    0 0 0 2px rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(109, 93, 77, 0.25);
+}
+
+/* Polished Metal Arm (Downsized) */
+.crank-arm {
+  position: absolute;
+  top: 25px;
+  /* Center of the 40px base (5px top + 20px radius) */
+  left: 50%;
+  width: 8px;
+  /* Reduced from 12 */
+  height: 45px;
+  /* Reduced from 60 */
+  background: linear-gradient(to right, #6d5d4d 0%, #d4ae6a 50%, #6d5d4d 100%);
+  border-radius: 4px;
+  transform-origin: center 0px;
+  box-shadow:
+    -2px 4px 10px rgba(0, 0, 0, 0.4),
+    inset 1px 0 1px rgba(255, 255, 255, 0.2);
+  z-index: 10;
+}
+
+/* Pivot Head (Mechanical Joint) */
+.crank-arm::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  /* Reduced from 20 */
+  height: 14px;
+  background: radial-gradient(circle at 30% 30%, #fff 0%, #9c7b45 100%);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Antique Ivory Knob (Downsized) */
+.crank-knob {
+  position: absolute;
+  bottom: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  /* Reduced from 36 */
+  height: 26px;
+  background: radial-gradient(circle at 35% 35%, #fffefc 0%, #f4eee0 40%, #d1c1a5 100%);
+  border-radius: 50%;
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.6),
+    inset -3px -3px 8px rgba(0, 0, 0, 0.3),
+    inset 1px 1px 4px rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.is-cranking .crank-knob {
+  box-shadow:
+    0 4px 15px var(--primary),
+    0 10px 30px rgba(0, 0, 0, 0.7);
+}
+
+/* Mechanical Jitter Animation */
+@keyframes mechanical-jitter {
+  0% {
+    transform: translate(0, 0) rotate(0);
+  }
+
+  25% {
+    transform: translate(0.5px, -0.5px) rotate(0.1deg);
+  }
+
+  50% {
+    transform: translate(-0.5px, 0.5px) rotate(-0.1deg);
+  }
+
+  75% {
+    transform: translate(0.5px, 0.5px) rotate(0.05deg);
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(0);
+  }
+}
+
+.is-cranking .printer-viewport {
+  animation: mechanical-jitter 0.15s linear infinite;
+}
+
+/* ── Waveform (Tight) ── */
+.music-box-waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 36px;
+  margin-bottom: 20px;
+}
+
+.waveform-bar {
+  width: 3px;
+  height: 15%;
+  background: var(--primary);
+  border-radius: 4px;
+  opacity: 0.1;
+  transition: height 0.4s ease, opacity 0.4s ease;
+}
+
+/* ── Mobile Overrides ── */
+@media (max-width: 420px) {
+  #state-gift {
+    padding: 20px 10px;
+  }
+
+  .voice-section {
+    max-width: 320px;
+  }
+
+  .music-box-container {
+    border-radius: 44px;
+    padding: 40px 20px 110px;
+  }
+
+  .printer-viewport,
+  .printer-photo {
+    width: 200px;
+    /* Scale down viewport for small phones */
+    height: 200px;
+  }
+
+  .music-box-crank-area {
+    height: 120px;
+  }
+
+  .crank-handle-wrapper {
+    width: 140px;
+  }
+
+  .crank-arm {
+    height: 45px;
+  }
+
+  .watermark-badge {
+    bottom: 25px;
+    padding: 10px 20px;
+    font-size: 0.6rem;
+    width: 80%;
+    text-align: center;
+  }
+}
+
+/* ── Alignment Utilities (Restored) ── */
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-xs {
+  font-size: 0.65rem;
+}
+
+.music-box-timer {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  opacity: 0.4;
+}
+
+.watermark-badge {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  background: rgba(20, 18, 15, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 174, 106, 0.2);
+  border-radius: 40px;
+  padding: 8px 18px;
+  color: var(--primary);
+  text-decoration: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.watermark-badge:hover {
+  background: rgba(212, 174, 106, 0.1);
+  border-color: rgba(212, 174, 106, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Fullscreen Center ── */
+.fullscreen-center {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+.loading-spinner {
+  width: 70px;
+  height: 70px;
+  border: 2px solid rgba(255, 255, 255, 0.03);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

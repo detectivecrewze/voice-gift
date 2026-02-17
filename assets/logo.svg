@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" fill="none">
+  <!-- Placeholder logo "For you, Always." -->
+  <!-- TODO: Ganti dengan logo asli yang sudah didesain -->
+  <text
+    x="8"
+    y="28"
+    font-family="Cormorant Garamond, Georgia, serif"
+    font-size="22"
+    font-style="italic"
+    fill="#e11d48"
+  >For you, Always.</text>
+</svg>
