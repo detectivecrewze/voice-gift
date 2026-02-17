@@ -70,46 +70,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const API_BASE_URL = 'https://valentine-upload.aldoramadhan16.workers.dev';
 
-        // Initial state - MATCHING STUDIO STATE EXACTLY
+        // Initial state - REVISED: Include mandatory IDs and default values
         const initialState = {
+            studioToken: finalId,
+            giftId: finalId,
             occasion: 'romantic',
             theme: 'rose',
-            recipientName: '',
+            recipientName: 'Someone Special',
             message: '',
             photos: [],
             voiceNote: { url: null, duration: null, mimeType: null },
             studioPassword: studioPass || null,
-            password: null, // Gift password (not studio password)
+            password: null,
             status: 'draft',
             createdAt: new Date().toISOString()
         };
 
         try {
-            console.log(`[Generator] Initializing project: ${finalId}`);
-
+            console.log(`[Generator] Creating Project: ${finalId}`);
             const response = await fetch(`${API_BASE_URL}/save-config?id=${finalId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(initialState)
             });
 
-            if (!response.ok) {
-                console.error('[Generator] Server Error:', response.status);
+            if (response.ok) {
+                const res = await response.json();
+                console.log('[Generator] Success:', res);
             } else {
-                const resData = await response.json();
-                console.log('[Generator] Record created successfully:', resData);
+                console.warn('[Generator] Save returned non-ok:', response.status);
             }
         } catch (err) {
-            console.error('[Generator] Persistence failed:', err);
+            console.error('[Generator] Critical save error:', err);
         }
 
-        // Final redirect (Success or Fail)
-        // We add a tiny delay to ensure KV propagation for Telegram & Cross-browser logic
+        // Delay to ensure KV propagation & Telegram sempat terkirim 
         setTimeout(() => {
             let url = `../studio/index.html?token=${finalId}`;
             if (studioPass) url += `&pass=${encodeURIComponent(studioPass)}`;
             window.location.href = url;
-        }, 500);
+        }, 600);
     });
 
     // 2. Access Existing Project
