@@ -100,7 +100,7 @@
         <h1 class="text-5xl italic-title mb-2">Studio Curator</h1>
         <p class="text-[10px] uppercase tracking-[0.4em] text-gray-400 mb-16">Rangkai Kisah Abadi</p>
 
-        <!-- PASSWORD GATE -->
+        <!-- ── PASSWORD GATE (ACCESS TO GENERATOR) ── -->
         <div id="password-gate" class="glass-panel p-10 space-y-6">
             <h2 class="text-xl italic-title">Locked Access</h2>
             <p class="text-[10px] uppercase tracking-widest text-gray-400">Masukkan Password Admin</p>
@@ -110,31 +110,47 @@
             <p id="gate-error" class="text-[9px] text-red-400 hidden">Password Salah</p>
         </div>
 
-        <!-- MAIN CONTENT (Hidden by default) -->
-        <div id="main-content" class="glass-panel p-10 space-y-8 hidden">
-            <div id="setup-step-1" class="space-y-6">
-                <p class="text-[11px] text-gray-500 uppercase tracking-widest mb-6">Mulai Project Baru</p>
+        <!-- ── MAIN CONTENT (GENERATOR) ── -->
+        <div id="main-content" class="hidden space-y-8">
+            <!-- 1. Create Project -->
+            <div class="glass-panel p-10 space-y-8">
+                <p class="text-[11px] text-gray-500 uppercase tracking-widest mb-4">Mulai Project Baru</p>
 
-                <div class="space-y-2">
-                    <input id="input-new-token" type="text" placeholder="Pilih Nama Project (Contoh: kado-mita)"
-                        class="w-full text-center text-sm border-b border-gray-100 bg-transparent py-3 focus:outline-none focus:border-black transition-all placeholder:text-gray-300">
-                    <p class="text-[9px] text-gray-300 italic">Kosongkan untuk nama acak</p>
+                <div class="space-y-6">
+                    <div class="space-y-2 text-left">
+                        <label class="text-[9px] uppercase tracking-widest text-gray-300 block ml-1">Nama Project
+                            (Slug)</label>
+                        <input id="input-new-token" type="text" placeholder="kado-mita (opsional)"
+                            class="w-full text-center text-sm border-b border-gray-100 bg-transparent py-3 focus:outline-none focus:border-black transition-all placeholder:text-gray-200">
+                    </div>
+
+                    <div class="space-y-2 text-left">
+                        <label class="text-[9px] uppercase tracking-widest text-gray-300 block ml-1">Studio Password
+                            (Opsional)</label>
+                        <input id="input-studio-pass" type="password" placeholder="••••••••"
+                            class="w-full text-center text-sm border-b border-gray-100 bg-transparent py-3 focus:outline-none focus:border-black transition-all placeholder:text-gray-200">
+                        <p class="text-[8px] text-gray-300 italic mt-1 ml-1 leading-tight">Password ini akan digunakan
+                            pelanggan untuk mengakses editor Studio mereka.</p>
+                    </div>
                 </div>
 
-                <button id="btn-create" class="btn-premium w-full shadow-lg">
+                <button id="btn-create" class="btn-premium w-full shadow-lg mt-4">
                     Buat Project Sekarang
                 </button>
             </div>
 
+            <!-- Divider -->
             <div class="relative py-4">
                 <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-gray-100"></span>
                 </div>
-                <div class="relative flex justify-center"><span
-                        class="bg-[#fcfaf7] px-4 text-[9px] text-gray-300 uppercase tracking-widest">Atau
-                        Lanjutkan</span></div>
+                <div class="relative flex justify-center">
+                    <span class="bg-[#fcfaf7] px-4 text-[9px] text-gray-300 uppercase tracking-widest">Atau
+                        Lanjutkan</span>
+                </div>
             </div>
 
-            <form id="form-access" class="space-y-4">
+            <!-- 2. Access Project -->
+            <form id="form-access" class="glass-panel p-10 space-y-4">
                 <input id="input-token" type="text" placeholder="Masukkan Kode Project..."
                     class="w-full text-center text-sm border-b border-gray-200 bg-transparent py-3 focus:outline-none focus:border-black transition-all placeholder:text-gray-300">
                 <button type="submit"
@@ -143,9 +159,9 @@
                 </button>
             </form>
         </div>
-    </div> <!-- End of main-content -->
 
-    <p class="mt-12 text-[9px] text-gray-300 uppercase tracking-[0.2em]">© 2026 For You Always</p>
+        <!-- Footer -->
+        <p class="mt-12 text-[9px] text-gray-300 uppercase tracking-[0.2em]">© 2026 For You Always</p>
     </div>
 
     <script src="generator.js"></script>

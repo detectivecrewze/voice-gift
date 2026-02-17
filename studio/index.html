@@ -57,6 +57,24 @@
       <a id="published-gift-link" href="#" class="btn-premium inline-block">Lihat Hasil</a>
     </div>
   </div>
+
+  <!-- Studio Password Gate -->
+  <div id="state-auth" class="hidden fixed inset-0 z-[300] flex items-center justify-center p-6">
+    <div class="absolute inset-0 bg-white/95 backdrop-blur-md"></div>
+    <div class="relative max-w-sm w-full text-center">
+      <h2 class="text-3xl text-serif italic mb-2">Restricted Studio</h2>
+      <p class="text-[10px] uppercase tracking-[0.3em] text-gray-400 mb-12">Project ini dilindungi password</p>
+
+      <div class="mb-12">
+        <input id="studio-pass-input" type="password" placeholder="••••••••"
+          class="w-full text-center text-sm border-b border-gray-100 bg-transparent py-3 focus:outline-none focus:border-black transition-all placeholder:text-gray-200"
+          autocomplete="off" />
+        <p id="studio-pass-error" class="text-[9px] text-rose-500 mt-2 hidden">Password salah.</p>
+      </div>
+
+      <button id="btn-unlock-studio" class="btn-premium w-full shadow-lg">Buka Editor</button>
+    </div>
+  </div>
   <!-- Main Studio -->
   <main id="state-studio" class="hidden">
 

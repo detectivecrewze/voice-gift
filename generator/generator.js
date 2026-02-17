@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Create New Project
     btnCreate?.addEventListener('click', () => {
         const customName = document.getElementById('input-new-token')?.value.trim();
+        const studioPass = document.getElementById('input-studio-pass')?.value.trim();
         let finalId = '';
 
         if (customName) {
@@ -67,7 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btnCreate.style.opacity = '0.5';
 
         setTimeout(() => {
-            window.location.href = `../studio/index.html?token=${finalId}`;
+            // Pass token and optional password to studio
+            let url = `../studio/index.html?token=${finalId}`;
+            if (studioPass) url += `&pass=${encodeURIComponent(studioPass)}`;
+            window.location.href = url;
         }, 800);
     });
 

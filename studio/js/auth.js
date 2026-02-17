@@ -54,9 +54,32 @@ const Auth = (() => {
 
   // Tampilkan satu state, sembunyikan lainnya
   const showState = (stateId) => {
-    ['state-loading', 'state-error', 'state-published', 'state-studio'].forEach(id => {
+    ['state-loading', 'state-error', 'state-published', 'state-auth', 'state-studio'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.classList.toggle('hidden', id !== stateId);
+    });
+  };
+
+  // ── Password Gate Helpers ─────────────────────────────────
+  const _setupStudioAuth = (correctPass) => {
+    const input = document.getElementById('studio-pass-input');
+    const btn = document.getElementById('btn-unlock-studio');
+    const errorMsg = document.getElementById('studio-pass-error');
+
+    const tryUnlock = () => {
+      if (input.value === correctPass) {
+        sessionStorage.setItem(`auth_${_studioToken}`, 'true');
+        showState('state-studio');
+      } else {
+        errorMsg.classList.remove('hidden');
+        input.classList.add('shake');
+        setTimeout(() => input.classList.remove('shake'), 400);
+      }
+    };
+
+    btn?.addEventListener('click', tryUnlock);
+    input?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') tryUnlock();
     });
   };
 
@@ -65,10 +88,11 @@ const Auth = (() => {
     showState('state-loading');
 
     _studioToken = getTokenFromUrl();
+    const urlParams = new URLSearchParams(window.location.search);
+    const passFromUrl = urlParams.get('pass');
 
     // Jika dipaksa pakai mock mode via query ?mock=true
-    const isMock = new URLSearchParams(window.location.search).get('mock') === 'true';
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+    const isMock = urlParams.get('mock') === 'true';
 
     // Jika tidak ada token, dan bukan mode paksa mock -> Gagal (studio.js akan handle redirect)
     if (!_studioToken && !isMock) {
@@ -78,23 +102,16 @@ const Auth = (() => {
 
     try {
       if (isMock || _studioToken === 'mock') {
-        console.log('[Auth] Entering MOCK MODE');
         const data = _getMockState();
         _initialConfig = data.studio;
         showState('state-studio');
         return true;
       }
 
-      // HARDCODED FIX: Bypass APP_CONFIG cache issues
       const API_BASE_URL = 'https://valentine-upload.aldoramadhan16.workers.dev';
-      console.log(`[Auth] Validating token: ${_studioToken} at ${API_BASE_URL}`);
-
-      // VALENTINE API COMPATIBILITY: Use /get-config?id=...
       const response = await fetch(`${API_BASE_URL}/get-config?id=${_studioToken}`);
 
-      // Jika fetch gagal (e.g. server mati saat dev), tawarkan mock mode otomatis
       if (!response.ok && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-        console.warn('[Auth] Server unreachable, falling back to MOCK MODE for dev');
         _initialConfig = _getMockState().studio;
         showState('state-studio');
         return true;
@@ -102,38 +119,58 @@ const Auth = (() => {
 
       const data = await response.json();
 
-      // Valentine API returns data directly, or { error: ... }
-      // If data is null/empty, it might mean token not found or new studio
-      if (!data || data.error) {
-        console.error('[Auth] Validation failed:', data?.error || 'Token not found');
-        showState('state-error');
-        return false;
-      }
+      // Case 1: Token Found
+      if (data && !data.error) {
 
-      // Gift sudah dipublish — tidak bisa diedit lagi
-      if (data.status === 'published' && data.giftUrl) {
-        const link = document.getElementById('published-gift-link');
-        if (link) link.href = data.giftUrl;
-        showState('state-published');
-        return false;
-      }
+        // Cek apakah sudah dipublish
+        if (data.status === 'published' && data.giftUrl) {
+          const link = document.getElementById('published-gift-link');
+          if (link) link.href = data.giftUrl;
+          showState('state-published');
+          return false;
+        }
 
-      // Sukses — simpan config untuk dipakai module lain
-      _initialConfig = data;
-      showState('state-studio');
-      return true;
+        // 🛡️ SECURITY: Cek Password Studio
+        if (data.studioPassword) {
+          const isAuthed = sessionStorage.getItem(`auth_${_studioToken}`) === 'true';
 
-    } catch (err) {
-      console.error('[Auth] Error validating token:', err);
+          // Jika ada info password dari URL (Creation Flow), auto-auth
+          if (passFromUrl === data.studioPassword) {
+            sessionStorage.setItem(`auth_${_studioToken}`, 'true');
+          } else if (!isAuthed) {
+            _setupStudioAuth(data.studioPassword);
+            showState('state-auth');
+            return true; // Return true but state is auth
+          }
+        }
 
-      // Autodetect dev environment untuk mock fallback
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') {
-        console.warn('[Auth] Fetch failed, providing Mock Data fallback for local testing.');
-        _initialConfig = _getMockState().studio;
+        _initialConfig = data;
         showState('state-studio');
         return true;
       }
 
+      // Case 2: Token Not Found / New Project
+      else {
+        console.log('[Auth] New project detected or token not found.');
+
+        // Jika ini project baru dengan password di URL, inisialisasi password
+        _initialConfig = _getMockState().studio;
+        if (passFromUrl) {
+          _initialConfig.studioPassword = passFromUrl;
+          sessionStorage.setItem(`auth_${_studioToken}`, 'true');
+        }
+
+        showState('state-studio');
+        return true;
+      }
+
+    } catch (err) {
+      console.error('[Auth] Error validating token:', err);
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        _initialConfig = _getMockState().studio;
+        showState('state-studio');
+        return true;
+      }
       showState('state-error');
       return false;
     }
