@@ -77,8 +77,8 @@ const Studio = (() => {
       // trigger save pertama kali agar password gate aktif di device lain.
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('pass') && state.studioPassword === urlParams.get('pass')) {
-        console.log('[Studio] New password-protected project detected. Persisting security...');
-        _triggerSaveAndPreview();
+        console.log('[Studio] New password-protected project detected. Persisting security immediately...');
+        Autosave.saveNow(state); // Bypassing debounce to ensure security is locked in KV
       }
 
       // Setup Preview Iframe and Events

@@ -65,6 +65,6 @@ const Autosave = (() => {
     }
   };
 
-  return { trigger };
+  return { trigger, saveNow: _save };
 
 })();
