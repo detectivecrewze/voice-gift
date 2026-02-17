@@ -30,8 +30,8 @@ const _getMockData = (id) => {
         message: 'Selamat hari jadi yang ke-1! Terima kasih sudah selalu ada di sampingku. Ini adalah sedikit kenangan yang aku kumpulin buat kamu. Love you always! ✨',
         theme: 'rose',
         voiceNote: {
-          url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', // Audio demo
-          duration: 30
+          url: '/assets/The 1975 - About You (Official).mp3', // Audio default dari assets
+          duration: 300 // Estimasi 5 menit
         },
         photos: [
           { id: 1, url: '../assets/1.jpg', order: 1 },
