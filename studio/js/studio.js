@@ -72,15 +72,6 @@ const Studio = (() => {
       VoiceRecorder.init(state.voiceNote);
       Publisher.init();
 
-      // SETUP SECURITY PERSISTENCE
-      // Jika ini project baru (punya studioPassword tapi belum masuk KV), 
-      // trigger save pertama kali agar password gate aktif di device lain.
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('pass') && state.studioPassword === urlParams.get('pass')) {
-        console.log('[Studio] New password-protected project detected. Persisting security immediately...');
-        Autosave.saveNow(state); // Bypassing debounce to ensure security is locked in KV
-      }
-
       // Setup Preview Iframe and Events
       Preview.update(state);
 

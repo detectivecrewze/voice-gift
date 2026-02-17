@@ -63,16 +63,43 @@ document.addEventListener('DOMContentLoaded', () => {
             finalId = 'project-' + Math.random().toString(36).substr(2, 6);
         }
 
-        // Premium transition effect (optional)
+        // ── INITIAL PERSISTENCE ──────────────────────────────
         btnCreate.innerText = 'Mempersiapkan...';
         btnCreate.style.opacity = '0.5';
 
-        setTimeout(() => {
-            // Pass token and optional password to studio
-            let url = `../studio/index.html?token=${finalId}`;
-            if (studioPass) url += `&pass=${encodeURIComponent(studioPass)}`;
-            window.location.href = url;
-        }, 800);
+        const API_BASE_URL = 'https://valentine-upload.aldoramadhan16.workers.dev';
+
+        // Initial state
+        const initialState = {
+            occasion: 'romantic',
+            theme: 'rose',
+            recipientName: '',
+            message: '',
+            photos: [],
+            voiceNote: { url: null, duration: null, mimeType: null },
+            studioPassword: studioPass || null,
+            status: 'draft',
+            createdAt: new Date().toISOString()
+        };
+
+        // Save to KV immediately
+        fetch(`${API_BASE_URL}/save-config?id=${finalId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(initialState)
+        })
+            .then(() => {
+                // Success or fail, we still redirect so user can try again in Studio
+                // But usually this ensures the Telegram bot fires.
+                let url = `../studio/index.html?token=${finalId}`;
+                if (studioPass) url += `&pass=${encodeURIComponent(studioPass)}`;
+                window.location.href = url;
+            })
+            .catch(err => {
+                console.error('[Generator] Persistence failed:', err);
+                // Fallback to redirect anyway
+                window.location.href = `../studio/index.html?token=${finalId}${studioPass ? '&pass=' + encodeURIComponent(studioPass) : ''}`;
+            });
     });
 
     // 2. Access Existing Project
