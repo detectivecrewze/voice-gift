@@ -73,17 +73,18 @@ body::after {
 
 [data-theme="gold"],
 :root {
-  --bg: #262118;
-  --surface: rgba(230, 215, 180, 0.08);
+  --bg: #4a3c31;
+  /* Lighter warm brown (Mocha) */
+  --surface: rgba(230, 215, 180, 0.1);
   --primary: #d4ae6a;
   --accent: #9c7b45;
   --text: #e6d7b4;
   --text-muted: #b5a17e;
   --border: rgba(212, 174, 106, 0.2);
-  --mesh: radial-gradient(at 0% 0%, #3b3123 0px, transparent 50%),
-    radial-gradient(at 100% 0%, #262118 0px, transparent 50%),
-    radial-gradient(at 100% 100%, #1a1610 0px, transparent 50%),
-    radial-gradient(at 0% 100%, #332b1f 0px, transparent 50%);
+  --mesh: radial-gradient(at 0% 0%, #5e4b3e 0px, transparent 50%),
+    radial-gradient(at 100% 0%, #4a3c31 0px, transparent 50%),
+    radial-gradient(at 100% 100%, #362823 0px, transparent 50%),
+    radial-gradient(at 0% 100%, #544438 0px, transparent 50%);
 }
 
 [data-theme="midnight"] {
@@ -119,7 +120,7 @@ body::after {
 .music-box-container {
   position: relative;
   background:
-    radial-gradient(circle at 50% 50%, rgba(35, 32, 28, 0.8), rgba(20, 18, 15, 0.95)),
+    radial-gradient(circle at 50% 50%, rgba(70, 60, 50, 0.9), rgba(40, 32, 25, 0.95)),
     url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.05'/%3E%3C/svg%3E");
   backdrop-filter: blur(50px);
   -webkit-backdrop-filter: blur(50px);
