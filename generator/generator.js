@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
 
     // 1. Create New Project
-    btnCreate?.addEventListener('click', () => {
+    btnCreate?.addEventListener('click', async () => {
         const customName = document.getElementById('input-new-token')?.value.trim();
         const studioPass = document.getElementById('input-studio-pass')?.value.trim();
         let finalId = '';
@@ -64,12 +64,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // ── INITIAL PERSISTENCE ──────────────────────────────
-        btnCreate.innerText = 'Mempersiapkan...';
+        btnCreate.innerText = 'Menyimpan...';
         btnCreate.style.opacity = '0.5';
+        btnCreate.disabled = true;
 
         const API_BASE_URL = 'https://valentine-upload.aldoramadhan16.workers.dev';
 
-        // Initial state
+        // Initial state - MATCHING STUDIO STATE EXACTLY
         const initialState = {
             occasion: 'romantic',
             theme: 'rose',
@@ -78,28 +79,37 @@ document.addEventListener('DOMContentLoaded', () => {
             photos: [],
             voiceNote: { url: null, duration: null, mimeType: null },
             studioPassword: studioPass || null,
+            password: null, // Gift password (not studio password)
             status: 'draft',
             createdAt: new Date().toISOString()
         };
 
-        // Save to KV immediately
-        fetch(`${API_BASE_URL}/save-config?id=${finalId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(initialState)
-        })
-            .then(() => {
-                // Success or fail, we still redirect so user can try again in Studio
-                // But usually this ensures the Telegram bot fires.
-                let url = `../studio/index.html?token=${finalId}`;
-                if (studioPass) url += `&pass=${encodeURIComponent(studioPass)}`;
-                window.location.href = url;
-            })
-            .catch(err => {
-                console.error('[Generator] Persistence failed:', err);
-                // Fallback to redirect anyway
-                window.location.href = `../studio/index.html?token=${finalId}${studioPass ? '&pass=' + encodeURIComponent(studioPass) : ''}`;
+        try {
+            console.log(`[Generator] Initializing project: ${finalId}`);
+
+            const response = await fetch(`${API_BASE_URL}/save-config?id=${finalId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(initialState)
             });
+
+            if (!response.ok) {
+                console.error('[Generator] Server Error:', response.status);
+            } else {
+                const resData = await response.json();
+                console.log('[Generator] Record created successfully:', resData);
+            }
+        } catch (err) {
+            console.error('[Generator] Persistence failed:', err);
+        }
+
+        // Final redirect (Success or Fail)
+        // We add a tiny delay to ensure KV propagation for Telegram & Cross-browser logic
+        setTimeout(() => {
+            let url = `../studio/index.html?token=${finalId}`;
+            if (studioPass) url += `&pass=${encodeURIComponent(studioPass)}`;
+            window.location.href = url;
+        }, 500);
     });
 
     // 2. Access Existing Project
