@@ -51,6 +51,7 @@ const Studio = (() => {
     photos: [],
     voiceNote: { url: null, duration: null, mimeType: null },
     password: null,
+    studioPassword: null,
   };
 
   // ── Init ─────────────────────────────────────────────────
@@ -62,7 +63,7 @@ const Studio = (() => {
       // Token valid -> Load config awal & setup editor
       const savedConfig = Auth.getInitialConfig();
       if (savedConfig) {
-        _state = { ...savedConfig };
+        _state = { ..._state, ...savedConfig };
       }
 
       // Init components
@@ -70,6 +71,15 @@ const Studio = (() => {
       Uploader.init(state.photos || []);
       VoiceRecorder.init(state.voiceNote);
       Publisher.init();
+
+      // SETUP SECURITY PERSISTENCE
+      // Jika ini project baru (punya studioPassword tapi belum masuk KV), 
+      // trigger save pertama kali agar password gate aktif di device lain.
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('pass') && state.studioPassword === urlParams.get('pass')) {
+        console.log('[Studio] New password-protected project detected. Persisting security...');
+        _triggerSaveAndPreview();
+      }
 
       // Setup Preview Iframe and Events
       Preview.update(state);
