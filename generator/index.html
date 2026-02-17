@@ -100,7 +100,18 @@
         <h1 class="text-5xl italic-title mb-2">Studio Curator</h1>
         <p class="text-[10px] uppercase tracking-[0.4em] text-gray-400 mb-16">Rangkai Kisah Abadi</p>
 
-        <div class="glass-panel p-10 space-y-8">
+        <!-- PASSWORD GATE -->
+        <div id="password-gate" class="glass-panel p-10 space-y-6">
+            <h2 class="text-xl italic-title">Locked Access</h2>
+            <p class="text-[10px] uppercase tracking-widest text-gray-400">Masukkan Password Admin</p>
+            <input id="input-gate-pass" type="password" placeholder="•••••"
+                class="w-full text-center text-sm border-b border-gray-200 bg-transparent py-3 focus:outline-none focus:border-black transition-all placeholder:text-gray-300">
+            <button id="btn-unlock-gate" class="btn-premium w-full shadow-lg">Buka Akses</button>
+            <p id="gate-error" class="text-[9px] text-red-400 hidden">Password Salah</p>
+        </div>
+
+        <!-- MAIN CONTENT (Hidden by default) -->
+        <div id="main-content" class="glass-panel p-10 space-y-8 hidden">
             <div id="setup-step-1" class="space-y-6">
                 <p class="text-[11px] text-gray-500 uppercase tracking-widest mb-6">Mulai Project Baru</p>
 
@@ -132,8 +143,9 @@
                 </button>
             </form>
         </div>
+    </div> <!-- End of main-content -->
 
-        <p class="mt-12 text-[9px] text-gray-300 uppercase tracking-[0.2em]">© 2026 For You Always</p>
+    <p class="mt-12 text-[9px] text-gray-300 uppercase tracking-[0.2em]">© 2026 For You Always</p>
     </div>
 
     <script src="generator.js"></script>

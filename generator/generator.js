@@ -8,6 +8,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const formAccess = document.getElementById('form-access');
     const inputToken = document.getElementById('input-token');
 
+    // ── Password Gate Logic ──────────────────────────────────
+    const gate = document.getElementById('password-gate');
+    const mainContent = document.getElementById('main-content');
+    const btnUnlock = document.getElementById('btn-unlock-gate');
+    const inputPass = document.getElementById('input-gate-pass');
+    const gateError = document.getElementById('gate-error');
+
+    const checkAuth = () => {
+        if (sessionStorage.getItem('generator_unlocked') === 'true') {
+            gate.classList.add('hidden');
+            mainContent.classList.remove('hidden');
+        }
+    };
+
+    const unlock = () => {
+        const pass = inputPass.value;
+        if (pass === '12345') {
+            sessionStorage.setItem('generator_unlocked', 'true');
+            gate.classList.add('hidden');
+            mainContent.classList.remove('hidden');
+        } else {
+            gateError.classList.remove('hidden');
+            inputPass.classList.add('border-red-400');
+            setTimeout(() => inputPass.classList.remove('border-red-400'), 2000);
+        }
+    };
+
+    btnUnlock?.addEventListener('click', unlock);
+    inputPass?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') unlock();
+    });
+
+    // Check on load
+    checkAuth();
+
     // 1. Create New Project
     btnCreate?.addEventListener('click', () => {
         const customName = document.getElementById('input-new-token')?.value.trim();
