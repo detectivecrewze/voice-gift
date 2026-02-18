@@ -718,7 +718,6 @@ body::after {
   outline: none;
   transition: all 0.5s ease;
   letter-spacing: 0.15em;
-  text-transform: uppercase;
 }
 
 .password-field::placeholder {
