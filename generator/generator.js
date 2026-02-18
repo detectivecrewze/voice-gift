@@ -107,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Delay to ensure KV propagation & Telegram sempat terkirim 
         setTimeout(() => {
             let url = `../studio/index.html?token=${finalId}`;
-            if (studioPass) url += `&pass=${encodeURIComponent(studioPass)}`;
             window.location.href = url;
         }, 600);
     });
