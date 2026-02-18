@@ -104,6 +104,12 @@ section {
   border-bottom-color: var(--accent);
 }
 
+.input-minimal[readonly] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-bottom-style: dashed;
+}
+
 /* ── Photo Gallery Grid ── */
 #photo-grid {
   display: grid;

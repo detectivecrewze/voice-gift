@@ -357,80 +357,88 @@ body::after {
   touch-action: none;
 }
 
-/* 3D Circular Recess Pit (Downsized) */
+/* 3D Circular Recess Pit - Deep Set */
 .crank-base {
   position: absolute;
   top: 5px;
   left: 50%;
   transform: translateX(-50%);
-  width: 40px;
-  /* Reduced from 54 */
-  height: 40px;
-  background: #0a0a09;
+  width: 36px;
+  height: 36px;
+  background: radial-gradient(circle at 50% 10%, #111 0%, #000 100%);
   border-radius: 50%;
   box-shadow:
-    inset 0 3px 8px rgba(0, 0, 0, 0.8),
-    inset 0 -1px 3px rgba(255, 255, 255, 0.05),
-    0 0 0 2px rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(109, 93, 77, 0.25);
+    inset 0 4px 8px rgba(0, 0, 0, 0.9),
+    0 0 0 3px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(212, 174, 106, 0.2);
 }
 
-/* Polished Metal Arm (Downsized) */
+/* Antique Slender Arm - "Panjang & Mancung" */
 .crank-arm {
   position: absolute;
-  top: 25px;
-  /* Center of the 40px base (5px top + 20px radius) */
+  top: 23px;
   left: 50%;
-  width: 8px;
-  /* Reduced from 12 */
+  width: 4px;
+  /* Very thin */
   height: 45px;
-  /* Reduced from 60 */
-  background: linear-gradient(to right, #6d5d4d 0%, #d4ae6a 50%, #6d5d4d 100%);
-  border-radius: 4px;
+  /* Slender arm */
+  background: linear-gradient(90deg, #8b7355 0%, #d4ae6a 50%, #8b7355 100%);
+  border-radius: 20px;
   transform-origin: center 0px;
-  box-shadow:
-    -2px 4px 10px rgba(0, 0, 0, 0.4),
-    inset 1px 0 1px rgba(255, 255, 255, 0.2);
+  box-shadow: -6px 12px 20px rgba(0, 0, 0, 0.5);
   z-index: 10;
 }
 
-/* Pivot Head (Mechanical Joint) */
+/* Mechanical Pivot */
 .crank-arm::before {
   content: '';
   position: absolute;
-  top: -6px;
+  top: -4px;
   left: 50%;
   transform: translateX(-50%);
-  width: 14px;
-  /* Reduced from 20 */
-  height: 14px;
-  background: radial-gradient(circle at 30% 30%, #fff 0%, #9c7b45 100%);
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle at 30% 30%, #fff 0%, #d4ae6a 100%);
   border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
 }
 
-/* Antique Ivory Knob (Downsized) */
+/* Pointy / Tapered Slender Knob */
 .crank-knob {
   position: absolute;
-  bottom: -13px;
+  bottom: -24px;
   left: 50%;
   transform: translateX(-50%);
-  width: 26px;
-  /* Reduced from 36 */
-  height: 26px;
-  background: radial-gradient(circle at 35% 35%, #fffefc 0%, #f4eee0 40%, #d1c1a5 100%);
-  border-radius: 50%;
+  width: 18px;
+  height: 32px;
+  /* Pointy handle */
+  background: linear-gradient(135deg, #fffefc 0%, #f4eee0 40%, #d1c1a5 100%);
+  border-radius: 40% 40% 50% 50% / 15% 15% 85% 85%;
+  /* Tapered shape */
   box-shadow:
-    0 10px 25px rgba(0, 0, 0, 0.6),
-    inset -3px -3px 8px rgba(0, 0, 0, 0.3),
-    inset 1px 1px 4px rgba(255, 255, 255, 0.8);
+    0 15px 30px rgba(0, 0, 0, 0.6),
+    inset -2px -10px 10px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Sharp Gloss Highlight for Knob */
+.crank-knob::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 20%;
+  width: 25%;
+  height: 25%;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  filter: blur(1px);
 }
 
 .is-cranking .crank-knob {
   box-shadow:
-    0 4px 15px var(--primary),
-    0 10px 30px rgba(0, 0, 0, 0.7);
+    0 0 20px var(--primary),
+    0 15px 40px rgba(0, 0, 0, 0.8);
+  transition: box-shadow 0.3s ease;
 }
 
 /* Mechanical Jitter Animation */
@@ -480,7 +488,7 @@ body::after {
 }
 
 /* ── Mobile Overrides ── */
-@media (max-width: 420px) {
+@media (max-width: 768px) {
   #state-gift {
     padding: 20px 10px;
   }
@@ -514,11 +522,7 @@ body::after {
   }
 
   .watermark-badge {
-    bottom: 25px;
-    padding: 10px 20px;
-    font-size: 0.6rem;
-    width: 80%;
-    text-align: center;
+    display: none !important;
   }
 }
 

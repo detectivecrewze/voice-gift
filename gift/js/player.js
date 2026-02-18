@@ -139,7 +139,7 @@ const VoicePlayer = (() => {
       const rect = handle.getBoundingClientRect();
       // Center of the 40px circular pit base
       const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + 45; // base.top (5px) + radius (20px) + shift (20px) = 45px
+      const centerY = rect.top + 23; // Matches new CSS center (top 5px + radius 18px)
 
       const clientX = (e.touches ? e.touches[0].clientX : e.clientX);
       const clientY = (e.touches ? e.touches[0].clientY : e.clientY);

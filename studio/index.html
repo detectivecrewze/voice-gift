@@ -225,14 +225,14 @@
   <div id="modal-name" class="hidden fixed inset-0 z-[300] flex items-center justify-center p-6">
     <div class="absolute inset-0 bg-white/95 backdrop-blur-md"></div>
     <div class="relative max-w-sm w-full">
-      <h2 class="text-3xl text-serif italic mb-2 text-center">Beri Nama Link Kado</h2>
+      <h2 class="text-3xl text-serif italic mb-2 text-center">Publikasikan Kado</h2>
       <p class="text-[10px] uppercase tracking-[0.3em] text-gray-400 mb-4 text-center text-balance leading-relaxed">
-        Pilih nama untuk link kado kamu</p>
-      <p class="text-[9px] text-gray-300 mb-12 text-center">(Contoh: untuk-mita, kado-aldo, dll)</p>
+        Kado akan dipublish dengan nama link berikut:</p>
+      <p class="text-[9px] text-gray-300 mb-12 text-center hidden">(Ditetapkan otomatis)</p>
 
       <div class="mb-12">
-        <input id="input-gift-name" type="text" placeholder="nama-kado-kamu" class="input-minimal text-center lowercase"
-          autocomplete="off" />
+        <input id="input-gift-name" type="text" readonly
+          class="input-minimal text-center lowercase pointer-events-none opacity-50" autocomplete="off" />
         <p id="name-error" class="text-[9px] text-rose-500 mt-2 text-center hidden">Gunakan huruf, angka, dan tanda
           hubung saja.</p>
       </div>
