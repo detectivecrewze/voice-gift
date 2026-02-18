@@ -37,14 +37,13 @@
 
     <!-- ============================================
     STATE: LOADING
-    Tampil saat gift.js sedang fetch config dari API
   ============================================ -->
     <div id="state-loading" class="fullscreen-center">
         <div class="loading-spinner"></div>
     </div>
 
     <!-- ============================================
-    STATE: ERROR (gift tidak ditemukan)
+    STATE: ERROR
   ============================================ -->
     <div id="state-error" class="fullscreen-center hidden">
         <div class="error-container">
@@ -55,35 +54,15 @@
     </div>
 
     <!-- ============================================
-    STATE: PASSWORD GATE
-    Tampil jika gift diproteksi password
-  ============================================ -->
-    <div id="state-password" class="fullscreen-center hidden">
-        <div class="password-card">
-            <span class="password-icon">🔒</span>
-            <h2 class="password-title">Ada hadiah yang menunggumu</h2>
-            <input id="password-input" type="text" placeholder="Masukkan password..." autocomplete="off"
-                class="password-field" />
-            <p id="password-error" class="password-error hidden">Password salah, coba lagi.</p>
-            <button id="btn-unlock" class="unlock-btn">
-                ❤️ Buka Hadiah
-            </button>
-            <p class="password-hint">Tidak tahu passwordnya? Tanya pengirimnya 😊</p>
-        </div>
-    </div>
-
-    <!-- ============================================
     STATE: GIFT PAGE (konten utama)
-    Dirender oleh gift.js setelah config berhasil dimuat
+    Root index.html difokuskan sebagai preview demo.
   ============================================ -->
     <div id="state-gift" class="hidden" data-theme="rose">
-
 
         <!-- VOICE NOTE SECTION (dirender oleh player.js jika ada) -->
         <section id="gift-voice" class="voice-section fade-in-up hidden" style="--delay: 0.3s">
             <!-- Diisi oleh player.js -->
         </section>
-
 
         <!-- FLOATING BRAND BADGE -->
         <a href="https://for-you-always.my.id" class="watermark-badge" target="_blank"
@@ -97,11 +76,12 @@
                 </span>
             </div>
         </a>
+    </div>
 
-        <!-- Scripts -->
-        <script src="gift/js/player.js"></script>
-        <script src="gift/js/gallery.js"></script>
-        <script src="gift/js/gift.js"></script>
+    <!-- Scripts -->
+    <script src="gift/js/player.js"></script>
+    <script src="gift/js/gallery.js"></script>
+    <script src="gift/js/gift.js"></script>
 
 </body>
 

@@ -77,7 +77,12 @@ const initGiftPage = async () => {
 
   // Jika tetap kosong, tampilkan Menu Akses
   if (!giftId) {
-    console.log('[Gift] No ID found, showing access menu.');
+    console.log('[Gift] No ID found, defaulting to demo for preview.');
+    giftId = 'demo';
+  }
+
+  // Jika tetap null (sudah diprotect di atas, tapi be safe), baru setup access UI
+  if (!giftId) {
     _setupAccessUI();
     showState('state-access');
     return;
@@ -171,6 +176,11 @@ const _setupPasswordGate = (giftId, partialGift) => {
   const input = document.getElementById('password-input');
   const btn = document.getElementById('btn-unlock');
   const errorMsg = document.getElementById('password-error');
+
+  if (!btn) {
+    console.error('[Gift] Password UI elements missing.');
+    return;
+  }
 
   const tryUnlock = async () => {
     const password = input?.value?.trim();
