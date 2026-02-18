@@ -54,7 +54,7 @@ const _getMockData = (id) => {
 
 // ── Init ──────────────────────────────────────────────────────
 const initGiftPage = async () => {
-  console.log('[Gift] Initializing...');
+  console.log('[Gift] Initializing Gift Page...');
   showState('state-loading');
 
   // Ambil giftId dari URL: prioritize ?to=[id] (gaya Valentine)
@@ -73,8 +73,11 @@ const initGiftPage = async () => {
     giftId = null;
   }
 
+  console.log('[Gift] Target ID:', giftId);
+
   // Jika tetap kosong, tampilkan Menu Akses
   if (!giftId) {
+    console.log('[Gift] No ID found, showing access menu.');
     _setupAccessUI();
     showState('state-access');
     return;
@@ -91,6 +94,7 @@ const _setupAccessUI = () => {
   const handleGo = () => {
     const id = input.value.trim().toLowerCase();
     if (id) {
+      console.log('[Gift] Navigating to ID:', id);
       // Update URL tanpa reload untuk UX yang lebih baik
       const newUrl = `${window.location.origin}${window.location.pathname}?to=${id}`;
       window.history.pushState({ path: newUrl }, '', newUrl);
@@ -106,45 +110,58 @@ const _setupAccessUI = () => {
 
 // ── Fetch & Route Logic ───────────────────────────────────────
 const _fetchAndRender = async (giftId) => {
+  console.log(`[Gift] Loading data for: ${giftId}`);
   showState('state-loading');
+
   try {
-    // 1. Cek Mock Data dulu (supaya bisa test tanpa API)
     const mock = _getMockData(giftId);
     if (mock) {
+      console.log('[Gift] Rendering from Mock Data');
       _renderGift(mock.gift);
       showState('state-gift');
       return;
     }
 
-    // 2. Fetch dari API asli (Valentine Compat)
-    console.log(`[Gift] Fetching from Cloud: ${API_BASE_URL}/get-config?id=${giftId}`);
-    const response = await fetch(`${API_BASE_URL}/get-config?id=${giftId}`);
+    const endpoint = `${API_BASE_URL}/get-config?id=${giftId}`;
+    console.log(`[Gift] Fetching from: ${endpoint}`);
+
+    // Set timeout untuk fetch agar tidak buffering selamanya
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 detik
+
+    const response = await fetch(endpoint, { signal: controller.signal });
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
+      console.warn(`[Gift] API returned error: ${response.status}`);
       showState('state-error');
       return;
     }
 
     const gift = await response.json();
+    console.log('[Gift] Data received:', gift);
 
-    // Konten kosong atau error
     if (!gift || gift.error) {
-      console.error('[Gift] Data invalid or empty:', gift?.error);
+      console.error('[Gift] Config is invalid:', gift?.error);
       showState('state-error');
       return;
     }
 
-    // Jika ada password, tampilkan password gate dulu
-    if (gift.password) {
+    // CEK PASSWORD: Pastikan property password ada dan tidak kosong
+    const isProtected = gift.password && String(gift.password).trim().length > 0;
+
+    if (isProtected) {
+      console.log('[Gift] Protected by password, showing gate');
       _setupPasswordGate(giftId, gift);
       showState('state-password');
     } else {
+      console.log('[Gift] No password protection, rendering directly');
       _renderGift(gift);
       showState('state-gift');
     }
 
   } catch (err) {
-    console.error('[Gift] Error loading gift:', err);
+    console.error('[Gift] Critical Error:', err);
     showState('state-error');
   }
 };

@@ -102,6 +102,7 @@ const Auth = (() => {
 
     try {
       if (isMock || _studioToken === 'mock') {
+        console.log('[Auth] Entering Mock Mode');
         const data = _getMockState();
         _initialConfig = data.studio;
         showState('state-studio');
@@ -109,18 +110,33 @@ const Auth = (() => {
       }
 
       const API_BASE_URL = 'https://valentine-upload.aldoramadhan16.workers.dev';
+      console.log(`[Auth] Validating token: ${_studioToken}`);
+
       const response = await fetch(`${API_BASE_URL}/get-config?id=${_studioToken}`);
 
-      if (!response.ok && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-        _initialConfig = _getMockState().studio;
-        showState('state-studio');
-        return true;
+      if (!response.ok) {
+        // Jika 404, mungkin project baru atau KV belum propagasi
+        if (response.status === 404) {
+          console.warn('[Auth] Token not found in Cloud (404).');
+
+          // Khusus localhost/development, kita izinkan masuk sebagai project baru
+          if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.log('[Auth] Dev Mode: Initializing as new project.');
+            _initialConfig = _getMockState().studio;
+            showState('state-studio');
+            return true;
+          }
+        }
+        throw new Error(`Server returned ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('[Auth] Data received from Cloud');
 
       // Case 1: Token Found
       if (data && !data.error) {
+        // SET DATA DULU : Agar studio.js bisa mengambil config awal meskipun sedang terkunci
+        _initialConfig = data;
 
         // Cek apakah sudah dipublish
         if (data.status === 'published' && data.giftUrl) {
@@ -132,45 +148,36 @@ const Auth = (() => {
 
         // 🛡️ SECURITY: Cek Password Studio
         if (data.studioPassword) {
-          const isAuthed = sessionStorage.getItem(`auth_${_studioToken}`) === 'true';
+          let isAuthed = false;
+          try {
+            isAuthed = sessionStorage.getItem(`auth_${_studioToken}`) === 'true';
+          } catch (e) {
+            console.warn('[Auth] Storage access blocked by browser privacy settings.');
+          }
 
           // Jika ada info password dari URL (Creation Flow), auto-auth
           if (passFromUrl === data.studioPassword) {
-            sessionStorage.setItem(`auth_${_studioToken}`, 'true');
+            try { sessionStorage.setItem(`auth_${_studioToken}`, 'true'); } catch (e) { }
+            showState('state-studio');
+            return true;
           } else if (!isAuthed) {
+            console.log('[Auth] Protected project, showing password gate.');
             _setupStudioAuth(data.studioPassword);
             showState('state-auth');
-            return true; // Return true but state is auth
+            return true;
           }
         }
 
-        _initialConfig = data;
+        console.log('[Auth] Access granted to Studio');
         showState('state-studio');
         return true;
-      }
-
-      // Case 2: Token Not Found / New Project
-      else {
-        console.log('[Auth] New project detected or token not found.');
-
-        // Jika ini project baru dengan password di URL, inisialisasi password
-        _initialConfig = _getMockState().studio;
-        if (passFromUrl) {
-          _initialConfig.studioPassword = passFromUrl;
-          sessionStorage.setItem(`auth_${_studioToken}`, 'true');
-        }
-
-        showState('state-studio');
-        return true;
+      } else {
+        throw new Error('Data format invalid');
       }
 
     } catch (err) {
       console.error('[Auth] Error validating token:', err);
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        _initialConfig = _getMockState().studio;
-        showState('state-studio');
-        return true;
-      }
+      // Jangan langsung lari ke mock jika fetch gagal karena network issue
       showState('state-error');
       return false;
     }
