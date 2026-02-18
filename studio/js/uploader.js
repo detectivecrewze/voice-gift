@@ -19,9 +19,9 @@
 const Uploader = (() => {
 
   // ── Config ──────────────────────────────────────────────
-  const MAX_PHOTOS = 10;
+  const MAX_PHOTOS = 30;
   const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
-  const MAX_DIMENSION = 2000; // px — resize sisi terpanjang
+  const MAX_DIMENSION = 1600; // px — resize sisi terpanjang (Optimasi Cloud)
 
   // ── State lokal ─────────────────────────────────────────
   // Array of: { id, url, order, status: 'uploading'|'success'|'error', localPreview }
@@ -97,7 +97,7 @@ const Uploader = (() => {
       // Cek batas maksimum
       const successCount = _photos.filter(p => p.status === 'success' || p.status === 'uploading').length;
       if (successCount >= MAX_PHOTOS) {
-        Studio.showToast(`Maks ${MAX_PHOTOS} foto. Hapus foto dulu untuk menambah yang baru.`);
+        Studio.showToast(`Batas maksimal foto tercapai. Silakan hapus foto untuk menambah yang baru.`);
         break;
       }
 
@@ -228,7 +228,7 @@ const Uploader = (() => {
             resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: 'image/jpeg' }));
           },
           'image/jpeg',
-          0.85 // Quality: 85%
+          0.75 // Quality: 75% (Optimasi Cloud)
         );
       };
 
