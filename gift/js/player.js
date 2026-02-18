@@ -23,7 +23,7 @@ const VoicePlayer = (() => {
       osc.frequency.setValueAtTime(150, audioCtx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.05);
 
-      gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
 
       osc.connect(gain);
@@ -34,6 +34,41 @@ const VoicePlayer = (() => {
 
       // Haptic Feedback
       if (navigator.vibrate) navigator.vibrate(5);
+    };
+
+    // --- Continuous Mechanical Soundscape (Vinyl Crackle & Whir) ---
+    let noiseSource = null;
+    let noiseGain = null;
+
+    const initMechanicalSoundscape = () => {
+      if (!audioCtx) audioCtx = new AudioCtx();
+
+      const bufferSize = audioCtx.sampleRate * 2;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+
+      for (let i = 0; i < bufferSize; i++) {
+        // Gabungan White Noise + Subtle Random Spikes (Crackle)
+        const white = Math.random() * 2 - 1;
+        const crackle = Math.random() > 0.999 ? (Math.random() * 0.5) : 0;
+        data[i] = (white * 0.05) + crackle;
+      }
+
+      noiseSource = audioCtx.createBufferSource();
+      noiseSource.buffer = buffer;
+      noiseSource.loop = true;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(600, audioCtx.currentTime);
+
+      noiseGain = audioCtx.createGain();
+      noiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
+
+      noiseSource.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(audioCtx.destination);
+      noiseSource.start();
     };
 
     // Viewport width in CSS is 240px (Compact)
@@ -138,6 +173,8 @@ const VoicePlayer = (() => {
       if (audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
+
+      if (!noiseSource) initMechanicalSoundscape();
     };
 
     if (audio.readyState >= 1) updateDuration();
@@ -230,6 +267,11 @@ const VoicePlayer = (() => {
         isPlaying = true;
         box.classList.add('is-cranking');
         bars.forEach(b => b.classList.add('active'));
+
+        // Fade in Mechanical Soundscape
+        if (noiseGain) {
+          noiseGain.gain.setTargetAtTime(0.12, audioCtx.currentTime, 0.1);
+        }
       }
     };
 
@@ -239,6 +281,11 @@ const VoicePlayer = (() => {
         isPlaying = false;
         box.classList.remove('is-cranking');
         bars.forEach(b => b.classList.remove('active'));
+
+        // Fade out Mechanical Soundscape
+        if (noiseGain) {
+          noiseGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.2);
+        }
       }
     };
 
