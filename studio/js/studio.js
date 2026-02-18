@@ -125,12 +125,17 @@ const Studio = (() => {
 
   const onVoiceNoteChanged = (voiceNote) => {
     _state.voiceNote = voiceNote;
-    _triggerSaveAndPreview();
+    _triggerImmediateSave();
   };
 
   // ── Trigger autosave + preview sync ──────────────────────
   const _triggerSaveAndPreview = () => {
     Autosave.trigger(() => ({ ..._state }));
+    Preview.update(_state);
+  };
+
+  const _triggerImmediateSave = () => {
+    Autosave.saveNow({ ..._state });
     Preview.update(_state);
   };
 

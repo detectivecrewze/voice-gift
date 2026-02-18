@@ -99,6 +99,15 @@ const VoicePlayer = (() => {
     const currentEl = containerEl.querySelector('#v-current');
     const totalEl = containerEl.querySelector('#v-total');
 
+    const updateDuration = () => {
+      let dur = audio.duration;
+      // Fallback ke durasi yang disimpan di config jika browser gagal baca metadata (misal: WebM)
+      if (!dur || isNaN(dur) || !isFinite(dur) || dur === 0) {
+        dur = voiceNote.duration;
+      }
+      totalEl.textContent = fmt(dur);
+    };
+
     const fmt = (s) => {
       if (isNaN(s)) return '0:00';
       const m = Math.floor(s / 60);
@@ -106,15 +115,43 @@ const VoicePlayer = (() => {
       return `${m}:${sec.toString().padStart(2, '0')}`;
     };
 
-    audio.addEventListener('loadedmetadata', () => {
-      totalEl.textContent = fmt(audio.duration);
-    });
+    // Warm up audio for iOS/Safari & WebM Duration Hack
+    let audioWarmed = false;
+    const warmUpAudio = () => {
+      if (audioWarmed) return;
+
+      // Trick untuk memaksa browser kalkulasi durasi WebM yang tidak punya metadata cues (sering terjadi pada rekaman browser)
+      if (audio.duration === Infinity || audio.duration === 0 || isNaN(audio.duration)) {
+        audio.currentTime = 1e10; // Lompat ke ujung yang sangat jauh
+        audio.addEventListener('timeupdate', function reset() {
+          audio.currentTime = 0;
+          audio.removeEventListener('timeupdate', reset);
+          updateDuration();
+        }, { once: true });
+      }
+
+      audio.play().then(() => {
+        audio.pause();
+        audioWarmed = true;
+      }).catch(() => { });
+
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    };
+
+    if (audio.readyState >= 1) updateDuration();
+    audio.addEventListener('loadedmetadata', updateDuration);
+    audio.addEventListener('progress', updateDuration); // Bantu percepet kalkulasi
 
     audio.addEventListener('timeupdate', () => {
       currentEl.textContent = fmt(audio.currentTime);
+      // Jika display total masih 0:00, coba update lagi dari config
+      if (totalEl.textContent === '0:00') updateDuration();
     });
 
     audio.addEventListener('ended', () => {
+      audio.currentTime = 0;
       stopPlaying();
     });
 
@@ -125,6 +162,7 @@ const VoicePlayer = (() => {
     const startDrag = (e) => {
       isDragging = true;
       lastAngle = null;
+      warmUpAudio();
       e.preventDefault();
     };
 
@@ -187,6 +225,7 @@ const VoicePlayer = (() => {
 
     const startPlaying = () => {
       if (!isPlaying) {
+        if (audio.ended) audio.currentTime = 0;
         audio.play().catch(() => { });
         isPlaying = true;
         box.classList.add('is-cranking');

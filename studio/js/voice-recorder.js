@@ -420,7 +420,11 @@ const VoiceRecorder = (() => {
 
       _savedUrl = result.url;
       _savedMimeType = file.type;
-      // TODO: Hitung durasi audio
+
+      // Hitung durasi audio secara otomatis
+      const dur = await _getAudioDuration(URL.createObjectURL(file));
+      _savedDuration = dur || 0;
+
       _setState('saved');
       _initSavedPlayer();
 
@@ -436,6 +440,19 @@ const VoiceRecorder = (() => {
       console.error('[VoiceRecorder] File upload error:', err);
       Studio.showToast('Gagal mengupload audio. Coba lagi.');
     }
+  };
+
+  // ── Helper: Hitung Durasi Audio ──────────────────────────
+  const _getAudioDuration = (url) => {
+    return new Promise((resolve) => {
+      const audio = new Audio(url);
+      audio.addEventListener('loadedmetadata', () => {
+        resolve(Math.round(audio.duration));
+      });
+      audio.addEventListener('error', () => resolve(0));
+      // TIMEOUT: some files take too long
+      setTimeout(() => resolve(0), 4000);
+    });
   };
 
   // ── Reset ke IDLE ─────────────────────────────────────────
