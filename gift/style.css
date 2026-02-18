@@ -131,8 +131,8 @@ body::after {
   outline-offset: -8px;
 
   border-radius: 56px;
-  padding: 85px 24px 130px;
-  /* Increased bottom padding from 110px */
+  padding: 85px 24px 165px;
+  /* Further increased bottom padding to 165px */
   box-shadow:
     0 80px 160px -40px rgba(0, 0, 0, 0.9),
     inset 0 1px 2px rgba(255, 255, 255, 0.05);
@@ -499,7 +499,7 @@ body::after {
 
   .music-box-container {
     border-radius: 44px;
-    padding: 40px 20px 120px;
+    padding: 40px 20px 145px;
   }
 
   .printer-viewport,
