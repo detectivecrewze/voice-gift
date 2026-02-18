@@ -512,6 +512,80 @@ body::after {
   transition: height 0.4s ease, opacity 0.4s ease;
 }
 
+/* ── Brand Badge (Ultra-Premium Redesign) ── */
+.watermark-badge {
+  position: fixed;
+  top: 35px;
+  right: 35px;
+  background: rgba(15, 12, 10, 0.3);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 100px;
+  padding: 8px 20px 8px 14px;
+  color: var(--primary);
+  text-decoration: none;
+
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+
+  box-shadow:
+    0 10px 40px -10px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.08);
+}
+
+.watermark-badge .flex {
+  gap: 16px !important;
+}
+
+/* Icon Refinement */
+.watermark-badge .material-symbols-outlined {
+  font-size: 18px !important;
+  color: var(--primary);
+  filter: drop-shadow(0 0 8px rgba(212, 174, 106, 0.2));
+  transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Text Refinement with Vertical Divider */
+.watermark-badge span:last-child {
+  font-family: var(--font-sans);
+  font-size: 9px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.35em !important;
+  text-transform: uppercase;
+  color: var(--text);
+  opacity: 0.7;
+
+  padding-left: 16px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  display: inline-block;
+  line-height: 1;
+  transition: all 0.4s ease;
+}
+
+.watermark-badge:hover {
+  background: rgba(20, 16, 12, 0.7);
+  border-color: rgba(212, 174, 106, 0.25);
+  transform: translateY(-5px) scale(1.02);
+  box-shadow:
+    0 25px 60px -15px rgba(0, 0, 0, 0.8),
+    0 0 30px rgba(212, 174, 106, 0.1);
+}
+
+.watermark-badge:hover .material-symbols-outlined {
+  transform: rotate(15deg) scale(1.1);
+}
+
+.watermark-badge:hover span:last-child {
+  opacity: 1;
+  color: var(--primary);
+  letter-spacing: 0.4em !important;
+  border-left-color: rgba(212, 174, 106, 0.3);
+}
+
 /* ── Mobile Overrides ── */
 @media (max-width: 768px) {
   #state-gift {
@@ -586,32 +660,6 @@ body::after {
   color: var(--text-muted);
   letter-spacing: 0.2em;
   opacity: 0.4;
-}
-
-.watermark-badge {
-  position: fixed;
-  top: 30px;
-  right: 30px;
-  background: rgba(20, 18, 15, 0.6);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(212, 174, 106, 0.2);
-  border-radius: 40px;
-  padding: 8px 18px;
-  color: var(--primary);
-  text-decoration: none;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.watermark-badge:hover {
-  background: rgba(212, 174, 106, 0.1);
-  border-color: rgba(212, 174, 106, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 /* ── Fullscreen Center ── */
