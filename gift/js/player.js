@@ -99,6 +99,7 @@ const VoicePlayer = (() => {
         
         <div class="printer-viewport" id="viewport">
           <div class="light-leak-overlay"></div>
+          <div class="glass-lens-overlay"></div>
           <div class="printer-tray" id="tray">
             ${photosMarkup}
           </div>

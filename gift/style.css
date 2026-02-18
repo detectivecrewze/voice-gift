@@ -242,6 +242,31 @@ body::after {
   z-index: 10;
 }
 
+/* Glass Lens Reflection Effect */
+.glass-lens-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 25;
+  background:
+    /* Primary Diagonal Reflection */
+    linear-gradient(135deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(255, 255, 255, 0.05) 15%,
+      transparent 40%,
+      transparent 100%),
+    /* Convex Hotspot Highlight */
+    radial-gradient(circle at 30% 25%,
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 30%),
+    /* Anti-reflective Tint (Subtle Purple/Blue) */
+    radial-gradient(circle at 70% 80%,
+      rgba(100, 100, 255, 0.03) 0%,
+      transparent 50%);
+  opacity: 0.8;
+  mix-blend-mode: screen;
+}
+
 /* Dynamic Light Leaks (Analog Flicker) */
 .light-leak-overlay {
   position: absolute;
