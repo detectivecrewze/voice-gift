@@ -385,7 +385,10 @@ const VoiceRecorder = (() => {
   const _handleAudioFileUpload = async (file) => {
     const MAX_AUDIO_SIZE = 10 * 1024 * 1024; // 10MB
 
-    if (!file.type.startsWith('audio/')) {
+    const isValid = file.type.startsWith('audio/') ||
+      file.name.match(/\.(mp3|m4a|wav|aac|ogg|wma)$/i);
+
+    if (!isValid) {
       Studio.showToast('File harus berupa audio (MP3, M4A, dll.)');
       return;
     }
