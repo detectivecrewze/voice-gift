@@ -14,7 +14,7 @@ const API_BASE_URL = 'https://valentine-upload.aldoramadhan16.workers.dev';
 
 // ── Helper: Tampilkan satu state ──────────────────────────────
 const showState = (stateId) => {
-  ['state-loading', 'state-error', 'state-password', 'state-gift'].forEach(id => {
+  ['state-loading', 'state-error', 'state-password', 'state-gift', 'state-access'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.toggle('hidden', id !== stateId);
   });
@@ -73,22 +73,40 @@ const initGiftPage = async () => {
     giftId = null;
   }
 
-  console.log('[Gift] Resolved ID:', giftId);
-
-  // Jika tetap kosong (atau 'gift'), ini state error
-  if (!giftId || giftId === 'gift' || giftId === 'index.html') {
-    // Cek apakah ada demo mock
-    console.log('[Gift] No ID found, checking demo mock');
-    const mock = _getMockData('demo');
-    if (mock) {
-      _renderGift(mock.gift);
-      showState('state-gift');
-      return;
-    }
-    showState('state-error');
+  // Jika tetap kosong, tampilkan Menu Akses
+  if (!giftId) {
+    _setupAccessUI();
+    showState('state-access');
     return;
   }
 
+  _fetchAndRender(giftId);
+};
+
+// ── UI Menu Masuk (Jika tidak ada ID di URL) ────────────────────
+const _setupAccessUI = () => {
+  const input = document.getElementById('access-id-input');
+  const btn = document.getElementById('btn-access-go');
+
+  const handleGo = () => {
+    const id = input.value.trim().toLowerCase();
+    if (id) {
+      // Update URL tanpa reload untuk UX yang lebih baik
+      const newUrl = `${window.location.origin}${window.location.pathname}?to=${id}`;
+      window.history.pushState({ path: newUrl }, '', newUrl);
+      _fetchAndRender(id);
+    }
+  };
+
+  btn?.addEventListener('click', handleGo);
+  input?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleGo();
+  });
+};
+
+// ── Fetch & Route Logic ───────────────────────────────────────
+const _fetchAndRender = async (giftId) => {
+  showState('state-loading');
   try {
     // 1. Cek Mock Data dulu (supaya bisa test tanpa API)
     const mock = _getMockData(giftId);

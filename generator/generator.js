@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCreate?.addEventListener('click', async () => {
         const customName = document.getElementById('input-new-token')?.value.trim();
         const studioPass = document.getElementById('input-studio-pass')?.value.trim();
+        const giftPass = document.getElementById('input-gift-pass')?.value.trim();
         let finalId = '';
 
         if (customName) {
@@ -81,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
             photos: [],
             voiceNote: { url: null, duration: null, mimeType: null },
             studioPassword: studioPass || null,
-            password: null,
+            password: giftPass || null,
             status: 'draft',
             createdAt: new Date().toISOString()
         };

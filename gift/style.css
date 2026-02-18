@@ -662,6 +662,115 @@ body::after {
   opacity: 0.4;
 }
 
+/* ── Password Card & Access UI ── */
+.password-card {
+  background: var(--surface);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  padding: 60px 40px;
+  border-radius: 40px;
+  border: 1px solid var(--border);
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+}
+
+.password-icon {
+  font-size: 40px;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.password-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-style: italic;
+  margin-bottom: 15px;
+  color: var(--text);
+}
+
+.password-field {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 15px;
+  color: var(--text);
+  text-align: center;
+  font-size: 16px;
+  margin-bottom: 30px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.password-field:focus {
+  border-color: var(--primary);
+}
+
+.unlock-btn {
+  width: 100%;
+  background: var(--primary);
+  color: var(--bg);
+  border: none;
+  padding: 16px;
+  border-radius: 40px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.unlock-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.1);
+}
+
+.password-hint {
+  margin-top: 25px;
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.password-error {
+  color: #ff6b6b;
+  font-size: 10px;
+  margin-top: -20px;
+  margin-bottom: 20px;
+}
+
+.shake {
+  animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+@keyframes shake {
+
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translateX(-4px);
+  }
+
+  40%,
+  60% {
+    transform: translateX(4px);
+  }
+}
+
 /* ── Fullscreen Center ── */
 .fullscreen-center {
   min-height: 100vh;
