@@ -133,21 +133,22 @@ const Studio = (() => {
 
   // ── Requirements UI Update ───────────────────────────────
   const _updateRequirementsUI = () => {
-    const hasPhotos = _state.photos?.length > 0;
+    const photoCount = _state.photos?.length || 0;
+    const hasEnoughPhotos = photoCount >= 6;
     const hasVoice = (_state.voiceNote?.url);
 
     const photoBadge = document.getElementById('req-photo');
     const voiceBadge = document.getElementById('req-voice');
 
     if (photoBadge) {
-      photoBadge.classList.toggle('text-green-600', hasPhotos);
-      photoBadge.classList.toggle('text-gray-400', !hasPhotos);
-      photoBadge.innerHTML = hasPhotos ? '✅ Foto Siap' : '📸 Foto min. 1';
+      photoBadge.classList.toggle('text-green-600', hasEnoughPhotos);
+      photoBadge.classList.toggle('text-gray-600', !hasEnoughPhotos);
+      photoBadge.innerHTML = hasEnoughPhotos ? '✅ Foto Siap' : `📸 Foto min. 6 (${photoCount}/6)`;
     }
 
     if (voiceBadge) {
       voiceBadge.classList.toggle('text-green-600', hasVoice);
-      voiceBadge.classList.toggle('text-gray-400', !hasVoice);
+      voiceBadge.classList.toggle('text-gray-600', !hasVoice);
       voiceBadge.innerHTML = hasVoice ? '✅ Suara Siap' : '🎙️ Suara min. 1';
     }
   };

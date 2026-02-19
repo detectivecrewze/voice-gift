@@ -43,14 +43,14 @@ const Publisher = (() => {
   const _showNameModal = () => {
     const state = Studio.getState();
     const token = Auth.getToken();
-    const hasPhotos = state.photos?.length > 0;
+    const hasEnoughPhotos = state.photos?.length >= 6;
     const hasVoice = (state.voiceNote?.url);
 
-    if (!hasPhotos || !hasVoice) {
-      if (!hasPhotos && !hasVoice) {
-        Studio.showToast('Wah, kado kamu masih kosong. Tambahkan foto DAN suara dulu ya! 📸🎙️');
-      } else if (!hasPhotos) {
-        Studio.showToast('Hampir siap! Kamu perlu menambahkan minimal satu foto kenangan. 📸');
+    if (!hasEnoughPhotos || !hasVoice) {
+      if (!hasEnoughPhotos && !hasVoice) {
+        Studio.showToast('Wah, kado kamu masih kosong. Tambahkan min. 6 foto DAN suara dulu ya! 📸🎙️');
+      } else if (!hasEnoughPhotos) {
+        Studio.showToast(`Hampir siap! Kamu perlu menambahkan minimal 6 foto (sekarang: ${state.photos?.length || 0}). 📸`);
       } else {
         Studio.showToast('Satu langkah lagi! Jangan lupa rekam atau upload suara kamu. 🎙️');
       }
