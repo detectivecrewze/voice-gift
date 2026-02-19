@@ -44,8 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 tableBody.innerHTML = `<tr><td colspan="5" class="p-12 text-center text-red-400 text-xs font-bold">Error: ${data.error}</td></tr>`;
             }
         } catch (err) {
-            console.error('[Admin] Fetch error:', err);
-            alert('Terjadi kesalahan koneksi.');
+            console.error('[Admin] Fetch error detail:', err);
+            alert('Terjadi kesalahan koneksi. Silakan cek Console (F12) untuk detailnya.');
         } finally {
             btnRefresh.innerText = 'REFRESH DATA';
             btnRefresh.disabled = false;

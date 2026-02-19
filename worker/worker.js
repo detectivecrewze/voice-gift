@@ -7,7 +7,7 @@ var index_default = {
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Cache-Control, Pragma"
+      "Access-Control-Allow-Headers": "Content-Type, Authorization, Cache-Control, Pragma"
     };
     if (request.method === "OPTIONS") {
       return new Response(null, {
