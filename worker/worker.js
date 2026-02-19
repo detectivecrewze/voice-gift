@@ -64,6 +64,11 @@ export default {
         return handleGetFile(filename, env);
       }
 
+      // ── Route: Admin — list all gifts ──────────────────────
+      if (path === '/admin/list-gifts' && method === 'GET') {
+        return handleAdminListGifts(request, env);
+      }
+
       // ── Route: Admin — buat studio baru ───────────────────
       if (path === '/admin/create-studio' && method === 'POST') {
         return handleAdminCreateStudio(request, env);
@@ -513,5 +518,51 @@ async function handleUnlockGift(giftId, request, env) {
   } catch (err) {
     console.error('[UnlockGift Error]', err);
     return json({ success: false, error: 'Gagal membuka kado.' }, 500);
+  }
+}
+
+// ============================================================
+// HANDLER: GET /api/admin/list-gifts
+// Ambil semua daftar gift yang ada di KV (prefix gift:)
+// Protected by ADMIN_SECRET
+// ============================================================
+async function handleAdminListGifts(request, env) {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader || authHeader !== `Bearer ${env.ADMIN_SECRET}`) {
+    return json({ success: false, error: 'Akses ditolak.' }, 401);
+  }
+
+  try {
+    // List keys dengan prefix 'gift:'
+    // KV .list() bersifat paginated (limit 1000 default)
+    const list = await env.GIFT_DATA.list({ prefix: 'gift:' });
+    const keys = list.keys;
+
+    const gifts = [];
+
+    // Ambil detail singkat untuk setiap kado secara paralel
+    const detailPromises = keys.map(async (keyObj) => {
+      const data = await env.GIFT_DATA.get(keyObj.name);
+      if (data) {
+        const config = JSON.parse(data);
+        return {
+          giftId: keyObj.name.replace('gift:', ''),
+          recipientName: config.recipientName,
+          status: config.status,
+          publishedAt: config.publishedAt,
+          photosCount: config.photos?.length || 0,
+          hasVoice: !!(config.voiceNote?.url)
+        };
+      }
+      return null;
+    });
+
+    const results = await Promise.all(detailPromises);
+    const filteredResults = results.filter(r => r !== null);
+
+    return json({ success: true, gifts: filteredResults });
+  } catch (err) {
+    console.error('[AdminListGifts Error]', err);
+    return json({ success: false, error: 'Gagal memuat daftar kado.' }, 500);
   }
 }
