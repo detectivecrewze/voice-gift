@@ -46,8 +46,14 @@ const Publisher = (() => {
     const hasPhotos = state.photos?.length > 0;
     const hasVoice = (state.voiceNote?.url);
 
-    if (!hasPhotos && !hasVoice) {
-      Studio.showToast('Wah, kado kamu masih kosong. Tambahkan foto atau suara dulu ya!');
+    if (!hasPhotos || !hasVoice) {
+      if (!hasPhotos && !hasVoice) {
+        Studio.showToast('Wah, kado kamu masih kosong. Tambahkan foto DAN suara dulu ya! 📸🎙️');
+      } else if (!hasPhotos) {
+        Studio.showToast('Hampir siap! Kamu perlu menambahkan minimal satu foto kenangan. 📸');
+      } else {
+        Studio.showToast('Satu langkah lagi! Jangan lupa rekam atau upload suara kamu. 🎙️');
+      }
       return;
     }
 

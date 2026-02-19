@@ -69,7 +69,7 @@
         <input id="studio-pass-input" type="password" placeholder="••••••••"
           class="w-full text-center text-sm border-b border-gray-100 bg-transparent py-3 focus:outline-none focus:border-black transition-all placeholder:text-gray-200"
           autocomplete="off" />
-        <p id="studio-pass-error" class="text-[9px] text-rose-500 mt-2 hidden">Password salah.</p>
+        <p id="studio-pass-error" class="text-[9px] text-rose-600 mt-2 hidden font-bold">Password salah.</p>
       </div>
 
       <button id="btn-unlock-studio" class="btn-premium w-full shadow-lg">Buka Editor</button>
@@ -81,14 +81,15 @@
     <div id="editor-panel">
 
       <header class="text-center mb-24">
-        <h1 class="text-4xl italic-title">Kenangan Terindah</h1>
+        <h1 class="text-4xl italic-title">Curation Studio</h1>
+        <p class="text-[10px] uppercase tracking-[0.4em] text-gray-400 mt-4">For you, Always.</p>
       </header>
 
       <!-- 1. Gallery Section in a Box -->
       <section class="section-card mb-12">
         <div class="flex items-center justify-between mb-8">
           <div>
-            <h2 class="text-xs uppercase tracking-[0.3em] text-gray-400 font-bold mb-1">Galeri Kenangan</h2>
+            <h2 class="text-xs uppercase tracking-[0.3em] text-gray-600 font-bold mb-1">Galeri Kenangan</h2>
             <p class="text-[8px] text-[#d4a373] uppercase tracking-[0.2em] font-bold">✨ Maksimal 12 Foto</p>
           </div>
           <button id="btn-pick-photos"
@@ -99,7 +100,7 @@
 
         <div id="photo-dropzone"
           class="border-2 border-dashed border-gray-100 rounded-2xl p-16 text-center transition-all hover:bg-white hover:border-[#d4a373] cursor-pointer bg-gray-50/50">
-          <p class="text-[9px] uppercase tracking-[0.3em] text-gray-300">Letakkan foto anda di sini</p>
+          <p class="text-[9px] uppercase tracking-[0.3em] text-gray-500 font-medium">Letakkan foto anda di sini</p>
         </div>
 
         <div id="photo-grid" class="mt-8">
@@ -110,7 +111,7 @@
       <!-- 2. Voice Studio in a Box -->
       <section class="section-card mb-24">
         <div class="flex items-center justify-between mb-8">
-          <h2 class="text-xs uppercase tracking-[0.3em] text-gray-400 font-bold">Studio Suara</h2>
+          <h2 class="text-xs uppercase tracking-[0.3em] text-gray-600 font-bold">Studio Suara</h2>
         </div>
 
         <div id="voice-recorder-ui" class="py-12">
@@ -129,7 +130,7 @@
 
             <div class="mt-12">
               <button id="btn-upload-audio"
-                class="text-[8px] uppercase tracking-widest text-gray-300 hover:text-black">Atau upload file
+                class="text-[10px] uppercase tracking-widest text-gray-500 hover:text-black font-bold">Atau upload file
                 audio</button>
               <input id="file-input-audio" type="file" accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.wma" class="hidden" />
             </div>
@@ -150,29 +151,40 @@
           <!-- PREVIEW -->
           <div id="voice-state-preview" class="hidden flex flex-col items-center">
             <div class="waveform-container px-12 w-full">
-              <div class="mb-4 flex justify-between text-[9px] uppercase tracking-widest text-gray-300">
-                <span>Preview</span>
+              <div class="mb-4 flex justify-between text-[9px] uppercase tracking-widest text-[#d4a373] font-bold">
+                <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-[#d4a373] rounded-full"></span>
+                  Rekaman Selesai</span>
                 <span id="preview-time">0:00</span>
               </div>
               <div class="w-full h-0.5 bg-gray-100 rounded-full relative">
                 <div id="preview-progress-fill" class="absolute h-full bg-black transition-all" style="width: 0%"></div>
               </div>
             </div>
-            <div class="flex items-center gap-12 mt-8">
+            <p class="text-[8px] uppercase tracking-[0.2em] text-gray-400 mt-6 mb-2">Klik "Simpan" agar tidak hilang</p>
+            <div class="flex items-center gap-12 mt-4">
               <button id="btn-preview-play"
                 class="text-[10px] uppercase tracking-widest bg-gray-50 px-4 py-2 rounded">Putar</button>
-              <button id="btn-rerecord" class="text-[10px] uppercase tracking-widest text-gray-300">Ulang</button>
+              <button id="btn-rerecord"
+                class="text-[10px] uppercase tracking-widest text-gray-500 font-medium">Ulang</button>
               <button id="btn-confirm-recording"
-                class="text-[10px] uppercase tracking-widest font-bold text-[#d4a373]">✓ Simpan Rekaman</button>
+                class="text-[10px] uppercase tracking-widest font-bold text-[#d4a373] px-6 py-3 border border-[#d4a373] rounded-full hover:bg-[#d4a373]/5 transition-all">✓
+                Simpan Rekaman</button>
             </div>
           </div>
 
           <!-- SAVED -->
-          <div id="voice-state-saved" class="hidden flex flex-col items-center">
-            <p class="text-[10px] uppercase tracking-widest mb-4">Audio Berhasil Tersimpan</p>
+          <div id="voice-state-saved"
+            class="hidden flex flex-col items-center animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <div class="w-12 h-12 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-6">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <p class="text-[10px] uppercase tracking-widest mb-4 font-bold text-green-600">Audio Berhasil Tersimpan! ✨
+            </p>
             <div class="w-48 mb-6">
               <div class="flex justify-between text-[8px] text-gray-300 uppercase tracking-widest mb-2">
-                <span>Tersimpan</span>
+                <span>Siap Digunakan</span>
                 <span id="saved-time">0:00</span>
               </div>
               <div class="w-full h-0.5 bg-gray-100 rounded-full relative">
@@ -182,7 +194,9 @@
             <div class="flex gap-8">
               <button id="btn-saved-play"
                 class="text-[9px] uppercase tracking-widest border border-gray-100 px-6 py-2 rounded-full hover:bg-white transition-all">Dengarkan</button>
-              <button id="btn-delete-voice" class="text-[9px] uppercase tracking-widest text-gray-300">Hapus</button>
+              <button id="btn-delete-voice" class="text-[9px] uppercase tracking-widest text-gray-500 font-medium">Hapus
+                & Rekam
+                Ulang</button>
             </div>
           </div>
 
@@ -191,9 +205,18 @@
 
       <!-- Floating Action -->
       <div id="publish-container" class="text-center">
+        <div class="mb-4 space-x-4 flex justify-center items-center">
+          <span id="req-photo"
+            class="text-[8px] uppercase tracking-widest text-gray-600 font-bold flex items-center gap-1">📸 Foto min.
+            1</span>
+          <span id="req-voice"
+            class="text-[8px] uppercase tracking-widest text-gray-600 font-bold flex items-center gap-1">🎙️ Suara min.
+            1</span>
+        </div>
         <button id="btn-publish" class="btn-premium">Publikasikan Kado</button>
         <div id="autosave-status"
-          class="text-[8px] uppercase tracking-[0.2em] text-gray-300 mt-4 opacity-0 transition-opacity">Tersimpan
+          class="text-[8px] uppercase tracking-[0.2em] text-gray-500 font-bold mt-4 opacity-0 transition-opacity">
+          Tersimpan
           otomatis</div>
       </div>
 
@@ -206,10 +229,10 @@
     <div class="absolute inset-0 bg-white/95 backdrop-blur-md"></div>
     <div class="relative max-w-sm w-full text-center">
       <h2 class="text-3xl text-serif italic mb-2">Kado Tercipta</h2>
-      <p class="text-[10px] uppercase tracking-[0.3em] text-gray-400 mb-12">Siap untuk dikirimkan</p>
+      <p class="text-[10px] uppercase tracking-[0.3em] text-gray-600 font-bold mb-12">Siap untuk dikirimkan</p>
 
       <div class="bg-white border border-gray-100 p-4 mb-12">
-        <span id="modal-gift-url" class="text-[10px] font-mono text-gray-400 break-all select-all"></span>
+        <span id="modal-gift-url" class="text-[10px] font-mono text-gray-600 font-bold break-all select-all"></span>
       </div>
 
       <div class="grid grid-cols-2 gap-4 mb-12">
@@ -229,9 +252,10 @@
     <div class="absolute inset-0 bg-white/95 backdrop-blur-md"></div>
     <div class="relative max-w-sm w-full">
       <h2 class="text-3xl text-serif italic mb-2 text-center">Publikasikan Kado</h2>
-      <p class="text-[10px] uppercase tracking-[0.3em] text-gray-400 mb-4 text-center text-balance leading-relaxed">
+      <p
+        class="text-[10px] uppercase tracking-[0.3em] text-gray-600 font-bold mb-4 text-center text-balance leading-relaxed">
         Kado akan dipublish dengan nama link berikut:</p>
-      <p class="text-[9px] text-gray-300 mb-12 text-center hidden">(Ditetapkan otomatis)</p>
+      <p class="text-[9px] text-gray-500 mb-12 text-center hidden">(Ditetapkan otomatis)</p>
 
       <div class="mb-12">
         <input id="input-gift-name" type="text" readonly
@@ -242,7 +266,8 @@
 
       <div class="flex flex-col gap-4">
         <button id="btn-confirm-name" class="btn-premium w-full text-center">Lanjutkan & Publish</button>
-        <button id="btn-cancel-name" class="text-[10px] uppercase tracking-widest text-gray-300 py-2">Batal</button>
+        <button id="btn-cancel-name"
+          class="text-[10px] uppercase tracking-widest text-gray-600 font-bold py-2">Batal</button>
       </div>
     </div>
   </div>

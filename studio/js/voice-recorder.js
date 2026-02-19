@@ -167,6 +167,8 @@ const VoiceRecorder = (() => {
       _setState('preview');
       _initPreviewPlayer();
 
+      Studio.showToast('Rekaman selesai! Klik Simpan untuk konfirmasi. 🎙️');
+
       // Beri haptic feedback singkat jika didukung
       if ('vibrate' in navigator) navigator.vibrate(50);
     };

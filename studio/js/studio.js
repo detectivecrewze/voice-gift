@@ -71,6 +71,7 @@ const Studio = (() => {
       Uploader.init(state.photos || []);
       VoiceRecorder.init(state.voiceNote);
       Publisher.init();
+      _updateRequirementsUI();
 
       // Setup Preview Iframe and Events
       Preview.update(state);
@@ -120,12 +121,35 @@ const Studio = (() => {
   // ── Callbacks dari module lain ────────────────────────────
   const onPhotosChanged = (photos) => {
     _state.photos = photos;
+    _updateRequirementsUI();
     _triggerSaveAndPreview();
   };
 
   const onVoiceNoteChanged = (voiceNote) => {
     _state.voiceNote = voiceNote;
+    _updateRequirementsUI();
     _triggerImmediateSave();
+  };
+
+  // ── Requirements UI Update ───────────────────────────────
+  const _updateRequirementsUI = () => {
+    const hasPhotos = _state.photos?.length > 0;
+    const hasVoice = (_state.voiceNote?.url);
+
+    const photoBadge = document.getElementById('req-photo');
+    const voiceBadge = document.getElementById('req-voice');
+
+    if (photoBadge) {
+      photoBadge.classList.toggle('text-green-600', hasPhotos);
+      photoBadge.classList.toggle('text-gray-400', !hasPhotos);
+      photoBadge.innerHTML = hasPhotos ? '✅ Foto Siap' : '📸 Foto min. 1';
+    }
+
+    if (voiceBadge) {
+      voiceBadge.classList.toggle('text-green-600', hasVoice);
+      voiceBadge.classList.toggle('text-gray-400', !hasVoice);
+      voiceBadge.innerHTML = hasVoice ? '✅ Suara Siap' : '🎙️ Suara min. 1';
+    }
   };
 
   // ── Trigger autosave + preview sync ──────────────────────
