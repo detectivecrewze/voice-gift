@@ -382,8 +382,8 @@ body::after {
   object-fit: cover;
 }
 
-.is-cranking .printer-photo img {
-  transform: scale(1.03) rotate(0.4deg);
+.printer-photo.is-active img {
+  transform: scale(1.05) rotate(0.4deg);
 }
 
 /* ── Recessed Brass Crank (Mechanically Low) ── */
@@ -520,9 +520,11 @@ body::after {
   }
 }
 
+/* Mechanical Jitter Disabled for Performance
 .is-cranking .printer-viewport {
   animation: mechanical-jitter 0.15s linear infinite;
 }
+*/
 
 /* ── Waveform (Tight) ── */
 /* ── Redesigned Premium Waveform Visualizer ── */

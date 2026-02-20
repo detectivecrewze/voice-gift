@@ -350,6 +350,14 @@ const VoicePlayer = (() => {
           // Use translate3d for GPU acceleration
           tray.style.transform = `translate3d(-${loopSlide}px, 0, 0)`;
 
+          // Optimize: Only scale the active (centered) photo
+          const activeIndex = Math.round(loopSlide / VIEW_WIDTH);
+          const photoEls = tray.querySelectorAll('.printer-photo');
+          if (photoEls[activeIndex] && !photoEls[activeIndex].classList.contains('is-active')) {
+            photoEls.forEach(el => el.classList.remove('is-active'));
+            photoEls[activeIndex].classList.add('is-active');
+          }
+
           // Trigger Click Sound & Haptic every 15 degrees
           if (Math.abs(totalCrankAngle - lastClickRotation) > 15) {
             playMechanicalClick();
