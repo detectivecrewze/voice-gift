@@ -855,7 +855,8 @@ body::after {
   padding: 15px 0;
   color: var(--text);
   text-align: center;
-  font-size: 14px;
+  font-size: 16px;
+  /* Prevent iOS auto-zoom */
   margin-bottom: 40px;
   outline: none;
   transition: all 0.5s ease;
