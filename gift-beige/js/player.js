@@ -176,6 +176,8 @@ const VoicePlayer = (() => {
       }
     }
 
+    let cachedParticles = null;
+
     function updateVisuals() {
       if (!isPlaying) {
         cancelAnimationFrame(animationId);
@@ -183,6 +185,11 @@ const VoicePlayer = (() => {
       }
 
       animationId = requestAnimationFrame(updateVisuals);
+
+      // Throttling: Only run visual updates occasionally or every other frame
+      // to reduce CPU/GPU pressure on mobile
+      if (Date.now() % 2 !== 0) return;
+
       analyser.getByteFrequencyData(dataArray);
 
       // Density: 48 bars
@@ -211,11 +218,16 @@ const VoicePlayer = (() => {
       });
 
       const avgVolume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-      const particles = document.querySelectorAll('.bokeh-particle');
-      particles.forEach((p, idx) => {
+
+      if (!cachedParticles) {
+        cachedParticles = document.querySelectorAll('.bokeh-particle');
+      }
+
+      cachedParticles.forEach((p, idx) => {
         const move = (avgVolume / 255) * (30 + idx * 5);
         const scale = 1 + (avgVolume / 255) * 0.5;
-        p.style.transform = `translate(${Math.sin(Date.now() / 1000 + idx) * move}px, ${Math.cos(Date.now() / 1000 + idx) * move}px) scale(${scale})`;
+        // Use translate3d for GPU acceleration
+        p.style.transform = `translate3d(${Math.sin(Date.now() / 1000 + idx) * move}px, ${Math.cos(Date.now() / 1000 + idx) * move}px, 0) scale(${scale})`;
         p.style.opacity = 0.03 + (avgVolume / 255) * 0.07;
       });
     }
@@ -321,7 +333,7 @@ const VoicePlayer = (() => {
           visualCrankAngle += deltaDeg;
           totalCrankAngle += deltaDeg;
 
-          arm.style.transform = `rotate(${visualCrankAngle}deg)`;
+          arm.style.transform = `rotate(${visualCrankAngle}deg) translateZ(0)`;
 
           // Sliding Logic: 1 turn (360) = 0.5 photo width for smoother experience
           // Or 720deg = 1 photo
@@ -334,7 +346,8 @@ const VoicePlayer = (() => {
           // But for simple forward-only:
           const loopSlide = (rawSlide % fullSetWidth) + fullSetWidth;
 
-          tray.style.transform = `translateX(-${loopSlide}px)`;
+          // Use translate3d for GPU acceleration
+          tray.style.transform = `translate3d(-${loopSlide}px, 0, 0)`;
 
           // Trigger Click Sound & Haptic every 15 degrees
           if (Math.abs(totalCrankAngle - lastClickRotation) > 15) {
