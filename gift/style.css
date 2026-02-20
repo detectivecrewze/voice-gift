@@ -107,6 +107,26 @@ body::after {
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bokeh-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.bokeh-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--primary);
+  filter: blur(40px);
+  opacity: 0.05;
+  transition: transform 2s ease, opacity 1s ease;
+  will-change: transform, opacity;
 }
 
 .voice-section {
@@ -314,6 +334,34 @@ body::after {
   }
 }
 
+/* Analog Scanlines & Noise */
+.analog-noise {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg,
+      rgba(0, 0, 0, 0) 0px,
+      rgba(0, 0, 0, 0.03) 1px,
+      transparent 2px);
+  background-size: 100% 3px;
+  pointer-events: none;
+  z-index: 20;
+  opacity: 0.4;
+}
+
+.is-cranking .analog-noise {
+  animation: scanline-flicker 0.1s infinite;
+}
+
+@keyframes scanline-flicker {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(1px);
+  }
+}
+
 /* Metallic Printer Slot (Right Side) */
 .printer-slot {
   position: absolute;
@@ -494,22 +542,84 @@ body::after {
 }
 
 /* ── Waveform (Tight) ── */
+/* ── Redesigned Premium Waveform Visualizer ── */
+.music-box-info {
+  margin-bottom: 16px;
+  position: relative;
+}
+
 .music-box-waveform {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  height: 36px;
-  margin-bottom: 20px;
+  gap: 2px;
+  height: 42px;
+  margin-bottom: 16px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 100px;
+  padding: 0 15px;
+  border: 1px solid rgba(212, 174, 106, 0.1);
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, 0.6),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+  max-width: 200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Glass Inner Glow */
+.music-box-waveform::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0.03) 0%,
+      transparent 40%,
+      transparent 60%,
+      rgba(0, 0, 0, 0.1) 100%);
+  pointer-events: none;
+  z-index: 10;
 }
 
 .waveform-bar {
-  width: 3px;
-  height: 15%;
+  width: 2px;
+  height: 4px;
+  /* Base height */
   background: var(--primary);
   border-radius: 4px;
-  opacity: 0.1;
-  transition: height 0.4s ease, opacity 0.4s ease;
+  opacity: 0.08;
+  transition:
+    height 0.06s cubic-bezier(0.1, 0.5, 0.1, 1),
+    opacity 0.15s ease;
+  will-change: height, opacity;
+  transform-origin: center;
+}
+
+.waveform-bar.active {
+  opacity: 1;
+  background: linear-gradient(to bottom,
+      rgba(212, 174, 106, 0.2) 0%,
+      var(--primary) 30%,
+      #fff 50%,
+      var(--primary) 70%,
+      rgba(212, 174, 106, 0.2) 100%);
+  box-shadow:
+    0 0 15px rgba(212, 174, 106, 0.5),
+    0 0 30px rgba(212, 174, 106, 0.1);
+}
+
+/* Center-line decoration */
+.music-box-waveform::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.03);
+  z-index: 1;
 }
 
 /* ── Brand Badge (Ultra-Premium Redesign) ── */
@@ -655,11 +765,38 @@ body::after {
 }
 
 .music-box-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 8px;
+  /* Tiny, precise typography */
   color: var(--text-muted);
-  letter-spacing: 0.2em;
+  letter-spacing: 0.15em;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.music-box-timer span#v-current {
+  color: var(--primary);
+  font-weight: 500;
+  text-shadow: 0 0 10px rgba(212, 174, 106, 0.2);
+  min-width: 32px;
+}
+
+.time-divider {
+  width: 1px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.music-box-timer span#v-total {
   opacity: 0.4;
+  min-width: 32px;
 }
 
 /* ── Password Card (Minimalist Luxury Redesign) ── */

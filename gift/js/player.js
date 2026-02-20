@@ -11,6 +11,10 @@ const VoicePlayer = (() => {
     // --- Sound Engine & Haptics ---
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
+    let analyser = null;
+    let dataArray = null;
+    let sourceNode = null;
+    let animationId = null;
 
     const playMechanicalClick = () => {
       if (!audioCtx) audioCtx = new AudioCtx();
@@ -100,6 +104,7 @@ const VoicePlayer = (() => {
         <div class="printer-viewport" id="viewport">
           <div class="light-leak-overlay"></div>
           <div class="glass-lens-overlay"></div>
+          <div class="analog-noise"></div>
           <div class="printer-tray" id="tray">
             ${photosMarkup}
           </div>
@@ -108,11 +113,13 @@ const VoicePlayer = (() => {
 
         <div class="music-box-info">
           <div class="music-box-waveform" id="waveform">
-            ${Array(32).fill('<div class="waveform-bar"></div>').join('')}
+            ${Array(48).fill('<div class="waveform-bar"></div>').join('')}
           </div>
 
           <div class="music-box-timer">
-            <span id="v-current">0:00</span> <span style="opacity:0.1">|</span> <span id="v-total">0:00</span>
+            <span id="v-current">0:00</span>
+            <div class="time-divider"></div>
+            <span id="v-total">0:00</span>
           </div>
         </div>
 
@@ -134,6 +141,83 @@ const VoicePlayer = (() => {
     const bars = containerEl.querySelectorAll('.waveform-bar');
     const currentEl = containerEl.querySelector('#v-current');
     const totalEl = containerEl.querySelector('#v-total');
+
+    // --- Helper Functions (Defined before use) ---
+    function setupBokeh() {
+      const container = document.getElementById('bokeh-container');
+      if (!container || container.children.length > 0) return;
+
+      for (let i = 0; i < 8; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'bokeh-particle';
+        const size = Math.random() * 300 + 200;
+        dot.style.width = `${size}px`;
+        dot.style.height = `${size}px`;
+        dot.style.left = `${Math.random() * 100}%`;
+        dot.style.top = `${Math.random() * 100}%`;
+        dot.style.transitionDuration = `${Math.random() * 3 + 2}s`;
+        container.appendChild(dot);
+      }
+    }
+
+    function setupVisualizer() {
+      if (!audioCtx) audioCtx = new AudioCtx();
+
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 128;
+      const bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
+
+      if (!sourceNode) {
+        sourceNode = audioCtx.createMediaElementSource(audio);
+        sourceNode.connect(analyser);
+        analyser.connect(audioCtx.destination);
+      }
+    }
+
+    function updateVisuals() {
+      if (!isPlaying) {
+        cancelAnimationFrame(animationId);
+        return;
+      }
+
+      animationId = requestAnimationFrame(updateVisuals);
+      analyser.getByteFrequencyData(dataArray);
+
+      // Density: 48 bars
+      // We take a slice of frequencies that represent the 'heart' of the audio
+      const binStep = Math.floor(dataArray.length / 64);
+
+      bars.forEach((bar, i) => {
+        // Symmetric Mirrored Mapping (Low freqs in center)
+        const distanceToCenter = Math.abs(i - 24);
+        const binIndex = Math.floor(distanceToCenter * 0.8) + 2;
+        const val = dataArray[binIndex] || 0;
+
+        // Scale for 42px container
+        const scaleFactor = (val / 255);
+        const height = 4 + (scaleFactor * 30);
+
+        bar.style.height = `${height}px`;
+
+        if (scaleFactor > 0.3) {
+          bar.style.opacity = 0.5 + (scaleFactor * 0.5);
+          bar.classList.add('active');
+        } else {
+          bar.style.opacity = 0.1 + (scaleFactor * 0.2);
+          bar.classList.remove('active');
+        }
+      });
+
+      const avgVolume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+      const particles = document.querySelectorAll('.bokeh-particle');
+      particles.forEach((p, idx) => {
+        const move = (avgVolume / 255) * (30 + idx * 5);
+        const scale = 1 + (avgVolume / 255) * 0.5;
+        p.style.transform = `translate(${Math.sin(Date.now() / 1000 + idx) * move}px, ${Math.cos(Date.now() / 1000 + idx) * move}px) scale(${scale})`;
+        p.style.opacity = 0.03 + (avgVolume / 255) * 0.07;
+      });
+    }
 
     const updateDuration = () => {
       let dur = audio.duration;
@@ -176,7 +260,10 @@ const VoicePlayer = (() => {
       }
 
       if (!noiseSource) initMechanicalSoundscape();
+      if (!analyser) setupVisualizer();
     };
+
+    setupBokeh();
 
     if (audio.readyState >= 1) updateDuration();
     audio.addEventListener('loadedmetadata', updateDuration);
@@ -268,6 +355,7 @@ const VoicePlayer = (() => {
         isPlaying = true;
         box.classList.add('is-cranking');
         bars.forEach(b => b.classList.add('active'));
+        updateVisuals();
 
         // Fade in Mechanical Soundscape
         if (noiseGain) {
