@@ -42,7 +42,7 @@ const Studio = (() => {
 
   let _state = {
     occasion: 'romantic',
-    theme: 'pinky', // Default new gifts to pinky theme
+    theme: 'rose', // Default new gifts to original theme
     recipientName: '',
     message: '',
     photos: [],
