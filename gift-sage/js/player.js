@@ -204,9 +204,8 @@ const VoicePlayer = (() => {
 
         // Scale for 42px container
         const scaleFactor = (val / 255);
-        const height = 4 + (scaleFactor * 30);
-
-        bar.style.height = `${height}px`;
+        // Use scaleY for GPU acceleration instead of height
+        bar.style.transform = `scaleY(${0.125 + scaleFactor * 0.875})`;
 
         if (scaleFactor > 0.3) {
           bar.style.opacity = 0.5 + (scaleFactor * 0.5);
