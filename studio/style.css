@@ -66,6 +66,18 @@ h3 {
   --primary: #c4867d;
 }
 
+[data-theme="beige"] {
+  --primary: #c29571;
+}
+
+[data-theme="blanc"] {
+  --primary: #e0e0e0;
+}
+
+[data-theme="sage"] {
+  --primary: #9aa98e;
+}
+
 /* ── Main Layout ── */
 #editor-panel {
   max-width: 720px;

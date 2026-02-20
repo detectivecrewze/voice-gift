@@ -24,19 +24,11 @@ const Preview = (() => {
 
   const openPreview = () => {
     const state = Studio.getState();
-    const token = Auth.getToken();
-
-    if (!token) {
-      alert("Token tidak ditemukan.");
-      return;
-    }
-
-    // Ambil konfigurasi tema untuk folder yang benar
     const themeConfig = Studio.getThemeConfig(state.theme);
-    const folder = themeConfig ? themeConfig.folder : 'gift'; // fallback
+    const folder = themeConfig ? themeConfig.folder : 'gift';
 
-    // Buka di tab baru (memastikan file tersimpan secara otomatis sebelum membuka)
-    window.open(`../${folder}/index.html?to=${token}`, '_blank');
+    // Buka tanpa parameter ?to= agar lari ke demo/mock data (tanpa password gate)
+    window.open(`../${folder}/index.html`, '_blank');
   };
 
   // Expose public API

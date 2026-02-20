@@ -30,10 +30,12 @@ const OCCASIONS = [
   { id: 'friendship', label: 'Friendship', emoji: '🤝', defaultTheme: 'lavender' },
 ];
 
-// ── Data: Themes ─────────────────────────────────────────────
+// ── Data: Themes ─────────────────────────────────────────────// Define available themes and their mapping
 const THEMES = [
-  { id: 'pinky', folder: 'gift-pinky', name: '🌸 Pinky Girl', color: '#f9a8d4' },
   { id: 'rose', folder: 'gift', name: '🤎 Original', color: '#a0866c' },
+  { id: 'pinky', folder: 'gift-pinky', name: '🌸 Magenta', color: '#f9a8d4' },
+  { id: 'beige', folder: 'gift-beige', name: '🪵 Beige', color: '#c29571' },
+  { id: 'sage', folder: 'gift-sage', name: '🌿 Sage', color: '#9aa98e' },
 ];
 
 // ── Global State ─────────────────────────────────────────────

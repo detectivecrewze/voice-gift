@@ -28,7 +28,7 @@ const _getMockData = (id) => {
       gift: {
         recipientName: 'Sayangku ❤️',
         message: 'Selamat hari jadi yang ke-1! Terima kasih sudah selalu ada di sampingku. Ini adalah sedikit kenangan yang aku kumpulin buat kamu. Love you always! ✨',
-        theme: 'pinky',
+        theme: 'blanc',
         voiceNote: {
           url: '/assets/The 1975 - About You (Official).mp3', // Audio default dari assets
           duration: 300 // Estimasi 5 menit
@@ -224,6 +224,9 @@ const _setupPasswordGate = (giftId, partialGift) => {
 // ── Render Gift Page ──────────────────────────────────────────
 const _renderGift = (gift) => {
   const giftEl = document.getElementById('state-gift');
+
+  // Terapkan tema ke body untuk background full-screen
+  document.body.setAttribute('data-theme', gift.theme || 'rose');
 
   // Voice Note (Printer-Music Box)
   const voiceSection = document.getElementById('gift-voice');
