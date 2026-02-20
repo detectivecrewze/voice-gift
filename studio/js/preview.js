@@ -19,7 +19,7 @@ const Preview = (() => {
     if (!frame) return;
 
     // Terapkan tema sebagai data attribute
-    frame.setAttribute('data-theme', state.theme || 'rose');
+    frame.setAttribute('data-theme', state.theme || 'pinky');
 
     frame.innerHTML = _buildPreviewHTML(state);
   };

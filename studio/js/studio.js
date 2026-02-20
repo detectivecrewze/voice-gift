@@ -32,11 +32,10 @@ const OCCASIONS = [
 
 // ── Data: Themes ─────────────────────────────────────────────
 const THEMES = [
-  { id: 'rose', name: 'Rose', color: '#fecdd3' },
-  { id: 'gold', name: 'Gold', color: '#fde68a' },
-  { id: 'sage', name: 'Sage', color: '#bbf7d0' },
-  { id: 'midnight', name: 'Midnight', color: '#4338ca' },
-  { id: 'lavender', name: 'Lavender', color: '#ddd6fe' },
+  { id: 'pinky', folder: 'gift-pinky', name: 'Pinky (Cewe)', color: '#fecdd3' },
+  { id: 'rose', folder: 'gift', name: 'Rose (Default)', color: '#fca5a5' }, // Legacy default maps back to /gift
+  { id: 'gold', folder: 'gift', name: 'Gold', color: '#fde68a' }, // Kept for legacy compatibility
+  { id: 'midnight', folder: 'gift', name: 'Midnight', color: '#4338ca' } // Kept for legacy compatibility
 ];
 
 // ── Global State ─────────────────────────────────────────────
@@ -45,7 +44,7 @@ const Studio = (() => {
 
   let _state = {
     occasion: 'romantic',
-    theme: 'rose',
+    theme: 'pinky', // Default new gifts to pinky theme
     recipientName: '',
     message: '',
     photos: [],
@@ -71,6 +70,7 @@ const Studio = (() => {
       Uploader.init(state.photos || []);
       VoiceRecorder.init(state.voiceNote);
       Publisher.init();
+      _renderThemes(state.theme || 'pinky');
       _updateRequirementsUI();
 
       // Setup Preview Iframe and Events
@@ -131,6 +131,33 @@ const Studio = (() => {
     _triggerImmediateSave();
   };
 
+  const onThemeSelected = (themeId) => {
+    if (_state.theme === themeId) return; // No change
+
+    _state.theme = themeId;
+    _renderThemes(themeId); // Update UI
+    _triggerImmediateSave(); // Save and sync to preview
+  };
+
+  // ── Render UI ──────────────────────────────────────────────
+  const _renderThemes = (activeThemeId) => {
+    const container = document.getElementById('theme-selector');
+    if (!container) return;
+
+    container.innerHTML = THEMES.map(t => {
+      const isActive = t.id === activeThemeId;
+      return `
+        <button 
+          onclick="Studio.onThemeSelected('${t.id}')"
+          class="flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${isActive ? 'border-black bg-black text-white' : 'border-gray-200 hover:border-black text-gray-500 hover:text-black'}"
+        >
+          <span class="w-3 h-3 rounded-full border border-black/10 shadow-sm" style="background-color: ${t.color}"></span>
+          <span class="text-[9px] uppercase tracking-widest font-bold">${t.name}</span>
+        </button>
+      `;
+    }).join('');
+  };
+
   // ── Requirements UI Update ───────────────────────────────
   const _updateRequirementsUI = () => {
     const photoCount = _state.photos?.length || 0;
@@ -170,6 +197,8 @@ const Studio = (() => {
     getState: () => ({ ..._state }),
     onPhotosChanged,
     onVoiceNoteChanged,
+    onThemeSelected,
+    getThemeConfig: (themeId) => THEMES.find(t => t.id === themeId) || THEMES[0], // Helper for preview/publisher
     showToast,
   };
 
