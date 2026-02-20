@@ -1,6 +1,6 @@
 const VoicePlayer = (() => {
 
-  const init = (voiceNote, containerEl, allPhotos) => {
+  const init = (voiceNote, containerEl, allPhotos, ambientId = 'none') => {
     const audio = new Audio(voiceNote.url);
     audio.crossOrigin = 'anonymous'; // Required for Web Audio API (waveform visualizer) with remote files
     let isPlaying = false;
@@ -39,6 +39,45 @@ const VoicePlayer = (() => {
 
       // Haptic Feedback
       if (navigator.vibrate) navigator.vibrate(5);
+    };
+
+    // --- Ambient Soundscapes ---
+    const AMBIENT_SOUNDS = {
+      rain: 'https://dl.dropboxusercontent.com/scl/fi/zwol73h41qnavbduc0qgh/rain.mp3?rlkey=7d82wac3ebncezhbe2vl09alf&st=cu5gupob',
+      cafe: 'https://dl.dropboxusercontent.com/scl/fi/awuth8dg03qy0ij2czddi/cafe.mp3?rlkey=5dzngx7pmnsx6utce484e65go&st=lzluvv25',
+      waves: 'https://dl.dropboxusercontent.com/scl/fi/9z17yg7u3l6wc2wv9lbp0/waves.mp3?rlkey=kwle5uf8h2vyodgt257t0lnwo&st=g1a3bxx5',
+      fireplace: 'https://dl.dropboxusercontent.com/scl/fi/orte59auc36wxng69iy3n/fireplace.mp3?rlkey=xohuvr0p6p1816hvp34kf387q&st=fgatk8qq',
+      forest: 'https://dl.dropboxusercontent.com/scl/fi/cy1k2ru7ddi1wm96uohqv/forest.mp3?rlkey=uvsqjyjxbwhk33cmaps931bqu&st=h2b6zlzk',
+      'nadin-ah': 'https://dl.dropboxusercontent.com/scl/fi/itmvna64forw61thvwb19/AH-Nadin-Amizah.mp3?rlkey=lmzmxrhjgq9qrabe3sewox21q&st=0s3baidy',
+      daniel: 'https://dl.dropboxusercontent.com/scl/fi/nqpvliyw9r780t3wk4636/Daniel-Caesar-Who-Knows.mp3?rlkey=vnfwwhsmuwdyt2lrgwuhjyf9u&st=fgjxdbio',
+      mitski: 'https://dl.dropboxusercontent.com/scl/fi/71ib9m69dm2ed9squj191/Mitski-My-Love-Mine-All-Mine.mp3?rlkey=i43d8ng7tbndbuflm1yw3j3r9&st=dad3r4yp'
+    };
+
+    let ambientAudio = null;
+    let ambientGain = null;
+    let ambientSource = null;
+
+    const initAmbientSound = () => {
+      if (!ambientId || ambientId === 'none' || !AMBIENT_SOUNDS[ambientId]) {
+        return;
+      }
+      if (!audioCtx) audioCtx = new AudioCtx();
+
+      ambientAudio = new Audio(AMBIENT_SOUNDS[ambientId]);
+      ambientAudio.crossOrigin = 'anonymous';
+
+      // Only loop nature SFX, not songs
+      const isSong = ['nadin-ah', 'daniel', 'mitski'].includes(ambientId);
+      ambientAudio.loop = !isSong;
+
+      ambientSource = audioCtx.createMediaElementSource(ambientAudio);
+      ambientGain = audioCtx.createGain();
+      ambientGain.gain.setValueAtTime(0, audioCtx.currentTime);
+
+      ambientSource.connect(ambientGain);
+      ambientGain.connect(audioCtx.destination);
+
+      ambientAudio.play().catch(() => { });
     };
 
     // --- Continuous Mechanical Soundscape (Vinyl Crackle & Whir) ---
@@ -273,6 +312,7 @@ const VoicePlayer = (() => {
 
       if (!noiseSource) initMechanicalSoundscape();
       if (!analyser) setupVisualizer();
+      if (!ambientAudio) initAmbientSound();
     };
 
     setupBokeh();
@@ -383,6 +423,11 @@ const VoicePlayer = (() => {
         if (noiseGain) {
           noiseGain.gain.setTargetAtTime(0.12, audioCtx.currentTime, 0.1);
         }
+
+        // Fade in Ambient Sound
+        if (ambientGain) {
+          ambientGain.gain.setTargetAtTime(0.085, audioCtx.currentTime, 0.5);
+        }
       }
     };
 
@@ -396,6 +441,11 @@ const VoicePlayer = (() => {
         // Fade out Mechanical Soundscape
         if (noiseGain) {
           noiseGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.2);
+        }
+
+        // Fade out Ambient Sound
+        if (ambientGain) {
+          ambientGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.5);
         }
       }
     };

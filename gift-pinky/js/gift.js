@@ -29,6 +29,7 @@ const _getMockData = (id) => {
         recipientName: 'Sayangku ❤️',
         message: 'Selamat hari jadi yang ke-1! Terima kasih sudah selalu ada di sampingku. Ini adalah sedikit kenangan yang aku kumpulin buat kamu. Love you always! ✨',
         theme: 'pinky',
+        ambient: 'rain',
         voiceNote: {
           url: '/assets/The 1975 - About You (Official).mp3', // Audio default dari assets
           duration: 300 // Estimasi 5 menit
@@ -230,7 +231,7 @@ const _renderGift = (gift) => {
   if (gift.voiceNote?.url) {
     if (voiceSection) {
       voiceSection.classList.remove('hidden');
-      VoicePlayer.init(gift.voiceNote, voiceSection, gift.photos || []);
+      VoicePlayer.init(gift.voiceNote, voiceSection, gift.photos || [], gift.ambient || 'none');
     }
   } else {
     voiceSection?.classList.add('hidden');

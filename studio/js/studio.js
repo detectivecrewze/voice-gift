@@ -38,6 +38,19 @@ const THEMES = [
   { id: 'sage', folder: 'gift-sage', name: '🌿 Sage', color: '#9aa98e' },
 ];
 
+// ── Data: Ambients ──────────────────────────────────────────
+const AMBIENTS = [
+  { id: 'none', label: 'Tanpa Suasana', emoji: '🔇' },
+  { id: 'rain', label: 'Rintik Hujan', emoji: '🌧️' },
+  { id: 'cafe', label: 'Cozy Cafe', emoji: '☕' },
+  { id: 'waves', label: 'Deburan Ombak', emoji: '🌊' },
+  { id: 'fireplace', label: 'Api Unggun', emoji: '🔥' },
+  { id: 'forest', label: 'Hutan Pagi', emoji: '🌲' },
+  { id: 'nadin-ah', label: 'Nadin Amizah - Ah', emoji: '☁️' },
+  { id: 'daniel', label: 'Daniel Caesar - Who Knows', emoji: '🕊️' },
+  { id: 'mitski', label: 'Mitski - My Love Mine All Mine', emoji: '🌕' },
+];
+
 // ── Global State ─────────────────────────────────────────────
 // State ini adalah single source of truth untuk seluruh studio
 const Studio = (() => {
@@ -49,6 +62,7 @@ const Studio = (() => {
     message: '',
     photos: [],
     voiceNote: { url: null, duration: null, mimeType: null },
+    ambient: 'none',
     password: null,
     studioPassword: null,
   };
@@ -70,7 +84,8 @@ const Studio = (() => {
       Uploader.init(state.photos || []);
       VoiceRecorder.init(state.voiceNote);
       Publisher.init();
-      _renderThemes(state.theme || 'pinky');
+      _renderThemes(state.theme || 'rose');
+      _renderAmbients(state.ambient || 'none');
       _updateRequirementsUI();
 
       // Setup Preview Iframe and Events
@@ -139,6 +154,14 @@ const Studio = (() => {
     _triggerImmediateSave(); // Save and sync to preview
   };
 
+  const onAmbientSelected = (ambientId) => {
+    if (_state.ambient === ambientId) return;
+
+    _state.ambient = ambientId;
+    _renderAmbients(ambientId);
+    _triggerImmediateSave();
+  };
+
   // ── Render UI ──────────────────────────────────────────────
   const _renderThemes = (activeThemeId) => {
     const container = document.getElementById('theme-selector');
@@ -153,6 +176,24 @@ const Studio = (() => {
         >
           <span class="w-3 h-3 rounded-full border border-black/10 shadow-sm" style="background-color: ${t.color}"></span>
           <span class="text-[9px] uppercase tracking-widest font-bold">${t.name}</span>
+        </button>
+      `;
+    }).join('');
+  };
+
+  const _renderAmbients = (activeAmbientId) => {
+    const container = document.getElementById('ambient-selector');
+    if (!container) return;
+
+    container.innerHTML = AMBIENTS.map(a => {
+      const isActive = a.id === activeAmbientId;
+      return `
+        <button 
+          onclick="Studio.onAmbientSelected('${a.id}')"
+          class="flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${isActive ? 'border-black bg-black text-white' : 'border-gray-200 hover:border-black text-gray-500 hover:text-black'}"
+        >
+          <span class="text-xs">${a.emoji}</span>
+          <span class="text-[9px] uppercase tracking-widest font-bold">${a.label}</span>
         </button>
       `;
     }).join('');
@@ -198,6 +239,7 @@ const Studio = (() => {
     onPhotosChanged,
     onVoiceNoteChanged,
     onThemeSelected,
+    onAmbientSelected,
     getThemeConfig: (themeId) => THEMES.find(t => t.id === themeId) || THEMES[0], // Helper for preview/publisher
     showToast,
   };
