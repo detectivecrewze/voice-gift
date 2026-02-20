@@ -32,10 +32,8 @@ const OCCASIONS = [
 
 // ── Data: Themes ─────────────────────────────────────────────
 const THEMES = [
-  { id: 'pinky', folder: 'gift-pinky', name: 'Pinky (Cewe)', color: '#fecdd3' },
-  { id: 'rose', folder: 'gift', name: 'Rose (Default)', color: '#fca5a5' }, // Legacy default maps back to /gift
-  { id: 'gold', folder: 'gift', name: 'Gold', color: '#fde68a' }, // Kept for legacy compatibility
-  { id: 'midnight', folder: 'gift', name: 'Midnight', color: '#4338ca' } // Kept for legacy compatibility
+  { id: 'pinky', folder: 'gift-pinky', name: '🌸 Pinky Girl', color: '#f9a8d4' },
+  { id: 'rose', folder: 'gift', name: '🤎 Original', color: '#a0866c' },
 ];
 
 // ── Global State ─────────────────────────────────────────────

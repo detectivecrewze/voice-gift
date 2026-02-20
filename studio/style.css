@@ -59,19 +59,11 @@ h3 {
 
 /* ── Preview Theme Colors ── */
 [data-theme="pinky"] {
-  --primary: #c4867d;
+  --primary: #f472b6;
 }
 
 [data-theme="rose"] {
   --primary: #c4867d;
-}
-
-[data-theme="gold"] {
-  --primary: #d4ae6a;
-}
-
-[data-theme="midnight"] {
-  --primary: #8fa1c4;
 }
 
 /* ── Main Layout ── */

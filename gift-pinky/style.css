@@ -1,30 +1,30 @@
 /* ============================================================
-   For you, Always. — Pinky Theme (Feminine & Romantic)
+   For you, Always. — Pinky Girl Theme 🌸
    ============================================================ */
 
 :root {
   --font-display: 'Cormorant Garamond', serif;
   --font-sans: 'DM Sans', sans-serif;
   --font-mono: 'Space Mono', monospace;
-  --noise-opacity: 0.06;
+  --noise-opacity: 0.04;
 
-  /* ── Pinky Color Palette ── */
-  --bg: #1e1520;
-  /* Deep plum-black */
-  --surface: rgba(255, 200, 210, 0.08);
-  --primary: #e8879f;
-  /* Rose-pink */
-  --accent: #c46b84;
-  /* Deeper rose */
-  --text: #f0e0e5;
-  /* Soft pink-white */
-  --text-muted: #c4a0ab;
-  /* Muted mauve */
-  --border: rgba(232, 135, 159, 0.2);
-  --mesh: radial-gradient(at 0% 0%, #2e1a28 0px, transparent 50%),
-    radial-gradient(at 100% 0%, #251520 0px, transparent 50%),
-    radial-gradient(at 100% 100%, #1a0e18 0px, transparent 50%),
-    radial-gradient(at 0% 100%, #2a1825 0px, transparent 50%);
+  /* ── Girly Pink Color Palette ── */
+  --bg: #2d1a22;
+  /* Deep rose-black */
+  --surface: rgba(255, 182, 210, 0.12);
+  --primary: #f472b6;
+  /* Hot pink */
+  --accent: #ec4899;
+  /* Vivid fuchsia */
+  --text: #fce4ec;
+  /* Soft blush white */
+  --text-muted: #e8a0b8;
+  /* Warm pink-grey */
+  --border: rgba(244, 114, 182, 0.25);
+  --mesh: radial-gradient(at 0% 0%, #3d1f2e 0px, transparent 50%),
+    radial-gradient(at 100% 0%, #351828 0px, transparent 50%),
+    radial-gradient(at 80% 80%, #2a1220 0px, transparent 50%),
+    radial-gradient(at 20% 100%, #3a1e2d 0px, transparent 50%);
 }
 
 *,
@@ -97,7 +97,7 @@ body::after {
   border-radius: 50%;
   background: var(--primary);
   filter: blur(40px);
-  opacity: 0.05;
+  opacity: 0.08;
   transition: transform 2s ease, opacity 1s ease;
   will-change: transform, opacity;
 }
@@ -109,25 +109,26 @@ body::after {
   perspective: 2500px;
 }
 
-/* ── The Memoir Station (Pinky Edition) ── */
+/* ── The Memoir Station (Girly Pink Edition) ── */
 .music-box-container {
   position: relative;
   background:
-    radial-gradient(circle at 50% 50%, rgba(60, 35, 50, 0.92), rgba(35, 20, 30, 0.96)),
+    radial-gradient(circle at 50% 30%, rgba(90, 40, 65, 0.85), rgba(50, 25, 38, 0.95)),
     url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.05'/%3E%3C/svg%3E");
   backdrop-filter: blur(50px);
   -webkit-backdrop-filter: blur(50px);
 
-  /* Double Trim Border — Pink */
-  border: 1px solid rgba(255, 200, 220, 0.06);
-  outline: 1px solid rgba(232, 135, 159, 0.15);
+  /* Pink-tinted border */
+  border: 1px solid rgba(244, 114, 182, 0.12);
+  outline: 1px solid rgba(244, 114, 182, 0.2);
   outline-offset: -8px;
 
   border-radius: 56px;
   padding: 85px 24px 165px;
   box-shadow:
-    0 80px 160px -40px rgba(30, 10, 20, 0.9),
-    inset 0 1px 2px rgba(255, 200, 220, 0.05);
+    0 80px 160px -40px rgba(50, 15, 30, 0.9),
+    0 0 80px rgba(244, 114, 182, 0.06),
+    inset 0 1px 2px rgba(255, 200, 220, 0.08);
   text-align: center;
   overflow: hidden;
 }
@@ -141,7 +142,7 @@ body::after {
   width: 60px;
   height: 6px;
   background: linear-gradient(135deg, #2a2028, #1a1218);
-  border: 1px solid rgba(232, 135, 159, 0.4);
+  border: 1px solid rgba(244, 114, 182, 0.4);
   border-radius: 20px;
   box-shadow:
     0 2px 5px rgba(0, 0, 0, 0.5),
@@ -415,7 +416,7 @@ body::after {
   box-shadow:
     inset 0 4px 8px rgba(0, 0, 0, 0.9),
     0 0 0 3px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(232, 135, 159, 0.2);
+  border: 1px solid rgba(244, 114, 182, 0.25);
 }
 
 /* Antique Slender Arm - "Panjang & Mancung" */
@@ -427,7 +428,7 @@ body::after {
   /* Very thin */
   height: 45px;
   /* Slender arm */
-  background: linear-gradient(90deg, #a0607a 0%, #e8879f 50%, #a0607a 100%);
+  background: linear-gradient(90deg, #c0508a 0%, #f472b6 50%, #c0508a 100%);
   border-radius: 20px;
   transform-origin: center 0px;
   box-shadow: -6px 12px 20px rgba(0, 0, 0, 0.5);
@@ -443,7 +444,7 @@ body::after {
   transform: translateX(-50%);
   width: 10px;
   height: 10px;
-  background: radial-gradient(circle at 30% 30%, #fff 0%, #e8879f 100%);
+  background: radial-gradient(circle at 30% 30%, #fff 0%, #f472b6 100%);
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
 }
@@ -457,7 +458,7 @@ body::after {
   width: 18px;
   height: 32px;
   /* Pointy handle */
-  background: linear-gradient(135deg, #fff5f7 0%, #f4dde3 40%, #d4a0b0 100%);
+  background: linear-gradient(135deg, #fff0f5 0%, #fce4ec 40%, #f9a8d4 100%);
   border-radius: 40% 40% 50% 50% / 15% 15% 85% 85%;
   /* Tapered shape */
   box-shadow:
