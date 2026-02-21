@@ -8,6 +8,10 @@ const VoicePlayer = (() => {
     let lastAngle = null;
     let totalCrankAngle = 0;
     let lastClickRotation = 0;
+    let lastMoveTime = 0;          // Fix 1: Throttle touchmove to ~30fps
+    let lastClickTime = 0;         // Fix 6: Throttle click sounds
+    let frameCounter = 0;          // Fix 2: Proper frame-skip counter
+    let stopTimeoutId = null;      // Fix 7: Conditional stop timeout
 
     // --- Sound Engine & Haptics ---
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -246,49 +250,42 @@ const VoicePlayer = (() => {
 
       animationId = requestAnimationFrame(updateVisuals);
 
-      // Throttling: Only run visual updates occasionally or every other frame
-      // to reduce CPU/GPU pressure on mobile
-      if (Date.now() % 2 !== 0) return;
+      // Fix 2: Proper frame-skip — skip every other frame on mobile
+      frameCounter++;
+      if (frameCounter % 2 !== 0) return;
 
       analyser.getByteFrequencyData(dataArray);
 
-      // Density: 48 bars
-      // We take a slice of frequencies that represent the 'heart' of the audio
-      const binStep = Math.floor(dataArray.length / 64);
+      // Fix 3: Batch all style writes together, minimize classList operations
+      const now = Date.now();
+      const nowSec = now / 1000;
 
-      bars.forEach((bar, i) => {
-        // Symmetric Mirrored Mapping (Low freqs in center)
+      for (let i = 0; i < bars.length; i++) {
         const distanceToCenter = Math.abs(i - 12);
         const binIndex = Math.floor(distanceToCenter * 0.8) + 2;
         const val = dataArray[binIndex] || 0;
 
-        // Scale for 42px container
         const scaleFactor = (val / 255);
-        // Use scaleY for GPU acceleration instead of height
-        bar.style.transform = `scaleY(${0.125 + scaleFactor * 0.875})`;
-
-        if (scaleFactor > 0.3) {
-          bar.style.opacity = 0.5 + (scaleFactor * 0.5);
-          bar.classList.add('active');
-        } else {
-          bar.style.opacity = 0.1 + (scaleFactor * 0.2);
-          bar.classList.remove('active');
-        }
-      });
-
-      const avgVolume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-
-      if (!cachedParticles) {
-        cachedParticles = document.querySelectorAll('.bokeh-particle');
+        bars[i].style.transform = `scaleY(${0.125 + scaleFactor * 0.875})`;
+        bars[i].style.opacity = scaleFactor > 0.3 ? (0.5 + scaleFactor * 0.5) : (0.1 + scaleFactor * 0.2);
       }
 
-      cachedParticles.forEach((p, idx) => {
-        const move = (avgVolume / 255) * (30 + idx * 5);
-        const scale = 1 + (avgVolume / 255) * 0.5;
-        // Use translate3d for GPU acceleration
-        p.style.transform = `translate3d(${Math.sin(Date.now() / 1000 + idx) * move}px, ${Math.cos(Date.now() / 1000 + idx) * move}px, 0) scale(${scale})`;
-        p.style.opacity = 0.03 + (avgVolume / 255) * 0.07;
-      });
+      // Fix 3: Reduce bokeh update frequency — every 4th frame (effectively ~7.5fps)
+      if (frameCounter % 4 === 0) {
+        const avgVolume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+
+        if (!cachedParticles) {
+          cachedParticles = document.querySelectorAll('.bokeh-particle');
+        }
+
+        for (let idx = 0; idx < cachedParticles.length; idx++) {
+          const p = cachedParticles[idx];
+          const move = (avgVolume / 255) * (30 + idx * 5);
+          const scale = 1 + (avgVolume / 255) * 0.5;
+          p.style.transform = `translate3d(${Math.sin(nowSec + idx) * move}px, ${Math.cos(nowSec + idx) * move}px, 0) scale(${scale})`;
+          p.style.opacity = 0.03 + (avgVolume / 255) * 0.07;
+        }
+      }
     }
 
     const updateDuration = () => {
@@ -381,6 +378,11 @@ const VoicePlayer = (() => {
     const handleMove = (e) => {
       if (!isDragging) return;
 
+      // Fix 1: Throttle touchmove to ~30fps (33ms)
+      const moveNow = performance.now();
+      if (moveNow - lastMoveTime < 33) return;
+      lastMoveTime = moveNow;
+
       const rect = handle.getBoundingClientRect();
       // Center of the 40px circular pit base
       const centerX = rect.left + rect.width / 2;
@@ -428,9 +430,13 @@ const VoicePlayer = (() => {
             lastActivePhotoIndex = activeIndex;
           }
 
-          // Trigger Click Sound & Haptic every 15 degrees
+          // Trigger Click Sound & Haptic every 15 degrees (Fix 6: with 50ms cooldown)
           if (Math.abs(totalCrankAngle - lastClickRotation) > 15) {
-            playMechanicalClick();
+            const clickNow = performance.now();
+            if (clickNow - lastClickTime > 50) {
+              playMechanicalClick();
+              lastClickTime = clickNow;
+            }
             lastClickRotation = totalCrankAngle;
           }
 
@@ -447,7 +453,6 @@ const VoicePlayer = (() => {
         audio.play().catch(() => { });
         isPlaying = true;
         box.classList.add('is-cranking');
-        bars.forEach(b => b.classList.add('active'));
         updateVisuals();
 
         // Fade in Mechanical Soundscape
@@ -460,6 +465,12 @@ const VoicePlayer = (() => {
           ambientGain.gain.setTargetAtTime(0.085, audioCtx.currentTime, 0.5);
         }
       }
+
+      // Fix 7: Reset stop-timeout each crank movement
+      if (stopTimeoutId) clearTimeout(stopTimeoutId);
+      stopTimeoutId = setTimeout(() => {
+        stopPlaying();
+      }, 300);
     };
 
     const stopPlaying = () => {
@@ -467,7 +478,6 @@ const VoicePlayer = (() => {
         audio.pause();
         isPlaying = false;
         box.classList.remove('is-cranking');
-        bars.forEach(b => b.classList.remove('active'));
 
         // Fade out Mechanical Soundscape
         if (noiseGain) {
@@ -478,14 +488,10 @@ const VoicePlayer = (() => {
         if (ambientGain) {
           ambientGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.5);
         }
+
+        if (stopTimeoutId) { clearTimeout(stopTimeoutId); stopTimeoutId = null; }
       }
     };
-
-    setInterval(() => {
-      if (isPlaying && Date.now() - lastRotationTime > 300) {
-        stopPlaying();
-      }
-    }, 100);
 
     handle.addEventListener('mousedown', startDrag);
     window.addEventListener('mousemove', handleMove);

@@ -747,7 +747,15 @@ body::after {
     display: none !important;
   }
 
-  /* ── Performance: Disable heavy animations on mobile ── */
+  /* ── Performance: Disable heavy effects on mobile ── */
+  .music-box-container {
+    /* Fix 5: Remove backdrop-filter on mobile — use solid fallback */
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(70, 60, 50, 0.95), rgba(40, 32, 25, 0.98));
+  }
+
   .is-cranking .light-leak-overlay {
     animation: none;
     opacity: 0.5;
@@ -761,8 +769,11 @@ body::after {
     animation: none;
   }
 
+  /* Fix 4: Replace expensive blur filter with pre-blurred gradient */
   .bokeh-particle {
-    filter: blur(20px);
+    filter: none;
+    background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+    opacity: 0.04;
   }
 }
 
