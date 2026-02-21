@@ -12,6 +12,7 @@ const VoicePlayer = (() => {
     let lastClickTime = 0;         // Fix 6: Throttle click sounds
     let frameCounter = 0;          // Fix 2: Proper frame-skip counter
     let stopTimeoutId = null;      // Fix 7: Conditional stop timeout
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
     // --- Sound Engine & Haptics ---
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -250,9 +251,10 @@ const VoicePlayer = (() => {
 
       animationId = requestAnimationFrame(updateVisuals);
 
-      // Fix 2: Proper frame-skip — skip every other frame on mobile
+      // Fix 2: Proper frame-skip — skip 2 of 3 frames on mobile, every other on desktop
       frameCounter++;
-      if (frameCounter % 2 !== 0) return;
+      const skipRate = isMobile ? 3 : 2;
+      if (frameCounter % skipRate !== 0) return;
 
       analyser.getByteFrequencyData(dataArray);
 

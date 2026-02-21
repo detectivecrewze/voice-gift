@@ -716,6 +716,22 @@ body::after {
   .watermark-badge {
     display: none !important;
   }
+
+  /* ── Performance: Remove expensive GPU filters on mobile ── */
+  .music-box-container {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .bokeh-particle {
+    filter: none !important;
+    background: radial-gradient(circle, var(--primary) 0%, transparent 70%) !important;
+    opacity: 0.04 !important;
+  }
+
+  .is-cranking .analog-noise {
+    animation: none !important;
+  }
 }
 
 /* ── Alignment Utilities (Restored) ── */
