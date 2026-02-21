@@ -17,28 +17,42 @@ const VoicePlayer = (() => {
     let sourceNode = null;
     let animationId = null;
 
-    const playMechanicalClick = () => {
-      if (!audioCtx) audioCtx = new AudioCtx();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
+    // ── Centralized AudioContext Helper ───────────────────────
+    // Ensures AudioContext is created & resumed AFTER user gesture (iOS/Safari fix)
+    const getAudioContext = () => {
+      if (!audioCtx) {
+        audioCtx = new AudioCtx();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => { });
+      }
+      return audioCtx;
+    };
 
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+    const playMechanicalClick = () => {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.05);
+      osc.frequency.setValueAtTime(150, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.05);
 
-      gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.04, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
 
       osc.connect(gain);
-      gain.connect(audioCtx.destination);
+      gain.connect(ctx.destination);
 
       osc.start();
-      osc.stop(audioCtx.currentTime + 0.05);
+      osc.stop(ctx.currentTime + 0.05);
 
-      // Haptic Feedback
-      if (navigator.vibrate) navigator.vibrate(5);
+      // Haptic Feedback - wrapped in try-catch for iOS Safari
+      try {
+        if (navigator.vibrate) navigator.vibrate(5);
+      } catch (e) { }
     };
 
     // --- Ambient Soundscapes ---
@@ -61,7 +75,8 @@ const VoicePlayer = (() => {
       if (!ambientId || ambientId === 'none' || !AMBIENT_SOUNDS[ambientId]) {
         return;
       }
-      if (!audioCtx) audioCtx = new AudioCtx();
+      const ctx = getAudioContext();
+      if (!ctx) return;
 
       ambientAudio = new Audio(AMBIENT_SOUNDS[ambientId]);
       ambientAudio.crossOrigin = 'anonymous';
@@ -70,12 +85,12 @@ const VoicePlayer = (() => {
       const isSong = ['nadin-ah', 'daniel', 'mitski'].includes(ambientId);
       ambientAudio.loop = !isSong;
 
-      ambientSource = audioCtx.createMediaElementSource(ambientAudio);
-      ambientGain = audioCtx.createGain();
-      ambientGain.gain.setValueAtTime(0, audioCtx.currentTime);
+      ambientSource = ctx.createMediaElementSource(ambientAudio);
+      ambientGain = ctx.createGain();
+      ambientGain.gain.setValueAtTime(0, ctx.currentTime);
 
       ambientSource.connect(ambientGain);
-      ambientGain.connect(audioCtx.destination);
+      ambientGain.connect(ctx.destination);
 
       ambientAudio.play().catch(() => { });
     };
@@ -85,10 +100,11 @@ const VoicePlayer = (() => {
     let noiseGain = null;
 
     const initMechanicalSoundscape = () => {
-      if (!audioCtx) audioCtx = new AudioCtx();
+      const ctx = getAudioContext();
+      if (!ctx) return;
 
-      const bufferSize = audioCtx.sampleRate * 2;
-      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const bufferSize = ctx.sampleRate * 2;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
 
       for (let i = 0; i < bufferSize; i++) {
@@ -98,20 +114,20 @@ const VoicePlayer = (() => {
         data[i] = (white * 0.05) + crackle;
       }
 
-      noiseSource = audioCtx.createBufferSource();
+      noiseSource = ctx.createBufferSource();
       noiseSource.buffer = buffer;
       noiseSource.loop = true;
 
-      const filter = audioCtx.createBiquadFilter();
+      const filter = ctx.createBiquadFilter();
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(600, audioCtx.currentTime);
+      filter.frequency.setValueAtTime(600, ctx.currentTime);
 
-      noiseGain = audioCtx.createGain();
-      noiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
+      noiseGain = ctx.createGain();
+      noiseGain.gain.setValueAtTime(0, ctx.currentTime);
 
       noiseSource.connect(filter);
       filter.connect(noiseGain);
-      noiseGain.connect(audioCtx.destination);
+      noiseGain.connect(ctx.destination);
       noiseSource.start();
     };
 
@@ -201,17 +217,18 @@ const VoicePlayer = (() => {
     }
 
     function setupVisualizer() {
-      if (!audioCtx) audioCtx = new AudioCtx();
+      const ctx = getAudioContext();
+      if (!ctx) return;
 
-      analyser = audioCtx.createAnalyser();
+      analyser = ctx.createAnalyser();
       analyser.fftSize = 128;
       const bufferLength = analyser.frequencyBinCount;
       dataArray = new Uint8Array(bufferLength);
 
       if (!sourceNode) {
-        sourceNode = audioCtx.createMediaElementSource(audio);
+        sourceNode = ctx.createMediaElementSource(audio);
         sourceNode.connect(analyser);
-        analyser.connect(audioCtx.destination);
+        analyser.connect(ctx.destination);
       }
     }
 
@@ -291,6 +308,9 @@ const VoicePlayer = (() => {
     const warmUpAudio = () => {
       if (audioWarmed) return;
 
+      // Initialize AudioContext on first user gesture
+      getAudioContext();
+
       // Trick untuk memaksa browser kalkulasi durasi WebM yang tidak punya metadata cues (sering terjadi pada rekaman browser)
       if (audio.duration === Infinity || audio.duration === 0 || isNaN(audio.duration)) {
         audio.currentTime = 1e10; // Lompat ke ujung yang sangat jauh
@@ -305,10 +325,6 @@ const VoicePlayer = (() => {
         audio.pause();
         audioWarmed = true;
       }).catch(() => { });
-
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
 
       if (!noiseSource) initMechanicalSoundscape();
       if (!analyser) setupVisualizer();
@@ -339,6 +355,16 @@ const VoicePlayer = (() => {
     const startDrag = (e) => {
       isDragging = true;
       lastAngle = null;
+
+      // ── iOS/Safari Fix: Initialize AudioContext SYNCHRONOUSLY in user gesture handler ──
+      // This MUST happen directly in the event handler, not in a callback/helper
+      if (!audioCtx) {
+        audioCtx = new AudioCtx();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
       warmUpAudio();
       e.preventDefault();
     };
