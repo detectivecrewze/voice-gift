@@ -746,6 +746,24 @@ body::after {
   .watermark-badge {
     display: none !important;
   }
+
+  /* ── Performance: Disable heavy animations on mobile ── */
+  .is-cranking .light-leak-overlay {
+    animation: none;
+    opacity: 0.5;
+  }
+
+  .is-cranking .analog-noise {
+    animation: none;
+  }
+
+  .is-cranking .printer-viewport {
+    animation: none;
+  }
+
+  .bokeh-particle {
+    filter: blur(20px);
+  }
 }
 
 /* ── Alignment Utilities (Restored) ── */

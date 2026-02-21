@@ -169,7 +169,7 @@ const VoicePlayer = (() => {
 
         <div class="music-box-info">
           <div class="music-box-waveform" id="waveform">
-            ${Array(48).fill('<div class="waveform-bar"></div>').join('')}
+            ${Array(24).fill('<div class="waveform-bar"></div>').join('')}
           </div>
 
           <div class="music-box-timer">
@@ -198,12 +198,16 @@ const VoicePlayer = (() => {
     const currentEl = containerEl.querySelector('#v-current');
     const totalEl = containerEl.querySelector('#v-total');
 
+    // ── Performance: Cache DOM elements ──────────────────────────
+    const photoEls = tray.querySelectorAll('.printer-photo');
+    let lastActivePhotoIndex = -1;
+
     // --- Helper Functions (Defined before use) ---
     function setupBokeh() {
       const container = document.getElementById('bokeh-container');
       if (!container || container.children.length > 0) return;
 
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < 4; i++) {
         const dot = document.createElement('div');
         dot.className = 'bokeh-particle';
         const size = Math.random() * 300 + 200;
@@ -254,7 +258,7 @@ const VoicePlayer = (() => {
 
       bars.forEach((bar, i) => {
         // Symmetric Mirrored Mapping (Low freqs in center)
-        const distanceToCenter = Math.abs(i - 24);
+        const distanceToCenter = Math.abs(i - 12);
         const binIndex = Math.floor(distanceToCenter * 0.8) + 2;
         const val = dataArray[binIndex] || 0;
 
@@ -414,12 +418,14 @@ const VoicePlayer = (() => {
           // Use translate3d for GPU acceleration
           tray.style.transform = `translate3d(-${loopSlide}px, 0, 0)`;
 
-          // Optimize: Only scale the active (centered) photo
+          // Optimize: Only update active photo when index changes
           const activeIndex = Math.round(loopSlide / VIEW_WIDTH);
-          const photoEls = tray.querySelectorAll('.printer-photo');
-          if (photoEls[activeIndex] && !photoEls[activeIndex].classList.contains('is-active')) {
-            photoEls.forEach(el => el.classList.remove('is-active'));
+          if (activeIndex !== lastActivePhotoIndex && photoEls[activeIndex]) {
+            if (lastActivePhotoIndex >= 0 && photoEls[lastActivePhotoIndex]) {
+              photoEls[lastActivePhotoIndex].classList.remove('is-active');
+            }
             photoEls[activeIndex].classList.add('is-active');
+            lastActivePhotoIndex = activeIndex;
           }
 
           // Trigger Click Sound & Haptic every 15 degrees
