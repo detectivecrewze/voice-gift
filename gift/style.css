@@ -141,7 +141,7 @@ body::after {
   position: relative;
   background:
     radial-gradient(circle at 50% 50%, rgba(70, 60, 50, 0.9), rgba(40, 32, 25, 0.95)),
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.05'/%3E%3C/svg%3E");
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.03'/%3E%3C/svg%3E");
 
   /* Optimized backdrop-filter for mobile performance */
   backdrop-filter: blur(20px);
@@ -648,6 +648,19 @@ body::after {
   max-width: 200px;
   margin-left: auto;
   margin-right: auto;
+}
+
+/* Subtle Scanlines for Audio Display */
+.music-box-waveform::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.05) 2px,
+      rgba(0, 0, 0, 0.05) 4px);
+  pointer-events: none;
+  z-index: 10;
 }
 
 /* Glass Inner Glow */

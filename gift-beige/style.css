@@ -126,7 +126,7 @@ body::after {
       transparent 1px,
       transparent 8px),
     /* Noise overlay */
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.06'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.03'/%3E%3C/svg%3E"),
     /* Base Color Gradient (Warna Beige Pekat yang lebih bold) */
     radial-gradient(circle at 50% 20%, #fdfbf7 0%, #ebd7c2 55%, #cfae8d 100%);
 
@@ -560,14 +560,14 @@ body::after {
   gap: 2px;
   height: 42px;
   margin-bottom: 16px;
-  background: rgba(194, 149, 113, 0.12);
+  background: rgba(194, 149, 113, 0.15);
   /* Tinted background */
   border-radius: 100px;
   padding: 0 15px;
   border: 1px solid rgba(194, 149, 113, 0.4);
   box-shadow:
-    inset 0 2px 8px rgba(100, 80, 70, 0.1),
-    0 1px 0 rgba(255, 255, 255, 0.5);
+    inset 0 2px 8px rgba(0, 0, 0, 0.05),
+    0 1px 0 rgba(255, 255, 255, 0.8);
   position: relative;
   overflow: hidden;
   max-width: 200px;

@@ -129,7 +129,7 @@ body::after {
     /* Base Color Gradient (More Solid Sage/Linen mix) */
     radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.98), rgba(220, 230, 210, 1)),
     /* Noise overlay */
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.08'/%3E%3C/svg%3E");
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.04'/%3E%3C/svg%3E");
 
   /* Optimized backdrop-filter for mobile performance */
   backdrop-filter: blur(20px);
@@ -557,13 +557,13 @@ body::after {
   height: 42px;
   margin-bottom: 16px;
   background: rgba(154, 169, 142, 0.15);
-  /* Tinted background for better context */
+  /* Tinted background (Sage Green) */
   border-radius: 100px;
   padding: 0 15px;
-  border: 1px solid rgba(154, 169, 142, 0.5);
+  border: 1px solid rgba(154, 169, 142, 0.4);
   box-shadow:
-    inset 0 2px 8px rgba(35, 43, 32, 0.1),
-    0 1px 0 rgba(255, 255, 255, 0.5);
+    inset 0 2px 8px rgba(0, 0, 0, 0.05),
+    0 1px 0 rgba(255, 255, 255, 0.9);
   position: relative;
   overflow: hidden;
   max-width: 200px;
@@ -577,10 +577,23 @@ body::after {
   position: absolute;
   inset: 0;
   background: linear-gradient(to bottom,
-      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.05) 0%,
       transparent 40%,
       transparent 60%,
-      rgba(0, 0, 0, 0.1) 100%);
+      rgba(35, 43, 32, 0.1) 100%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Subtle Scanlines for Audio Display */
+.music-box-waveform::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px);
   pointer-events: none;
   z-index: 10;
 }
