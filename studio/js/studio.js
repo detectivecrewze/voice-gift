@@ -87,6 +87,7 @@ const Studio = (() => {
       _renderThemes(state.theme || 'rose');
       _renderAmbients(state.ambient || 'none');
       _updateRequirementsUI();
+      _initInputs();
 
       // Setup Preview Iframe and Events
       Preview.update(state);
@@ -106,6 +107,28 @@ const Studio = (() => {
         window.location.href = '../generator/index.html';
       }
     }
+  };
+
+  // ── Helper: Init Password Inputs ───────────────────────
+  const _initInputs = () => {
+    const inputs = {
+      'input-gift-password': 'password',
+      'input-studio-password': 'studioPassword'
+    };
+
+    Object.entries(inputs).forEach(([id, key]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      // Set initial value
+      el.value = _state[key] || '';
+
+      // Bind events
+      el.addEventListener('input', (e) => {
+        _state[key] = e.target.value;
+        _triggerSaveAndPreview();
+      });
+    });
   };
 
   // ── Helper: Update karakter counter ──────────────────────

@@ -138,12 +138,18 @@ const Auth = (() => {
         // SET DATA DULU : Agar studio.js bisa mengambil config awal meskipun sedang terkunci
         _initialConfig = data;
 
-        // Cek apakah sudah dipublish
+        // CEK PUBLISHED: Jika sudah publish, biasanya editor dikunci.
+        // TAPI: Jika ada ?edit=true di URL, kita izinkan masuk untuk perbaikan (Misal: ganti password).
         if (data.status === 'published' && data.giftUrl) {
-          const link = document.getElementById('published-gift-link');
-          if (link) link.href = data.giftUrl;
-          showState('state-published');
-          return false;
+          const isForceEdit = new URLSearchParams(window.location.search).get('edit') === 'true';
+
+          if (!isForceEdit) {
+            const link = document.getElementById('published-gift-link');
+            if (link) link.href = data.giftUrl;
+            showState('state-published');
+            return false;
+          }
+          console.log('[Auth] Project published, but entering via force-edit mode.');
         }
 
         // 🛡️ SECURITY: Cek Password Studio

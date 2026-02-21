@@ -14,10 +14,17 @@ const Autosave = (() => {
   const DEBOUNCE_MS = 1500;
 
   const _setIndicator = (text, color = 'text-gray-400') => {
-    const el = document.getElementById('autosave-indicator');
+    const el = document.getElementById('autosave-status');
     if (el) {
       el.textContent = text;
-      el.className = `text-xs ${color}`;
+      if (text) {
+        el.classList.remove('opacity-0');
+        // Clear previous colors
+        el.classList.remove('text-gray-400', 'text-green-400', 'text-amber-500');
+        el.classList.add(color);
+      } else {
+        el.classList.add('opacity-0');
+      }
     }
   };
 
