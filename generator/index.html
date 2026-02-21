@@ -177,6 +177,64 @@
                     Masuk ke Lab
                 </button>
             </form>
+
+            <!-- Divider -->
+            <div class="relative py-4">
+                <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-gray-200"></span>
+                </div>
+                <div class="relative flex justify-center">
+                    <span class="bg-[#fcfaf7] px-4 text-[9px] text-gray-400 font-bold uppercase tracking-widest">Perbarui
+                        Password</span>
+                </div>
+            </div>
+
+            <!-- 3. Update Password Section -->
+            <div id="section-update-password" class="glass-panel p-10 space-y-8">
+                <p class="text-[11px] text-black font-bold uppercase tracking-widest mb-4">Update Password Project</p>
+
+                <div class="space-y-6">
+                    <div class="space-y-2 text-left">
+                        <label class="text-[9px] uppercase tracking-widest text-gray-500 font-bold block ml-1">Nama
+                            Project</label>
+                        <input id="input-update-project-name" type="text" placeholder="kado-mita"
+                            class="w-full text-center text-sm border-b border-gray-300 bg-transparent py-3 focus:outline-none focus:border-black transition-all placeholder:text-gray-400 text-black">
+                    </div>
+
+                    <div class="space-y-2 text-left">
+                        <label class="text-[9px] uppercase tracking-widest text-gray-500 font-bold block ml-1">Password
+                            Studio Lama (Verifikasi)</label>
+                        <input id="input-old-studio-pass" type="password" placeholder="••••••••"
+                            class="w-full text-center text-sm border-b border-gray-300 bg-transparent py-2 focus:outline-none focus:border-black transition-all placeholder:text-gray-400 text-black">
+                        <p class="text-[8px] text-gray-400 italic mt-1 ml-1">Kosongkan jika project tidak memiliki
+                            password studio.</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="space-y-1 text-left">
+                            <label
+                                class="text-[9px] uppercase tracking-widest text-gray-500 font-bold block ml-1">Password
+                                Studio Baru (Opsional)</label>
+                            <input id="input-new-studio-pass" type="password" placeholder="••••••••"
+                                class="w-full text-center text-sm border-b border-gray-300 bg-transparent py-2 focus:outline-none focus:border-black transition-all placeholder:text-gray-400 text-black">
+                        </div>
+
+                        <div class="space-y-1 text-left">
+                            <label class="text-[9px] uppercase tracking-widest text-gray-500 font-bold block ml-1">Password
+                                Gift Baru (Opsional)</label>
+                            <input id="input-new-gift-pass" type="password" placeholder="••••••••"
+                                class="w-full text-center text-sm border-b border-gray-300 bg-transparent py-2 focus:outline-none focus:border-black transition-all placeholder:text-gray-400 text-black">
+                            <p class="text-[8px] text-gray-400 italic mt-2 ml-1 leading-tight">Kosongkan jika tidak ingin
+                                mengubah password.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="btn-update-password" class="btn-premium w-full shadow-lg mt-4">
+                    Update Password
+                </button>
+
+                <p id="update-password-status" class="text-[9px] text-gray-500 mt-4 hidden"></p>
+            </div>
         </div>
 
         <!-- Footer -->

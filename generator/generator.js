@@ -43,6 +43,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check on load
     checkAuth();
 
+    const API_BASE_URL = 'https://valentine-upload.aldoramadhan16.workers.dev';
+
+    // ── Helper: Show Status Message ──────────────────────────────
+    const showStatus = (message, isError = false) => {
+        const statusEl = document.getElementById('update-password-status');
+        if (statusEl) {
+            statusEl.textContent = message;
+            statusEl.classList.remove('hidden', 'text-green-600', 'text-rose-500');
+            statusEl.classList.add(isError ? 'text-rose-500' : 'text-green-600');
+            if (!isError) {
+                setTimeout(() => statusEl.classList.add('hidden'), 4000);
+            }
+        }
+    };
+
     // 1. Create New Project
     btnCreate?.addEventListener('click', async () => {
         const customName = document.getElementById('input-new-token')?.value.trim();
@@ -65,29 +80,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // ── INITIAL PERSISTENCE ──────────────────────────────
-        btnCreate.innerText = 'Menyimpan...';
+        btnCreate.innerText = 'Mengecek...';
         btnCreate.style.opacity = '0.5';
         btnCreate.disabled = true;
 
-        const API_BASE_URL = 'https://valentine-upload.aldoramadhan16.workers.dev';
-
-        // Initial state - REVISED: Include mandatory IDs and default values
-        const initialState = {
-            studioToken: finalId,
-            giftId: finalId,
-            occasion: 'romantic',
-            theme: 'rose',
-            recipientName: 'Someone Special',
-            message: '',
-            photos: [],
-            voiceNote: { url: null, duration: null, mimeType: null },
-            studioPassword: studioPass || null,
-            password: giftPass || null,
-            status: 'draft',
-            createdAt: new Date().toISOString()
-        };
-
         try {
+            // ── DUPLICATE CHECK: Cek apakah nama sudah ada ──────────────────
+            console.log(`[Generator] Checking if project "${finalId}" exists...`);
+            const checkResponse = await fetch(`${API_BASE_URL}/get-config?id=${finalId}`);
+
+            if (checkResponse.ok) {
+                const existingData = await checkResponse.json();
+                if (existingData && !existingData.error) {
+                    // Project SUDAH ADA → Block dan beritahu user
+                    alert(`Nama project "${finalId}" sudah digunakan!\n\nGunakan section "Update Password Project" di bawah untuk mengganti password project yang sudah ada.`);
+                    btnCreate.innerText = 'Buat Project Sekarang';
+                    btnCreate.style.opacity = '1';
+                    btnCreate.disabled = false;
+                    return;
+                }
+            }
+
+            // Project TIDAK ADA → Lanjut create baru
+            btnCreate.innerText = 'Menyimpan...';
+
+            // Initial state - REVISED: Include mandatory IDs and default values
+            const initialState = {
+                studioToken: finalId,
+                giftId: finalId,
+                occasion: 'romantic',
+                theme: 'rose',
+                recipientName: 'Someone Special',
+                message: '',
+                photos: [],
+                voiceNote: { url: null, duration: null, mimeType: null },
+                studioPassword: studioPass || null,
+                password: giftPass || null,
+                status: 'draft',
+                createdAt: new Date().toISOString()
+            };
+
             console.log(`[Generator] Creating Project: ${finalId}`);
             const response = await fetch(`${API_BASE_URL}/save-config?id=${finalId}`, {
                 method: 'POST',
@@ -123,5 +155,101 @@ document.addEventListener('DOMContentLoaded', () => {
             inputToken.classList.add('border-red-300');
             setTimeout(() => inputToken.classList.remove('border-red-300'), 2000);
         }
+    });
+
+    // 3. Update Password for Existing Project
+    const btnUpdatePassword = document.getElementById('btn-update-password');
+    btnUpdatePassword?.addEventListener('click', async () => {
+        const projectId = document.getElementById('input-update-project-name')?.value.trim().toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+        const oldStudioPass = document.getElementById('input-old-studio-pass')?.value.trim();
+        const newStudioPass = document.getElementById('input-new-studio-pass')?.value.trim();
+        const newGiftPass = document.getElementById('input-new-gift-pass')?.value.trim();
+
+        // Validasi input
+        if (!projectId) {
+            showStatus('Masukkan nama project!', true);
+            return;
+        }
+
+        if (projectId.length < 3) {
+            showStatus('Nama project minimal 3 karakter!', true);
+            return;
+        }
+
+        // Set loading state
+        btnUpdatePassword.innerText = 'Memproses...';
+        btnUpdatePassword.style.opacity = '0.5';
+        btnUpdatePassword.disabled = true;
+
+        try {
+            // 1. Fetch existing data
+            console.log(`[Generator] Fetching project: ${projectId}`);
+            const response = await fetch(`${API_BASE_URL}/get-config?id=${projectId}`);
+
+            if (!response.ok) {
+                showStatus('Project tidak ditemukan!', true);
+                btnUpdatePassword.innerText = 'Update Password';
+                btnUpdatePassword.style.opacity = '1';
+                btnUpdatePassword.disabled = false;
+                return;
+            }
+
+            const existingData = await response.json();
+
+            if (!existingData || existingData.error) {
+                showStatus('Project tidak ditemukan!', true);
+                btnUpdatePassword.innerText = 'Update Password';
+                btnUpdatePassword.style.opacity = '1';
+                btnUpdatePassword.disabled = false;
+                return;
+            }
+
+            // 2. Verify old password (jika project punya studioPassword)
+            if (existingData.studioPassword && existingData.studioPassword.trim() !== '') {
+                if (oldStudioPass !== existingData.studioPassword) {
+                    showStatus('Password studio lama salah!', true);
+                    btnUpdatePassword.innerText = 'Update Password';
+                    btnUpdatePassword.style.opacity = '1';
+                    btnUpdatePassword.disabled = false;
+                    return;
+                }
+            }
+
+            // 3. Merge: keep all existing data, only update passwords
+            const updatedData = {
+                ...existingData,
+                studioPassword: newStudioPass || existingData.studioPassword,
+                password: newGiftPass !== undefined ? (newGiftPass || existingData.password) : existingData.password,
+                updatedAt: new Date().toISOString()
+            };
+
+            // 4. Save to API
+            console.log(`[Generator] Updating password for: ${projectId}`);
+            const saveResponse = await fetch(`${API_BASE_URL}/save-config?id=${projectId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedData)
+            });
+
+            if (saveResponse.ok) {
+                showStatus('✓ Password berhasil diupdate!', false);
+                // Clear inputs
+                document.getElementById('input-update-project-name').value = '';
+                document.getElementById('input-old-studio-pass').value = '';
+                document.getElementById('input-new-studio-pass').value = '';
+                document.getElementById('input-new-gift-pass').value = '';
+            } else {
+                showStatus('Gagal menyimpan. Coba lagi.', true);
+            }
+
+        } catch (err) {
+            console.error('[Generator] Update password error:', err);
+            showStatus('Terjadi kesalahan. Coba lagi.', true);
+        }
+
+        // Reset button
+        btnUpdatePassword.innerText = 'Update Password';
+        btnUpdatePassword.style.opacity = '1';
+        btnUpdatePassword.disabled = false;
     });
 });
