@@ -31,8 +31,8 @@ const _getMockData = (id) => {
         theme: 'rose',
         ambient: 'rain',
         voiceNote: {
-          url: '/assets/The 1975 - About You (Official).mp3', // Audio default dari assets
-          duration: 300 // Estimasi 5 menit
+          url: 'https://dl.dropboxusercontent.com/scl/fi/nqpvliyw9r780t3wk4636/Daniel-Caesar-Who-Knows.mp3?rlkey=vnfwwhsmuwdyt2lrgwuhjyf9u&st=fgjxdbio',
+          duration: 300
         },
         photos: [
           { id: 1, url: '../assets/1.jpg', order: 1 },
