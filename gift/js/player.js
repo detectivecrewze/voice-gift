@@ -182,6 +182,11 @@ const VoicePlayer = (() => {
             <div class="time-divider"></div>
             <span id="v-total">0:00</span>
           </div>
+
+          <button class="auto-play-btn" id="auto-play-toggle">
+            <span class="auto-play-icon">▶</span>
+            <span class="auto-play-text">AUTO</span>
+          </button>
         </div>
 
         <div class="music-box-crank-area">
@@ -325,7 +330,8 @@ const VoicePlayer = (() => {
       }
 
       audio.play().then(() => {
-        audio.pause();
+        // Fix: Only pause if not currently playing (e.g. from Auto-Play button)
+        if (!isPlaying) audio.pause();
         audioWarmed = true;
       }).catch(() => { });
 
@@ -355,7 +361,80 @@ const VoicePlayer = (() => {
     let isDragging = false;
     let visualCrankAngle = 0;
 
+    // ── Auto-Play Logic ──
+    let isAutoPlaying = false;
+    let autoPlayRafId = null;
+    const AUTO_SPEED = 2.8; // degrees per frame (overall auto-play speed)
+    const toggleBtn = containerEl.querySelector('#auto-play-toggle');
+
+    function autoPlayLoop() {
+      if (!isAutoPlaying) return;
+
+      // 1. Increment rotations (1:1 sync)
+      visualCrankAngle += AUTO_SPEED;
+      totalCrankAngle += AUTO_SPEED;
+
+      // 2. Visually rotate crank
+      arm.style.transform = `rotate(${visualCrankAngle}deg) translateZ(0)`;
+
+      // 3. Move photos
+      const rawSlide = (totalCrankAngle / 720) * VIEW_WIDTH;
+      const fullSetWidth = totalPhotos * VIEW_WIDTH;
+      const loopSlide = (rawSlide % fullSetWidth) + fullSetWidth;
+
+      tray.style.transform = `translate3d(-${loopSlide}px, 0, 0)`;
+
+      // 4. Update active photo index
+      const activeIndex = Math.round(loopSlide / VIEW_WIDTH);
+      if (activeIndex !== lastActivePhotoIndex && photoEls[activeIndex]) {
+        if (lastActivePhotoIndex >= 0 && photoEls[lastActivePhotoIndex]) {
+          photoEls[lastActivePhotoIndex].classList.remove('is-active');
+        }
+        photoEls[activeIndex].classList.add('is-active');
+        lastActivePhotoIndex = activeIndex;
+      }
+
+      // 5. Trigger clicks & audio
+      if (Math.abs(totalCrankAngle - lastClickRotation) > 15) {
+        const clickNow = performance.now();
+        if (clickNow - lastClickTime > 50) {
+          playMechanicalClick();
+          lastClickTime = clickNow;
+        }
+        lastClickRotation = totalCrankAngle;
+      }
+
+      startPlaying(); // keeps audio & visualizer running
+
+      // Loop
+      autoPlayRafId = requestAnimationFrame(autoPlayLoop);
+    }
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        isAutoPlaying = !isAutoPlaying;
+        toggleBtn.classList.toggle('is-active', isAutoPlaying);
+
+        warmUpAudio(); // Fix: Initialize AudioContext and Visualizer for Auto-Play
+        getAudioContext();
+
+        if (isAutoPlaying) {
+          autoPlayLoop();
+        } else {
+          cancelAnimationFrame(autoPlayRafId);
+          stopPlaying();
+        }
+      });
+    }
+
     const startDrag = (e) => {
+      // Manual Override: If user touches crank, kill auto-play immediately
+      if (isAutoPlaying) {
+        isAutoPlaying = false;
+        if (toggleBtn) toggleBtn.classList.remove('is-active');
+        cancelAnimationFrame(autoPlayRafId);
+      }
+
       isDragging = true;
       lastAngle = null;
 
