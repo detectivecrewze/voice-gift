@@ -517,7 +517,7 @@ const VoicePlayer = (() => {
 
         // Fade in Ambient Sound
         if (ambientGain) {
-          ambientGain.gain.setTargetAtTime(0.085, audioCtx.currentTime, 0.5);
+          ambientGain.gain.setTargetAtTime(0.090, audioCtx.currentTime, 0.5);
         }
       }
 
