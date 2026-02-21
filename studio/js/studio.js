@@ -51,6 +51,18 @@ const AMBIENTS = [
   { id: 'mitski', label: 'Mitski - My Love Mine All Mine', emoji: '🌕' },
 ];
 
+// ── Ambient Sound URLs (same as gift page) ──────────────────
+const AMBIENT_SOUNDS = {
+  rain: 'https://dl.dropboxusercontent.com/scl/fi/zwol73h41qnavbduc0qgh/rain.mp3?rlkey=7d82wac3ebncezhbe2vl09alf&st=cu5gupob',
+  cafe: 'https://dl.dropboxusercontent.com/scl/fi/awuth8dg03qy0ij2czddi/cafe.mp3?rlkey=5dzngx7pmnsx6utce484e65go&st=lzluvv25',
+  waves: 'https://dl.dropboxusercontent.com/scl/fi/9z17yg7u3l6wc2wv9lbp0/waves.mp3?rlkey=kwle5uf8h2vyodgt257t0lnwo&st=g1a3bxx5',
+  fireplace: 'https://dl.dropboxusercontent.com/scl/fi/orte59auc36wxng69iy3n/fireplace.mp3?rlkey=xohuvr0p6p1816hvp34kf387q&st=fgatk8qq',
+  forest: 'https://dl.dropboxusercontent.com/scl/fi/cy1k2ru7ddi1wm96uohqv/forest.mp3?rlkey=uvsqjyjxbwhk33cmaps931bqu&st=h2b6zlzk',
+  'nadin-ah': 'https://dl.dropboxusercontent.com/scl/fi/itmvna64forw61thvwb19/AH-Nadin-Amizah.mp3?rlkey=lmzmxrhjgq9qrabe3sewox21q&st=0s3baidy',
+  daniel: 'https://dl.dropboxusercontent.com/scl/fi/nqpvliyw9r780t3wk4636/Daniel-Caesar-Who-Knows.mp3?rlkey=vnfwwhsmuwdyt2lrgwuhjyf9u&st=fgjxdbio',
+  mitski: 'https://dl.dropboxusercontent.com/scl/fi/71ib9m69dm2ed9squj191/Mitski-My-Love-Mine-All-Mine.mp3?rlkey=i43d8ng7tbndbuflm1yw3j3r9&st=dad3r4yp'
+};
+
 // ── Global State ─────────────────────────────────────────────
 // State ini adalah single source of truth untuk seluruh studio
 const Studio = (() => {
@@ -65,6 +77,97 @@ const Studio = (() => {
     ambient: 'none',
     password: null,
     studioPassword: null,
+  };
+
+  // ── Ambient Preview State ───────────────────────────────────
+  let _previewAudio = null;
+  let _previewCtx = null;
+  let _previewGain = null;
+  let _previewSource = null;
+  let _currentPreviewId = null;
+
+  // ── Ambient Preview Functions ───────────────────────────────
+  const stopAmbientPreview = () => {
+    if (_previewGain) {
+      _previewGain.gain.setTargetAtTime(0, _previewCtx.currentTime, 0.2);
+    }
+    setTimeout(() => {
+      if (_previewAudio) {
+        _previewAudio.pause();
+        _previewAudio.currentTime = 0;
+        _previewAudio = null;
+      }
+      _currentPreviewId = null;
+      // Re-render to update icons
+      _renderAmbients(_state.ambient);
+    }, 300);
+  };
+
+  const playAmbientPreview = (ambientId) => {
+    // If already playing this, stop it
+    if (_currentPreviewId === ambientId && _previewAudio) {
+      stopAmbientPreview();
+      return;
+    }
+
+    // Stop any existing preview
+    if (_previewAudio) {
+      stopAmbientPreview();
+    }
+
+    // Check if valid sound
+    if (!AMBIENT_SOUNDS[ambientId]) return;
+
+    // Initialize AudioContext if needed
+    if (!_previewCtx) {
+      _previewCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (_previewCtx.state === 'suspended') {
+      _previewCtx.resume();
+    }
+
+    // Create audio element
+    _previewAudio = new Audio(AMBIENT_SOUNDS[ambientId]);
+    _previewAudio.crossOrigin = 'anonymous';
+
+    // Check if it's a song (should not loop)
+    const isSong = ['nadin-ah', 'daniel', 'mitski'].includes(ambientId);
+    _previewAudio.loop = !isSong;
+
+    // Setup Web Audio nodes
+    _previewSource = _previewCtx.createMediaElementSource(_previewAudio);
+    _previewGain = _previewCtx.createGain();
+    _previewGain.gain.setValueAtTime(0, _previewCtx.currentTime);
+
+    _previewSource.connect(_previewGain);
+    _previewGain.connect(_previewCtx.destination);
+
+    // Play with fade in
+    _previewAudio.play().then(() => {
+      _previewGain.gain.setTargetAtTime(0.085, _previewCtx.currentTime, 0.3);
+      _currentPreviewId = ambientId;
+      // Re-render to update icons
+      _renderAmbients(_state.ambient);
+    }).catch(err => {
+      console.warn('[Studio] Preview play failed:', err);
+    });
+
+    // Auto-stop after 15 seconds for songs
+    if (isSong) {
+      setTimeout(() => {
+        if (_currentPreviewId === ambientId) {
+          stopAmbientPreview();
+        }
+      }, 15000);
+    }
+  };
+
+  const toggleAmbientPreview = (ambientId) => {
+    if (_currentPreviewId === ambientId) {
+      stopAmbientPreview();
+    } else {
+      playAmbientPreview(ambientId);
+    }
   };
 
   // ── Init ─────────────────────────────────────────────────
@@ -210,14 +313,29 @@ const Studio = (() => {
 
     container.innerHTML = AMBIENTS.map(a => {
       const isActive = a.id === activeAmbientId;
+      const isPlaying = _currentPreviewId === a.id;
+      const hasSound = a.id !== 'none' && AMBIENT_SOUNDS[a.id];
+
       return `
-        <button 
-          onclick="Studio.onAmbientSelected('${a.id}')"
-          class="flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${isActive ? 'border-black bg-black text-white' : 'border-gray-200 hover:border-black text-gray-500 hover:text-black'}"
-        >
-          <span class="text-xs">${a.emoji}</span>
-          <span class="text-[9px] uppercase tracking-widest font-bold">${a.label}</span>
-        </button>
+        <div class="inline-flex items-center gap-2 mb-2">
+          ${hasSound ? `
+            <button 
+              onclick="event.stopPropagation(); Studio.toggleAmbientPreview('${a.id}')"
+              class="w-7 h-7 min-w-[28px] rounded-full border transition-all flex items-center justify-center text-[9px] ${isPlaying ? 'border-black bg-black text-white' : 'border-gray-200 hover:border-black text-gray-400 hover:text-black'}"
+              title="${isPlaying ? 'Hentikan Preview' : 'Dengarkan Preview'}"
+            >
+              ${isPlaying ? '⏸' : '▶'}
+            </button>
+          ` : `<div class="w-7"></div>`}
+          
+          <button 
+            onclick="Studio.onAmbientSelected('${a.id}')"
+            class="flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all text-left ${isActive ? 'border-black bg-black text-white' : 'border-gray-200 hover:border-black text-gray-500 hover:text-black'}"
+          >
+            <span class="text-xs">${a.emoji}</span>
+            <span class="text-[9px] uppercase tracking-widest font-bold whitespace-nowrap">${a.label}</span>
+          </button>
+        </div>
       `;
     }).join('');
   };
@@ -263,6 +381,7 @@ const Studio = (() => {
     onVoiceNoteChanged,
     onThemeSelected,
     onAmbientSelected,
+    toggleAmbientPreview,
     getThemeConfig: (themeId) => THEMES.find(t => t.id === themeId) || THEMES[0], // Helper for preview/publisher
     showToast,
   };
