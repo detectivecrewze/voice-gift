@@ -45,7 +45,8 @@ const VoicePlayer = (() => {
       osc.frequency.setValueAtTime(150, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.05);
 
-      gain.gain.setValueAtTime(0.04, ctx.currentTime);
+      // Muted: changed gain from 0.04 to 0 as requested by user
+      gain.gain.setValueAtTime(0, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
 
       osc.connect(gain);
@@ -113,10 +114,8 @@ const VoicePlayer = (() => {
       const data = buffer.getChannelData(0);
 
       for (let i = 0; i < bufferSize; i++) {
-        // Gabungan White Noise + Subtle Random Spikes (Crackle)
-        const white = Math.random() * 2 - 1;
-        const crackle = Math.random() > 0.999 ? (Math.random() * 0.5) : 0;
-        data[i] = (white * 0.05) + crackle;
+        // Muted: Vinyl Crackle & Whir removed as requested by user
+        data[i] = 0;
       }
 
       noiseSource = ctx.createBufferSource();
