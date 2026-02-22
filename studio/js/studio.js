@@ -34,8 +34,9 @@ const OCCASIONS = [
 const THEMES = [
   { id: 'rose', folder: 'gift', name: '🤎 Original', color: '#a0866c' },
   { id: 'pinky', folder: 'gift-pinky', name: '🌸 Magenta', color: '#f9a8d4' },
-  { id: 'beige', folder: 'gift-beige', name: '🪵 Beige', color: '#c29571' },
-  { id: 'sage', folder: 'gift-sage', name: '🌿 Sage', color: '#9aa98e' },
+  { id: 'beige', folder: 'gift-beige', name: '🪵 Rosewood', color: '#b07860' },
+  { id: 'blanc', folder: 'gift-blanc', name: '🌃 Midnight', color: '#1a1e2e' },
+  { id: 'sage', folder: 'gift-sage', name: '🌿 Mossy', color: '#2a3a22' },
 ];
 
 // ── Data: Ambients ──────────────────────────────────────────

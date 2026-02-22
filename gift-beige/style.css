@@ -1,30 +1,25 @@
 /* ============================================================
-   For you, Always. — Beige Theme (Warm & Earthy)
+   For you, Always. — Rosewood Theme (Warm & Elegant)
    ============================================================ */
 
 :root {
   --font-display: 'Cormorant Garamond', serif;
   --font-sans: 'DM Sans', sans-serif;
   --font-mono: 'Space Mono', monospace;
-  --noise-opacity: 0.04;
+  --noise-opacity: 0.03;
 
-  /* ── Beige Color Palette ── */
-  --bg: #dcccb8;
-  /* Darker solid earthy background */
-  --surface: rgba(194, 149, 113, 0.08);
-  --primary: #cf9b71;
-  /* Warm latte */
-  --accent: #8c6b53;
-  /* Deeper brown */
-  --text: #4a3c31;
-  /* Dark coffee text */
-  --text-muted: #8b7d71;
-  /* Muted earthly tone */
-  --border: rgba(194, 149, 113, 0.25);
-  --mesh: radial-gradient(at 0% 0%, #f5f1ea 0px, transparent 50%),
-    radial-gradient(at 100% 0%, #dcd3c4 0px, transparent 50%),
-    radial-gradient(at 80% 80%, #cfc4b3 0px, transparent 50%),
-    radial-gradient(at 20% 100%, #e8e0d4 0px, transparent 50%);
+  /* ── Rosewood Warm Copper Palette ── */
+  --bg: #f0e6da;
+  --surface: rgba(180, 130, 100, 0.08);
+  --primary: #b07860;
+  --accent: #8a5a48;
+  --text: #3a2820;
+  --text-muted: #9a7a68;
+  --border: rgba(140, 90, 60, 0.25);
+  --mesh: radial-gradient(at 0% 0%, #f8efe5 0px, transparent 50%),
+    radial-gradient(at 100% 0%, #ecddd0 0px, transparent 50%),
+    radial-gradient(at 80% 80%, #e4d4c6 0px, transparent 50%),
+    radial-gradient(at 20% 100%, #f2e8dc 0px, transparent 50%);
 }
 
 *,
@@ -109,28 +104,23 @@ body::after {
   perspective: 2500px;
 }
 
-/* ── The Memoir Station (Beige Edition) ── */
+/* ── The Memoir Station (Rosewood Edition) ── */
 .music-box-container {
   position: relative;
   background:
-    /* Corak Garis Serong (Diagonal Stripes) for texture */
     repeating-linear-gradient(-45deg,
-      rgba(194, 149, 113, 0.08),
-      rgba(194, 149, 113, 0.08) 2px,
+      rgba(100, 50, 20, 0.10),
+      rgba(100, 50, 20, 0.10) 2px,
       transparent 2px,
       transparent 12px),
-    /* Corak Garis Halus (Fine Lines) */
     repeating-linear-gradient(45deg,
-      rgba(194, 149, 113, 0.05),
-      rgba(194, 149, 113, 0.05) 1px,
+      rgba(140, 80, 50, 0.07),
+      rgba(140, 80, 50, 0.07) 1px,
       transparent 1px,
       transparent 8px),
-    /* Noise overlay */
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.03'/%3E%3C/svg%3E"),
-    /* Base Color Gradient (Warna Beige Pekat yang lebih bold) */
-    radial-gradient(circle at 50% 20%, #fdfbf7 0%, #ebd7c2 55%, #cfae8d 100%);
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.04'/%3E%3C/svg%3E"),
+    linear-gradient(165deg, #d4a888 0%, #c8a088 25%, #b8886e 55%, #a87860 100%);
 
-  /* Optimized backdrop-filter for mobile performance */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 
@@ -139,24 +129,24 @@ body::after {
     -webkit-backdrop-filter: blur(50px);
   }
 
-  /* Border line pattern to make it pop */
-  border: 1px solid rgba(194, 149, 113, 0.6);
-  outline: 2px solid rgba(194, 149, 113, 0.2);
+  border: 1.5px solid rgba(180, 120, 80, 0.7);
+  border-top-color: rgba(220, 170, 140, 0.8);
+  outline: 2px solid rgba(120, 70, 40, 0.12);
   outline-offset: -10px;
 
   border-radius: 56px;
   padding: 85px 24px 165px;
-  box-shadow: 0 80px 160px -40px rgba(90, 70, 50, 0.5),
-  0 20px 40px rgba(194, 149, 113, 0.1),
-  inset 0 2px 4px rgba(255, 255, 255, 0.9),
-  inset 0 -10px 30px rgba(160, 120, 90, 0.2);
+  box-shadow: 0 80px 160px -40px rgba(50, 20, 5, 0.5),
+  0 2px 0 rgba(220, 170, 140, 0.7),
+  0 20px 40px rgba(100, 50, 20, 0.2),
+  inset 0 1.5px 3px rgba(220, 170, 140, 0.7),
+  inset 0 -10px 30px rgba(100, 50, 20, 0.15);
   text-align: center;
   overflow: hidden;
   will-change: transform;
-  /* Hint for jitter animation */
 }
 
-/* Metallic Nameplate Badge (Simplified) */
+/* Metallic Nameplate Badge (Rose-Gold) */
 .console-plate {
   position: absolute;
   top: 45px;
@@ -164,12 +154,12 @@ body::after {
   transform: translateX(-50%);
   width: 60px;
   height: 6px;
-  background: linear-gradient(135deg, #e8e0d5, #dbcdbd);
-  border: 1px solid rgba(194, 149, 113, 0.4);
+  background: linear-gradient(135deg, #d4a888, #a07060);
+  border: 1px solid rgba(140, 90, 60, 0.3);
   border-radius: 20px;
   box-shadow:
-    0 2px 5px rgba(0, 0, 0, 0.1),
-    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    0 2px 5px rgba(60, 30, 10, 0.15),
+    inset 0 1px 1px rgba(240, 200, 170, 0.5);
   pointer-events: none;
 }
 
@@ -178,11 +168,11 @@ body::after {
   position: absolute;
   width: 14px;
   height: 14px;
-  background: radial-gradient(circle at 30% 30%, #f0e9df, #c2b5a3);
+  background: radial-gradient(circle at 30% 30%, #d4a888, #a07060);
   border-radius: 50%;
   box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.15),
-    inset 0 1px 1px rgba(255, 255, 255, 0.6);
+    0 2px 4px rgba(60, 30, 10, 0.2),
+    inset 0 1px 1px rgba(240, 200, 170, 0.5);
   z-index: 5;
 }
 
@@ -239,15 +229,13 @@ body::after {
   width: 240px;
   height: 240px;
   margin: 0 auto 30px;
-  background: #fdfbf7;
+  background: #f8ede0;
   border-radius: 32px;
   overflow: hidden;
   box-shadow:
-    0 0 0 12px rgba(250, 246, 238, 0.95),
-    /* Thick frame restored, but creamy warm beige instead of stark white */
-    0 10px 20px 12px rgba(100, 80, 70, 0.1),
-    /* Drop shadow for the frame itself */
-    inset 0 0 60px rgba(160, 120, 90, 0.3);
+    0 0 0 12px rgba(220, 170, 140, 0.6),
+    0 10px 20px 12px rgba(60, 30, 10, 0.12),
+    inset 0 0 60px rgba(120, 60, 30, 0.25);
   display: flex;
   align-items: center;
 }
@@ -370,14 +358,14 @@ body::after {
   width: 12px;
   height: 100%;
   background: linear-gradient(to right,
-      rgba(200, 190, 180, 0.9) 0%,
-      #e6dfd3 30%,
-      #dcd3c5 60%,
-      rgba(180, 170, 160, 0.9) 100%);
+      rgba(180, 140, 110, 0.9) 0%,
+      #c8a088 30%,
+      #b8886e 60%,
+      rgba(160, 120, 90, 0.9) 100%);
   z-index: 20;
   box-shadow:
-    -2px 0 10px rgba(0, 0, 0, 0.1),
-    inset 2px 0 5px rgba(255, 255, 255, 0.8);
+    -2px 0 10px rgba(60, 30, 10, 0.1),
+    inset 2px 0 5px rgba(240, 200, 170, 0.5);
 }
 
 .printer-tray {
@@ -457,10 +445,10 @@ body::after {
   /* Very thin */
   height: 45px;
   /* Slender arm */
-  background: linear-gradient(90deg, #8b7355 0%, #d4ae6a 50%, #8b7355 100%);
+  background: linear-gradient(90deg, #8a5a48 0%, #c8a088 50%, #8a5a48 100%);
   border-radius: 20px;
   transform-origin: center 0px;
-  box-shadow: -6px 12px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: -6px 12px 20px rgba(60, 30, 10, 0.3);
   z-index: 10;
   will-change: transform;
   transform: translateZ(0);
@@ -560,11 +548,11 @@ body::after {
   gap: 2px;
   height: 42px;
   margin-bottom: 16px;
-  background: rgba(194, 149, 113, 0.15);
+  background: rgba(180, 130, 100, 0.12);
   /* Tinted background */
   border-radius: 100px;
   padding: 0 15px;
-  border: 1px solid rgba(194, 149, 113, 0.4);
+  border: 1px solid rgba(140, 90, 60, 0.25);
   box-shadow:
     inset 0 2px 8px rgba(0, 0, 0, 0.05),
     0 1px 0 rgba(255, 255, 255, 0.8);
@@ -623,16 +611,16 @@ body::after {
   z-index: 1;
 }
 
-/* ── Brand Badge (Ultra-Premium Redesign) ── */
+/* ── Brand Badge (Warm Rosewood Glass) ── */
 .watermark-badge {
   position: fixed;
   top: 35px;
   right: 35px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(245, 235, 220, 0.88);
   backdrop-filter: blur(25px) saturate(180%);
   -webkit-backdrop-filter: blur(25px) saturate(180%);
 
-  border: 1px solid rgba(194, 149, 113, 0.2);
+  border: 1px solid rgba(180, 130, 100, 0.25);
   border-radius: 100px;
   padding: 8px 20px 8px 14px;
   color: var(--primary);
@@ -644,8 +632,8 @@ body::after {
   align-items: center;
 
   box-shadow:
-    0 10px 40px -10px rgba(100, 80, 70, 0.15),
-    inset 0 1px 1px rgba(255, 255, 255, 0.8);
+    0 10px 40px -10px rgba(80, 40, 20, 0.12),
+    inset 0 1px 1px rgba(255, 245, 230, 0.8);
 }
 
 .watermark-badge .flex {
@@ -785,44 +773,36 @@ body::after {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.6);
-  /* Brighter, more solid background */
+  background: rgba(245, 235, 220, 0.7);
   padding: 6px 14px;
   border-radius: 100px;
-  border: 1px solid rgba(194, 149, 113, 0.3);
+  border: 1px solid rgba(180, 130, 100, 0.3);
   font-family: var(--font-mono);
   font-size: 8px;
-  /* Tiny, precise typography */
-  color: #4a3c31;
+  color: #3a2820;
   letter-spacing: 0.15em;
   box-shadow:
-    inset 0 2px 5px rgba(255, 255, 255, 0.8),
-    0 2px 5px rgba(100, 80, 70, 0.08);
-  /* Soft drop shadow */
+    inset 0 2px 5px rgba(255, 245, 230, 0.8),
+    0 2px 5px rgba(80, 40, 20, 0.06);
   transition: all 0.3s ease;
 }
 
 .music-box-timer span#v-current {
-  color: #4a3c31;
-  /* Solid dark text */
+  color: #8a5a48;
   font-weight: 700;
   text-shadow: none;
-  /* Removed blur so it's sharp */
   min-width: 32px;
 }
 
 .time-divider {
   width: 1px;
   height: 8px;
-  background: rgba(74, 60, 49, 0.3);
-  /* Defined divider */
+  background: rgba(140, 90, 60, 0.25);
 }
 
 .music-box-timer span#v-total {
   opacity: 1;
-  /* Fully visible */
-  color: #8b7d71;
-  /* Distinguishable dark grey/brown */
+  color: #9a7a68;
   font-weight: 600;
   min-width: 32px;
 }
@@ -1027,22 +1007,23 @@ body::after {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.15);
   padding: 6px 14px;
   border-radius: 100px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.15);
   font-family: var(--font-mono);
-  font-size: 8px;
-  color: var(--text-muted);
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--text);
   letter-spacing: 0.15em;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   transition: all 0.3s ease;
   outline: none;
 }
 
 .auto-play-btn:hover {
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.2);
   color: var(--text);
 }
 

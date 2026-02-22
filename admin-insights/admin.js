@@ -66,7 +66,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
             }) : '-';
 
-            const giftUrl = `${window.location.origin}/gift/?to=${gift.giftId}`;
+            // ── Smart Generator Detection ──
+            // Camera themes use gift-camera/* folders & studio
+            // Gift-pages themes use gift*/ folders & main studio
+            const CAMERA_THEMES = ['camera', 'midnight', 'rosewood', 'mossy'];
+            const GIFT_PAGE_THEME_FOLDERS = {
+                'rose': 'gift', 'original': 'gift', 'pinky': 'gift-pinky',
+                'beige': 'gift-beige', 'blanc': 'gift-blanc', 'white': 'gift-blanc',
+                'sage': 'gift-sage'
+            };
+            const CAMERA_THEME_FOLDERS = {
+                'camera': 'gift-camera', 'midnight': 'gift-camera-midnight',
+                'rosewood': 'gift-camera-rosewood', 'mossy': 'gift-camera-mossy'
+            };
 
             // Format theme badge colors based on theme name
             let themeBadgeClass = 'bg-gray-100 text-gray-700';
@@ -74,13 +86,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Protect against non-string values
             const theme = String(gift.theme || 'rose').toLowerCase();
+            const isCamera = CAMERA_THEMES.includes(theme);
 
-            if (theme === 'pinky') { themeBadgeClass = 'bg-pink-100 text-pink-700'; displayTheme = 'Pinky'; }
+            if (theme === 'pinky') { themeBadgeClass = 'bg-pink-100 text-pink-700'; displayTheme = 'Magenta'; }
             else if (theme === 'rose' || theme === 'original') { themeBadgeClass = 'bg-stone-100 text-stone-700'; displayTheme = 'Original'; }
-            else if (theme === 'beige') { themeBadgeClass = 'bg-amber-100 text-amber-800'; displayTheme = 'Beige'; }
-            else if (theme === 'blanc' || theme === 'white') { themeBadgeClass = 'bg-slate-100 text-slate-700'; displayTheme = 'Blanc'; }
-            else if (theme === 'sage') { themeBadgeClass = 'bg-green-100 text-green-700'; displayTheme = 'Sage'; }
+            else if (theme === 'beige') { themeBadgeClass = 'bg-orange-100 text-orange-800'; displayTheme = 'Rosewood'; }
+            else if (theme === 'blanc' || theme === 'white') { themeBadgeClass = 'bg-indigo-100 text-indigo-700'; displayTheme = 'Midnight'; }
+            else if (theme === 'sage') { themeBadgeClass = 'bg-emerald-100 text-emerald-700'; displayTheme = 'Mossy'; }
+            else if (theme === 'camera') { themeBadgeClass = 'bg-gray-100 text-gray-700'; displayTheme = 'Silver'; }
+            else if (theme === 'midnight') { themeBadgeClass = 'bg-indigo-100 text-indigo-700'; displayTheme = 'Midnight'; }
+            else if (theme === 'rosewood') { themeBadgeClass = 'bg-orange-100 text-orange-800'; displayTheme = 'Rosewood'; }
+            else if (theme === 'mossy') { themeBadgeClass = 'bg-emerald-100 text-emerald-700'; displayTheme = 'Mossy'; }
             else { displayTheme = theme; }
+
+            // Smart URL: route to correct gift folder & studio
+            const giftFolder = isCamera
+                ? (CAMERA_THEME_FOLDERS[theme] || 'gift-camera')
+                : (GIFT_PAGE_THEME_FOLDERS[theme] || 'gift');
+            const studioPath = isCamera ? 'gift-camera/studio' : 'studio';
+            const giftUrl = `${window.location.origin}/${giftFolder}/index.html?to=${gift.giftId}`;
+            const editorUrl = `../${studioPath}/index.html?token=${gift.giftId}`;
+            const productLabel = isCamera ? '📷 Digicam' : '📝 Gift Pages';
+            const productClass = isCamera ? 'bg-violet-50 text-violet-600' : 'bg-sky-50 text-sky-600';
 
             // Format ambient text
             let ambientText = 'Tanpa SFX';
@@ -111,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="p-6">
                         <div class="flex flex-col gap-1.5 items-start">
                             <span class="text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full font-bold ${themeBadgeClass}">${displayTheme}</span>
+                            <span class="text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-full font-semibold ${productClass}">${productLabel}</span>
                             <span class="text-[10px] text-gray-500">${ambientText}</span>
                         </div>
                     </td>
@@ -124,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="text-[9px] text-gray-500 font-medium">${date}</span>
                     </td>
                     <td class="p-6">
-                        <a href="../studio/index.html?token=${gift.giftId}" target="_blank" 
+                        <a href="${editorUrl}" target="_blank" 
                            class="text-[9px] border border-gray-200 px-4 py-2 rounded-full hover:bg-black hover:text-white transition-all whitespace-nowrap">
                            Cek Editor
                         </a>
