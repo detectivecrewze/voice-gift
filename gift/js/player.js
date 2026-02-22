@@ -363,7 +363,7 @@ const VoicePlayer = (() => {
     // ── Auto-Play Logic ──
     let isAutoPlaying = false;
     let autoPlayRafId = null;
-    const AUTO_SPEED = 2.8; // degrees per frame (overall auto-play speed)
+    const AUTO_SPEED = 4.5; // degrees per frame (overall auto-play speed - increased for slightly faster photos)
     const toggleBtn = containerEl.querySelector('#auto-play-toggle');
 
     function autoPlayLoop() {

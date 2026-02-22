@@ -88,31 +88,37 @@
     <div class="grain"></div>
 
     <div class="max-w-6xl mx-auto">
-        <header class="mb-12 flex justify-between items-end">
+        <header class="mb-12 flex flex-col md:flex-row justify-between md:items-end gap-6">
             <div>
                 <h1 class="text-4xl italic-title">Admin Insights</h1>
                 <p class="text-[10px] uppercase tracking-[0.4em] text-gray-500 mt-2">Live Tracking & Database</p>
             </div>
-            <div id="auth-section" class="flex items-center gap-4">
+            <div id="auth-section" class="flex items-center gap-4 w-full md:w-auto">
                 <input id="admin-secret" type="password" placeholder="Admin Secret"
-                    class="bg-white border border-gray-100 rounded-full px-4 py-2 text-xs focus:outline-none focus:border-[#d4a373] transition-all">
+                    class="bg-white border border-gray-100 rounded-full px-4 py-2 text-xs focus:outline-none focus:border-[#d4a373] transition-all flex-grow md:flex-grow-0">
                 <button id="btn-refresh"
-                    class="bg-black text-white text-[10px] uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-gray-800 transition-all font-bold">
+                    class="bg-black text-white text-[10px] uppercase tracking-widest px-6 py-2.5 rounded-full hover:bg-gray-800 transition-all font-bold whitespace-nowrap">
                     Refresh Data
                 </button>
             </div>
         </header>
 
-        <div class="glass-card overflow-hidden">
-            <table class="w-full text-left border-collapse">
+        <div class="glass-card overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[800px]">
                 <thead>
                     <tr class="bg-white/50">
-                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold">Gift ID / URL</th>
-                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold">Penerima</th>
-                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold">Konten</th>
-                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold">Tanggal Publish
-                        </th>
-                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold">Aksi</th>
+                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold whitespace-nowrap">
+                            Gift ID / URL</th>
+                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold whitespace-nowrap">
+                            Penerima</th>
+                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold whitespace-nowrap">
+                            Tema & Audio</th>
+                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold whitespace-nowrap">
+                            Konten</th>
+                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold whitespace-nowrap">
+                            Tanggal Publish</th>
+                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold whitespace-nowrap">
+                            Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="gift-table-body">

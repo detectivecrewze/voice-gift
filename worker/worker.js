@@ -146,7 +146,7 @@ var index_default = {
     if (request.method === "POST" && url.pathname === "/login") {
       try {
         const { password, userAgent } = await request.json();
-        const expected = env.ADMIN_PASSWORD || "12345";
+        const expected = "Aldobotak1@";
         if (password !== expected) {
           return new Response(JSON.stringify({ success: false, error: "Invalid password" }), {
             status: 401,
@@ -322,7 +322,7 @@ __name(sendSimpleTelegram, "sendSimpleTelegram");
 
 async function handleAdminListGifts(request, env, corsHeaders) {
   const authHeader = request.headers.get("Authorization");
-  const secret = env.ADMIN_SECRET || env.ADMIN_PASSWORD || "12345";
+  const secret = "Aldobotak1@";
   if (!authHeader || authHeader !== `Bearer ${secret}`) {
     return new Response(JSON.stringify({ success: false, error: "Akses ditolak." }), {
       status: 401,
@@ -343,7 +343,9 @@ async function handleAdminListGifts(request, env, corsHeaders) {
             status: config.status || "unknown",
             publishedAt: config.publishedAt || config.createdAt || null,
             photosCount: config.photos?.length || 0,
-            hasVoice: !!(config.voiceNote?.url)
+            hasVoice: !!(config.voiceNote?.url),
+            theme: config.theme || "rose",
+            ambient: config.ambient || "none"
           };
         }
       } catch (e) {
