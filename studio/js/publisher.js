@@ -163,6 +163,7 @@ const Publisher = (() => {
     const urlDisplay = document.getElementById('modal-gift-url');
     const whatsappBtn = document.getElementById('btn-share-whatsapp');
     const viewBtn = document.getElementById('btn-view-gift');
+    const qrContainer = document.getElementById('qr-code-box');
 
     if (urlDisplay) urlDisplay.textContent = giftUrl;
     if (viewBtn) viewBtn.href = giftUrl;
@@ -173,7 +174,84 @@ const Publisher = (() => {
       whatsappBtn.href = `https://wa.me/?text=${message}`;
     }
 
+    // ── Generate Aesthetic QR Code ──
+    if (qrContainer && typeof QRCode !== 'undefined') {
+      qrContainer.innerHTML = ''; // Clear previous QR
+      new QRCode(qrContainer, {
+        text: giftUrl,
+        width: 128,
+        height: 128,
+        colorDark: '#1a1a1a',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+
+      // Center the generated image cleanly
+      setTimeout(() => {
+        const qrImg = qrContainer.querySelector('img');
+        const qrCanvas = qrContainer.querySelector('canvas');
+        if (qrImg) {
+          qrImg.style.margin = '0 auto';
+          qrImg.style.display = 'block';
+          qrImg.style.borderRadius = '4px';
+        }
+        // Hide redundant canvas (qrcode.js generates both)
+        if (qrCanvas) qrCanvas.style.display = 'none';
+      }, 100);
+    }
+
+    // ── Bind Download QR Button ──
+    const downloadBtn = document.getElementById('btn-download-qr');
+    if (downloadBtn) {
+      // Clone to remove any old listeners
+      const newBtn = downloadBtn.cloneNode(true);
+      downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
+      newBtn.addEventListener('click', _handleDownloadQR);
+    }
+
     if (modal) modal.classList.remove('hidden');
+  };
+
+  // ── Download QR Code Polaroid as PNG ──────────────────────
+  const _handleDownloadQR = async () => {
+    const exportNode = document.getElementById('qr-export-container');
+    const btn = document.getElementById('btn-download-qr');
+
+    if (!exportNode || typeof html2canvas === 'undefined') {
+      Studio.showToast('Fitur download belum siap. Silakan screenshot manual.');
+      return;
+    }
+
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<span style="opacity:0.7">Memproses...</span>';
+    btn.disabled = true;
+
+    try {
+      const canvas = await html2canvas(exportNode, {
+        scale: 3,             // High-res output for crisp scanning
+        backgroundColor: '#fffaf5', // Match card background
+        useCORS: true,
+        logging: false
+      });
+
+      const dataUrl = canvas.toDataURL('image/png');
+
+      // Trigger download
+      const a = document.createElement('a');
+      a.download = `Gift-QR-${Date.now()}.png`;
+      a.href = dataUrl;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      Studio.showToast('Barcode berhasil didownload! 📲');
+    } catch (err) {
+      console.error('[Publisher] Download QR error:', err);
+      Studio.showToast('Gagal download barcode. Coba lagi.');
+    } finally {
+      btn.innerHTML = originalHTML;
+      btn.disabled = false;
+    }
   };
 
   // ── Copy link ke clipboard ────────────────────────────────
