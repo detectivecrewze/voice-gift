@@ -120,6 +120,24 @@
 
                 <div class="space-y-6">
                     <div class="space-y-2 text-left">
+                        <label class="text-[9px] uppercase tracking-widest text-gray-500 font-bold block ml-1">Tipe
+                            Gift</label>
+                        <div class="flex gap-3 justify-center">
+                            <button type="button" id="type-classic"
+                                onclick="document.getElementById('type-classic').className='flex-1 text-[10px] uppercase tracking-widest font-bold py-3 rounded border border-black bg-black text-white transition-all'; document.getElementById('type-digicam').className='flex-1 text-[10px] uppercase tracking-widest font-bold py-3 rounded border border-gray-300 text-gray-500 transition-all'; document.getElementById('input-gift-type').value='classic';"
+                                class="flex-1 text-[10px] uppercase tracking-widest font-bold py-3 rounded border border-black bg-black text-white transition-all">
+                                🎁 Classic
+                            </button>
+                            <button type="button" id="type-digicam"
+                                onclick="document.getElementById('type-digicam').className='flex-1 text-[10px] uppercase tracking-widest font-bold py-3 rounded border border-black bg-black text-white transition-all'; document.getElementById('type-classic').className='flex-1 text-[10px] uppercase tracking-widest font-bold py-3 rounded border border-gray-300 text-gray-500 transition-all'; document.getElementById('input-gift-type').value='digicam';"
+                                class="flex-1 text-[10px] uppercase tracking-widest font-bold py-3 rounded border border-gray-300 text-gray-500 transition-all">
+                                📷 Digicam
+                            </button>
+                        </div>
+                        <input type="hidden" id="input-gift-type" value="classic">
+                    </div>
+
+                    <div class="space-y-2 text-left">
                         <label class="text-[9px] uppercase tracking-widest text-gray-500 font-bold block ml-1">Nama
                             Project
                             (Slug)</label>
@@ -170,8 +188,24 @@
 
             <!-- 2. Access Project -->
             <form id="form-access" class="glass-panel p-10 space-y-4">
-                <input id="input-token" type="text" placeholder="Masukkan Kode Project..."
-                    class="w-full text-center text-sm border-b border-gray-400 bg-transparent py-3 focus:outline-none focus:border-black transition-all placeholder:text-gray-500 text-black font-medium">
+                <div class="flex flex-col gap-4">
+                    <input id="input-token" type="text" placeholder="Masukkan Kode Project..."
+                        class="w-full text-center text-sm border-b border-gray-400 bg-transparent py-3 focus:outline-none focus:border-black transition-all placeholder:text-gray-500 text-black font-medium">
+
+                    <div class="flex gap-3 justify-center mb-2">
+                        <button type="button" id="access-type-classic"
+                            onclick="document.getElementById('access-type-classic').className='flex-1 text-[9px] uppercase tracking-widest font-bold py-2 rounded border border-black bg-black text-white transition-all'; document.getElementById('access-type-digicam').className='flex-1 text-[9px] uppercase tracking-widest font-bold py-2 rounded border border-gray-300 text-gray-500 transition-all'; document.getElementById('input-access-type').value='classic';"
+                            class="flex-1 text-[9px] uppercase tracking-widest font-bold py-2 rounded border border-black bg-black text-white transition-all">
+                            🎁 Classic
+                        </button>
+                        <button type="button" id="access-type-digicam"
+                            onclick="document.getElementById('access-type-digicam').className='flex-1 text-[9px] uppercase tracking-widest font-bold py-2 rounded border border-black bg-black text-white transition-all'; document.getElementById('access-type-classic').className='flex-1 text-[9px] uppercase tracking-widest font-bold py-2 rounded border border-gray-300 text-gray-500 transition-all'; document.getElementById('input-access-type').value='digicam';"
+                            class="flex-1 text-[9px] uppercase tracking-widest font-bold py-2 rounded border border-gray-300 text-gray-500 transition-all">
+                            📷 Digicam
+                        </button>
+                    </div>
+                    <input type="hidden" id="input-access-type" value="classic">
+                </div>
                 <button type="submit"
                     class="w-full text-[10px] text-black font-bold uppercase tracking-widest border border-gray-300 py-4 hover:bg-white transition-all rounded-sm">
                     Masuk ke Lab
@@ -183,7 +217,8 @@
                 <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-gray-200"></span>
                 </div>
                 <div class="relative flex justify-center">
-                    <span class="bg-[#fcfaf7] px-4 text-[9px] text-gray-400 font-bold uppercase tracking-widest">Perbarui
+                    <span
+                        class="bg-[#fcfaf7] px-4 text-[9px] text-gray-400 font-bold uppercase tracking-widest">Perbarui
                         Password</span>
                 </div>
             </div>
@@ -219,11 +254,13 @@
                         </div>
 
                         <div class="space-y-1 text-left">
-                            <label class="text-[9px] uppercase tracking-widest text-gray-500 font-bold block ml-1">Password
+                            <label
+                                class="text-[9px] uppercase tracking-widest text-gray-500 font-bold block ml-1">Password
                                 Gift Baru (Opsional)</label>
                             <input id="input-new-gift-pass" type="password" placeholder="••••••••"
                                 class="w-full text-center text-sm border-b border-gray-300 bg-transparent py-2 focus:outline-none focus:border-black transition-all placeholder:text-gray-400 text-black">
-                            <p class="text-[8px] text-gray-400 italic mt-2 ml-1 leading-tight">Kosongkan jika tidak ingin
+                            <p class="text-[8px] text-gray-400 italic mt-2 ml-1 leading-tight">Kosongkan jika tidak
+                                ingin
                                 mengubah password.</p>
                         </div>
                     </div>

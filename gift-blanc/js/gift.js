@@ -55,7 +55,6 @@ const _getMockData = (id) => {
 
 // ── Init ──────────────────────────────────────────────────────
 const initGiftPage = async () => {
-  console.log('[Gift] Initializing Gift Page...');
   showState('state-loading');
 
   // Ambil giftId dari URL: prioritize ?to=[id] (gaya Valentine)
@@ -74,11 +73,9 @@ const initGiftPage = async () => {
     giftId = null;
   }
 
-  console.log('[Gift] Target ID:', giftId);
 
   // Jika tetap kosong, tampilkan Menu Akses
   if (!giftId) {
-    console.log('[Gift] No ID found, defaulting to demo for preview.');
     giftId = 'demo';
   }
 
@@ -100,7 +97,6 @@ const _setupAccessUI = () => {
   const handleGo = () => {
     const id = input.value.trim().toLowerCase();
     if (id) {
-      console.log('[Gift] Navigating to ID:', id);
       // Update URL tanpa reload untuk UX yang lebih baik
       const newUrl = `${window.location.origin}${window.location.pathname}?to=${id}`;
       window.history.pushState({ path: newUrl }, '', newUrl);
@@ -116,20 +112,17 @@ const _setupAccessUI = () => {
 
 // ── Fetch & Route Logic ───────────────────────────────────────
 const _fetchAndRender = async (giftId) => {
-  console.log(`[Gift] Loading data for: ${giftId}`);
   showState('state-loading');
 
   try {
     const mock = _getMockData(giftId);
     if (mock) {
-      console.log('[Gift] Rendering from Mock Data');
       _renderGift(mock.gift);
       showState('state-gift');
       return;
     }
 
     const endpoint = `${API_BASE_URL}/get-config?id=${giftId}`;
-    console.log(`[Gift] Fetching from: ${endpoint}`);
 
     // Set timeout untuk fetch agar tidak buffering selamanya
     const controller = new AbortController();
@@ -145,7 +138,6 @@ const _fetchAndRender = async (giftId) => {
     }
 
     const gift = await response.json();
-    console.log('[Gift] Data received:', gift);
 
     if (!gift || gift.error) {
       console.error('[Gift] Config is invalid:', gift?.error);
@@ -157,11 +149,9 @@ const _fetchAndRender = async (giftId) => {
     const isProtected = gift.password && String(gift.password).trim().length > 0;
 
     if (isProtected) {
-      console.log('[Gift] Protected by password, showing gate');
       _setupPasswordGate(giftId, gift);
       showState('state-password');
     } else {
-      console.log('[Gift] No password protection, rendering directly');
       _renderGift(gift);
       showState('state-gift');
     }

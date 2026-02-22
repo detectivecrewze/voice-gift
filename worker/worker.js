@@ -39,14 +39,12 @@ var index_default = {
         const randomStr = Math.random().toString(36).substring(7);
         const ext = file.name.split(".").pop().toLowerCase();
         const filename = `${timestamp}-${randomStr}.${ext}`;
-        console.log(`Uploading file: ${filename} (${file.size} bytes)`);
         await env.BUCKET.put(filename, file.stream(), {
           httpMetadata: {
             contentType: file.type || "application/octet-stream"
           }
         });
         const publicUrl = `${url.origin}/${filename}`;
-        console.log(`Upload success: ${publicUrl}`);
         return new Response(JSON.stringify({
           success: true,
           url: publicUrl,
@@ -77,16 +75,13 @@ var index_default = {
         });
       }
       try {
-        console.log(`[KV] Looking up config for: ${id}`);
         const data = await env.VALENTINE_DATA.get(id);
         if (!data) {
-          console.log(`[KV] Config not found: ${id}`);
           return new Response(JSON.stringify({ error: "Config not found", id }), {
             status: 404,
             headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
         }
-        console.log(`[KV] Config found for: ${id} (${data.length} bytes)`);
         return new Response(data, {
           headers: {
             ...corsHeaders,
@@ -207,7 +202,6 @@ var index_default = {
     }
     if (request.method === "GET" && url.pathname !== "/") {
       const filename = url.pathname.substring(1);
-      console.log(`Fetching file: ${filename}`);
       try {
         const object = await env.BUCKET.get(filename);
         if (!object) {

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Voices, Always for you.</title>
+    <meta name="description" content="Ada hadiah spesial untukmu" />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <meta property="og:title" content="Ada hadiah untukmu" />
+    <meta property="og:description" content="Seseorang merekam kenangan indah untukmu. Buka dan rasakan." />
+    <meta property="og:type" content="website" />
+
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <link rel="stylesheet" href="css/mossy.css" />
+</head>
+
+<body>
+
+    <div id="state-loading" class="fullscreen-center">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div id="state-access" class="fullscreen-center hidden">
+        <div class="password-card">
+            <h2 class="password-title">Buka Kado Suara</h2>
+            <p class="hint-text">Masukkan kode kado yang kamu terima</p>
+            <input id="access-id-input" type="text" placeholder="Contoh: kado-mita" autocomplete="off"
+                class="password-field" />
+            <button id="btn-access-go" class="unlock-btn">Cari Kado</button>
+            <p class="password-hint">Tanyakan pengirim jika kamu tidak tahu kodenya</p>
+        </div>
+    </div>
+
+    <div id="state-error" class="fullscreen-center hidden">
+        <div class="error-container">
+            <span class="error-icon">&#10005;</span>
+            <h2>Gift tidak ditemukan</h2>
+            <p>Link ini mungkin salah atau sudah tidak aktif.</p>
+        </div>
+    </div>
+
+    <div id="state-password" class="fullscreen-center hidden">
+        <div class="password-card">
+            <h2 class="password-title">Ada hadiah yang menunggumu</h2>
+            <input id="password-input" type="password" placeholder="Masukkan password..." autocomplete="off"
+                class="password-field" />
+            <p id="password-error" class="password-error hidden">Password salah, coba lagi.</p>
+            <button id="btn-unlock" class="unlock-btn">Buka Hadiah</button>
+            <p class="password-hint">Tidak tahu passwordnya? Tanya pengirimnya</p>
+        </div>
+    </div>
+
+    <div id="state-gift" class="hidden">
+        <div id="bokeh-container" class="bokeh-container"></div>
+        <section id="gift-voice" class="voice-section fade-in-up"></section>
+        <a href="https://for-you-always.my.id" class="watermark-badge" target="_blank"
+            title="Buat gift-mu di For you, Always.">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined scale-75"
+                    style="font-variation-settings: 'FILL' 1, 'wght' 700;">diamond</span>
+                <span class="font-bold uppercase tracking-widest text-xs opacity-90">FOR YOU, ALWAYS</span>
+            </div>
+        </a>
+    </div>
+
+    <script src="js/player.js"></script>
+</body>
+
+</html>

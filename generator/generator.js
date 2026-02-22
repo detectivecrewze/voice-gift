@@ -63,6 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const customName = document.getElementById('input-new-token')?.value.trim();
         const studioPass = document.getElementById('input-studio-pass')?.value.trim();
         const giftPass = document.getElementById('input-gift-pass')?.value.trim();
+        const giftType = document.getElementById('input-gift-type')?.value || 'classic';
+        const defaultTheme = giftType === 'digicam' ? 'camera' : 'rose';
         let finalId = '';
 
         if (customName) {
@@ -86,7 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // ── DUPLICATE CHECK: Cek apakah nama sudah ada ──────────────────
-            console.log(`[Generator] Checking if project "${finalId}" exists...`);
             const checkResponse = await fetch(`${API_BASE_URL}/get-config?id=${finalId}`);
 
             if (checkResponse.ok) {
@@ -109,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 studioToken: finalId,
                 giftId: finalId,
                 occasion: 'romantic',
-                theme: 'rose',
+                theme: defaultTheme,
                 recipientName: 'Someone Special',
                 message: '',
                 photos: [],
@@ -120,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 createdAt: new Date().toISOString()
             };
 
-            console.log(`[Generator] Creating Project: ${finalId}`);
             const response = await fetch(`${API_BASE_URL}/save-config?id=${finalId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -129,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 const res = await response.json();
-                console.log('[Generator] Success:', res);
             } else {
                 console.warn('[Generator] Save returned non-ok:', response.status);
             }
@@ -139,7 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Delay to ensure KV propagation & Telegram sempat terkirim 
         setTimeout(() => {
-            let url = `../studio/index.html?token=${finalId}`;
+            const studioFolder = giftType === 'digicam' ? 'gift-camera/studio' : 'studio';
+            let url = `../${studioFolder}/index.html?token=${finalId}`;
             window.location.href = url;
         }, 600);
     });
@@ -148,9 +148,11 @@ document.addEventListener('DOMContentLoaded', () => {
     formAccess?.addEventListener('submit', (e) => {
         e.preventDefault();
         const token = inputToken.value.trim();
+        const accessType = document.getElementById('input-access-type')?.value || 'classic';
 
         if (token) {
-            window.location.href = `../studio/index.html?token=${token}`;
+            const studioFolder = accessType === 'digicam' ? 'gift-camera/studio' : 'studio';
+            window.location.href = `../${studioFolder}/index.html?token=${token}`;
         } else {
             inputToken.classList.add('border-red-300');
             setTimeout(() => inputToken.classList.remove('border-red-300'), 2000);
@@ -183,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // 1. Fetch existing data
-            console.log(`[Generator] Fetching project: ${projectId}`);
             const response = await fetch(`${API_BASE_URL}/get-config?id=${projectId}`);
 
             if (!response.ok) {
@@ -224,7 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             // 4. Save to API
-            console.log(`[Generator] Updating password for: ${projectId}`);
             const saveResponse = await fetch(`${API_BASE_URL}/save-config?id=${projectId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
