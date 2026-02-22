@@ -49,6 +49,7 @@ const AMBIENTS = [
   { id: 'nadin-ah', label: 'Nadin Amizah - Ah', emoji: '☁️' },
   { id: 'daniel', label: 'Daniel Caesar - Who Knows', emoji: '🕊️' },
   { id: 'mitski', label: 'Mitski - My Love Mine All Mine', emoji: '🌕' },
+  { id: 'feast-nina', label: 'Feast - Nina', emoji: '🕰️' },
 ];
 
 // ── Ambient Sound URLs (same as gift page) ──────────────────
@@ -60,7 +61,8 @@ const AMBIENT_SOUNDS = {
   forest: 'https://dl.dropboxusercontent.com/scl/fi/cy1k2ru7ddi1wm96uohqv/forest.mp3?rlkey=uvsqjyjxbwhk33cmaps931bqu&st=h2b6zlzk',
   'nadin-ah': 'https://dl.dropboxusercontent.com/scl/fi/itmvna64forw61thvwb19/AH-Nadin-Amizah.mp3?rlkey=lmzmxrhjgq9qrabe3sewox21q&st=0s3baidy',
   daniel: 'https://dl.dropboxusercontent.com/scl/fi/nqpvliyw9r780t3wk4636/Daniel-Caesar-Who-Knows.mp3?rlkey=vnfwwhsmuwdyt2lrgwuhjyf9u&st=fgjxdbio',
-  mitski: 'https://dl.dropboxusercontent.com/scl/fi/71ib9m69dm2ed9squj191/Mitski-My-Love-Mine-All-Mine.mp3?rlkey=i43d8ng7tbndbuflm1yw3j3r9&st=dad3r4yp'
+  mitski: 'https://dl.dropboxusercontent.com/scl/fi/71ib9m69dm2ed9squj191/Mitski-My-Love-Mine-All-Mine.mp3?rlkey=i43d8ng7tbndbuflm1yw3j3r9&st=dad3r4yp',
+  'feast-nina': 'https://dl.dropboxusercontent.com/scl/fi/gasq7z9wglw9n4pi01g2o/Feast-Nina-Official-Lyric-Video.mp3?rlkey=9kemwk8ojsee4rlaqj8s0h3rx&st=5szgp51v'
 };
 
 // ── Global State ─────────────────────────────────────────────
