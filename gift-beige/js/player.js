@@ -20,6 +20,7 @@ const VoicePlayer = (() => {
     let analyser = null;
     let dataArray = null;
     let sourceNode = null;
+    let voiceGain = null;
     let animationId = null;
 
     // ── Centralized AudioContext Helper ───────────────────────
@@ -252,7 +253,10 @@ const VoicePlayer = (() => {
 
       if (!sourceNode) {
         sourceNode = ctx.createMediaElementSource(audio);
-        sourceNode.connect(analyser);
+        voiceGain = ctx.createGain();
+        voiceGain.gain.setValueAtTime(0, ctx.currentTime);
+        sourceNode.connect(voiceGain);
+        voiceGain.connect(analyser);
         analyser.connect(ctx.destination);
       }
     }
@@ -331,7 +335,7 @@ const VoicePlayer = (() => {
       getAudioContext();
 
       // Silent unlock for iOS
-      audio.muted = true;
+      audio.volume = 0;
       audio.play().then(() => {
         audio.pause();
         audio.currentTime = 0;
@@ -646,9 +650,13 @@ const VoicePlayer = (() => {
     const startPlaying = () => {
       if (!isPlaying) {
         audio.muted = false;
+        if (voiceGain) {
+          voiceGain.gain.setTargetAtTime(1, audioCtx.currentTime, 0.01);
+        }
+        
         if (ambientAudio) ambientAudio.muted = false;
         if (audio.ended) audio.currentTime = 0;
-        audio.muted = false; // Ensure unmuted
+         // Ensure unmuted
         audio.play().catch(() => { });
         isPlaying = true;
         box.classList.add('is-cranking');
@@ -680,6 +688,9 @@ const VoicePlayer = (() => {
 
     const stopPlaying = () => {
       if (isPlaying) {
+        if (voiceGain) {
+          voiceGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+        }
         audio.pause();
         isPlaying = false;
         box.classList.remove('is-cranking');
