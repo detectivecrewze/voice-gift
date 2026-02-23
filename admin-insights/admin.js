@@ -164,21 +164,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 'rosewood': 'gift-camera-rosewood', 'mossy': 'gift-camera-mossy'
             };
 
-            let themeBadgeClass = 'bg-gray-100 text-gray-700';
+            let themeBadgeClass = 'bg-white/10 text-white/80';
             let displayTheme = 'Original';
 
             const theme = String(gift.theme || 'rose').toLowerCase();
             const isCamera = CAMERA_THEMES.includes(theme);
 
-            if (theme === 'pinky') { themeBadgeClass = 'bg-pink-100 text-pink-700'; displayTheme = 'Magenta'; }
-            else if (theme === 'rose' || theme === 'original') { themeBadgeClass = 'bg-stone-100 text-stone-700'; displayTheme = 'Original'; }
-            else if (theme === 'beige') { themeBadgeClass = 'bg-orange-100 text-orange-800'; displayTheme = 'Rosewood'; }
-            else if (theme === 'blanc' || theme === 'white') { themeBadgeClass = 'bg-indigo-100 text-indigo-700'; displayTheme = 'Midnight'; }
-            else if (theme === 'sage') { themeBadgeClass = 'bg-emerald-100 text-emerald-700'; displayTheme = 'Mossy'; }
-            else if (theme === 'camera') { themeBadgeClass = 'bg-gray-100 text-gray-700'; displayTheme = 'Silver'; }
-            else if (theme === 'midnight') { themeBadgeClass = 'bg-indigo-100 text-indigo-700'; displayTheme = 'Midnight'; }
-            else if (theme === 'rosewood') { themeBadgeClass = 'bg-orange-100 text-orange-800'; displayTheme = 'Rosewood'; }
-            else if (theme === 'mossy') { themeBadgeClass = 'bg-emerald-100 text-emerald-700'; displayTheme = 'Mossy'; }
+            if (theme === 'pinky') { themeBadgeClass = 'bg-pink-500/20 text-pink-400 border border-pink-500/30'; displayTheme = 'Magenta'; }
+            else if (theme === 'rose' || theme === 'original') { themeBadgeClass = 'bg-rose-500/20 text-rose-300 border border-rose-500/30'; displayTheme = 'Original'; }
+            else if (theme === 'beige') { themeBadgeClass = 'bg-orange-500/20 text-orange-400 border border-orange-500/30'; displayTheme = 'Rosewood'; }
+            else if (theme === 'blanc' || theme === 'white') { themeBadgeClass = 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'; displayTheme = 'Midnight'; }
+            else if (theme === 'sage') { themeBadgeClass = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'; displayTheme = 'Mossy'; }
+            else if (theme === 'camera') { themeBadgeClass = 'bg-gray-500/20 text-gray-300 border border-gray-500/30'; displayTheme = 'Silver'; }
+            else if (theme === 'midnight') { themeBadgeClass = 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'; displayTheme = 'Midnight'; }
+            else if (theme === 'rosewood') { themeBadgeClass = 'bg-orange-500/20 text-orange-400 border border-orange-500/30'; displayTheme = 'Rosewood'; }
+            else if (theme === 'mossy') { themeBadgeClass = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'; displayTheme = 'Mossy'; }
             else { displayTheme = theme; }
 
             const giftFolder = isCamera
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const giftUrl = `${window.location.origin}/${giftFolder}/index.html?to=${gift.giftId}`;
             const editorUrl = `../${studioPath}/index.html?token=${gift.giftId}`;
             const productLabel = isCamera ? '📷 Gift Camera' : '📝 Gift Pages';
-            const productClass = isCamera ? 'bg-violet-50 text-violet-600' : 'bg-sky-50 text-sky-600';
+            const productClass = isCamera ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
 
             let sfxText = 'Hening';
             const ambient = String(gift.ambient || 'none').toLowerCase();
@@ -206,63 +206,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const lastOpenedDate = gift.lastOpened ? new Date(gift.lastOpened).toLocaleString('id-ID', {
                 day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-            }) : '<span class="text-gray-300 italic">Belum dibuka</span>';
+            }) : '<span class="text-white/20 italic">Belum dibuka</span>';
 
-            // Check if kado is "Stale" (older than 30 days)
             const isStale = gift.lastOpened && (new Date() - new Date(gift.lastOpened)) > (30 * 24 * 60 * 60 * 1000);
 
             return `
-                <tr class="${isSelected ? 'bg-rose-50/30' : ''} ${isStale ? 'opacity-60' : ''} transition-all border-b border-gray-50 last:border-0 hover:bg-gray-50/20">
+                <tr class="${isSelected ? 'bg-white/5' : ''} ${isStale ? 'opacity-40' : ''} transition-all border-b border-white/5 last:border-0 hover:bg-white/[0.03]">
                     <td class="p-6">
                         <input type="checkbox" data-id="${gift.giftId}" ${isSelected ? 'checked' : ''} 
-                               class="gift-checkbox rounded border-gray-300 text-black focus:ring-black cursor-pointer">
+                               class="gift-checkbox rounded-md border-white/10 bg-white/5 text-[#ff4d6d] focus:ring-[#ff4d6d] cursor-pointer w-4 h-4">
                     </td>
                     <td class="p-6">
                         <div class="flex flex-col">
-                            <span class="text-xs font-bold font-mono tracking-tight">${gift.giftId}</span>
-                            <a href="${giftUrl}" target="_blank" class="text-[9px] text-[#d4a373] hover:underline mt-1 font-bold">BUKA KADO ↗</a>
+                            <span class="text-xs font-bold font-mono tracking-tight text-white">${gift.giftId}</span>
+                            <a href="${giftUrl}" target="_blank" class="text-[9px] text-[#ff4d6d] hover:underline mt-1 font-bold tracking-widest uppercase">Inspect Link ↗</a>
                         </div>
                     </td>
                     <td class="p-6">
-                        <span class="text-xs font-medium text-gray-800">${gift.recipientName || '(Tanpa Nama)'}</span>
+                        <span class="text-xs font-semibold text-white/90">${gift.recipientName || '(Tanpa Nama)'}</span>
                     </td>
                     <td class="p-6">
                         <div class="flex flex-col gap-2 items-start">
-                            <span class="text-[8px] uppercase tracking-[0.2em] px-2 py-1 rounded-md font-bold ${productClass}">${productLabel}</span>
-                            <span class="text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full font-bold ${themeBadgeClass}">${displayTheme}</span>
-                            <span class="text-[10px] text-gray-400 font-medium flex items-center gap-1">
-                                <span class="text-[10px]">🎵</span> ${sfxText}
+                            <span class="text-[8px] uppercase tracking-[0.2em] px-2.5 py-1 rounded-lg font-bold ${productClass}">${productLabel}</span>
+                            <span class="text-[9px] uppercase tracking-[0.1em] px-2.5 py-0.5 rounded-full font-bold ${themeBadgeClass}">${displayTheme}</span>
+                            <span class="text-[10px] text-white/30 font-medium flex items-center gap-1.5 mt-1">
+                                <span class="opacity-50">🎵</span> ${sfxText}
                             </span>
                         </div>
                     </td>
                     <td class="p-6">
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-4">
                             <!-- Thumbnail Preview -->
-                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border border-black/5 shadow-sm">
+                            <div class="w-12 h-12 rounded-2xl overflow-hidden bg-white/5 flex-shrink-0 border border-white/10 shadow-lg">
                                 ${gift.firstPhotoUrl
-                    ? `<img src="${gift.firstPhotoUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/40x40?text=?'">`
-                    : `<div class="w-full h-full flex items-center justify-center text-[10px] text-gray-400 font-bold">?</div>`
+                    ? `<img src="${gift.firstPhotoUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/80x80?text=?'">`
+                    : `<div class="w-full h-full flex items-center justify-center text-[10px] text-white/20 font-bold">?</div>`
                 }
                             </div>
-                            <div class="flex flex-col gap-1">
-                                <span class="text-[9px] bg-gray-50 text-gray-500 border border-gray-100 px-2 py-0.5 rounded-full w-fit">📸 ${gift.photosCount} Foto</span>
-                                ${gift.hasVoice ? '<span class="text-[9px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full w-fit font-bold">🎙️ Ada Voice</span>' : ''}
+                            <div class="flex flex-col gap-1.5">
+                                <span class="text-[9px] bg-white/5 text-white/50 border border-white/5 px-2.5 py-1 rounded-lg w-fit font-bold">📸 ${gift.photosCount} PHOTOS</span>
+                                ${gift.hasVoice ? '<span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-lg w-fit font-extrabold tracking-tighter uppercase">🎙️ VOICE ID TRANSMITTED</span>' : ''}
                             </div>
                         </div>
                     </td>
                     <td class="p-6">
-                        <span class="text-[10px] text-gray-400 font-mono">${date}</span>
+                        <span class="text-[10px] text-white/40 font-mono tracking-tighter">${date}</span>
                     </td>
                     <td class="p-6">
                         <div class="flex flex-col">
-                            <span class="text-[10px] ${isStale ? 'text-rose-400 font-bold' : 'text-gray-400'} font-mono">${lastOpenedDate}</span>
-                            ${isStale ? '<span class="text-[7px] uppercase tracking-tighter text-rose-300 font-bold mt-0.5">Sudah Lama Pasif</span>' : ''}
+                            <span class="text-[10px] ${isStale ? 'text-rose-400 font-bold' : 'text-white/40'} font-mono">${lastOpenedDate}</span>
+                            ${isStale ? '<span class="text-[7px] uppercase tracking-[0.1em] text-rose-500/60 font-bold mt-1">Anomaly: Stale Content</span>' : ''}
                         </div>
                     </td>
                     <td class="p-6">
                         <a href="${editorUrl}" target="_blank" 
-                           class="text-[9px] font-bold tracking-widest bg-white border border-gray-100 shadow-sm px-4 py-2 rounded-full hover:bg-black hover:text-white transition-all whitespace-nowrap uppercase">
-                           Editor
+                           class="text-[9px] font-bold tracking-[0.2em] bg-white/5 border border-white/10 text-white px-5 py-2.5 rounded-xl hover:bg-[#ff4d6d] hover:border-[#ff4d6d] transition-all whitespace-nowrap uppercase">
+                           Configure
                         </a>
                     </td>
                 </tr>
@@ -394,4 +393,61 @@ document.addEventListener('DOMContentLoaded', () => {
     adminSecretInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') fetchGifts();
     });
+
+    // --- Particle System Implementation ---
+    const canvas = document.getElementById('particles-canvas');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width || this.x < 0 || this.y > canvas.height || this.y < 0) {
+                    this.reset();
+                }
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        const initParticles = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = [];
+            for (let i = 0; i < 80; i++) {
+                particles.push(new Particle());
+            }
+        };
+
+        const animate = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        };
+
+        window.addEventListener('resize', initParticles);
+        initParticles();
+        animate();
+    }
 });
