@@ -9,6 +9,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnRefresh = document.getElementById('btn-refresh');
     const adminSecretInput = document.getElementById('admin-secret');
     const tableBody = document.getElementById('gift-table-body');
+    const bulkActions = document.getElementById('bulk-actions');
+    const selectedCount = document.getElementById('selected-count');
+    const btnBulkDelete = document.getElementById('btn-bulk-delete');
+    const selectAllCheckbox = document.getElementById('select-all');
+
+    let allGifts = [];
+    let selectedIds = new Set();
+
+    const updateBulkActionsUI = () => {
+        if (selectedIds.size > 0) {
+            bulkActions.classList.remove('hidden');
+            selectedCount.innerText = `${selectedIds.size} Item Terpilih`;
+        } else {
+            bulkActions.classList.add('hidden');
+        }
+
+        if (allGifts.length > 0) {
+            selectAllCheckbox.checked = selectedIds.size === allGifts.length;
+            selectAllCheckbox.indeterminate = selectedIds.size > 0 && selectedIds.size < allGifts.length;
+        } else {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        }
+    };
 
     // Load secret from localStorage if exists
     if (localStorage.getItem('admin_secret')) {
@@ -27,6 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         btnRefresh.innerText = 'MEMUAT...';
         btnRefresh.disabled = true;
+        selectedIds.clear();
+        updateBulkActionsUI();
 
         try {
             const response = await fetch(`${API_BASE_URL}/admin/list-gifts`, {
@@ -38,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
+                renderSummary(data.gifts);
                 renderTable(data.gifts);
             } else {
                 alert('Gagal mengambil data: ' + (data.error || 'Unknown error'));
@@ -52,9 +79,62 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const renderTable = (gifts) => {
+    const renderSummary = (gifts) => {
+        const summarySection = document.getElementById('summary-section');
         if (!gifts || gifts.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="5" class="p-12 text-center text-gray-400 text-xs italic">Belum ada kado yang dipublikasikan.</td></tr>`;
+            summarySection.classList.add('hidden');
+            return;
+        }
+
+        summarySection.classList.remove('hidden');
+
+        // 1. Total Gifts
+        document.getElementById('stat-total').innerText = gifts.length;
+
+        // 2. New Today
+        const now = new Date();
+        const oneDayAgo = now.getTime() - (24 * 60 * 60 * 1000);
+        const newToday = gifts.filter(g => new Date(g.publishedAt).getTime() > oneDayAgo).length;
+        document.getElementById('stat-today').innerText = newToday;
+
+        // 3. Top Theme
+        const themeCounts = {};
+        gifts.forEach(g => {
+            const t = String(g.theme || 'rose').toLowerCase();
+            themeCounts[t] = (themeCounts[t] || 0) + 1;
+        });
+        const topTheme = Object.keys(themeCounts).reduce((a, b) => themeCounts[a] > themeCounts[b] ? a : b);
+
+        // Pretty name mapping
+        const themeNames = {
+            'rose': 'Original', 'original': 'Original', 'pinky': 'Magenta',
+            'beige': 'Rosewood', 'blanc': 'Midnight', 'white': 'Midnight',
+            'sage': 'Mossy', 'camera': 'Silver', 'midnight': 'Midnight',
+            'rosewood': 'Rosewood', 'mossy': 'Mossy'
+        };
+        document.getElementById('stat-theme').innerText = themeNames[topTheme] || topTheme.toUpperCase();
+
+        // 4. Top Audio
+        const audioCounts = {};
+        gifts.forEach(g => {
+            const a = String(g.ambient || 'none').toLowerCase();
+            audioCounts[a] = (audioCounts[a] || 0) + 1;
+        });
+        const topAudioRaw = Object.keys(audioCounts).reduce((a, b) => audioCounts[a] > audioCounts[b] ? a : b);
+
+        // Pretty audio mapping
+        const audioNames = {
+            'none': 'Hening', 'rain': 'Rain', 'cafe': 'Cafe', 'waves': 'Waves',
+            'fireplace': 'Fire', 'forest': 'Forest', 'nadin-ah': 'Nadin',
+            'daniel': 'Daniel', 'mitski': 'Mitski'
+        };
+        document.getElementById('stat-audio').innerText = audioNames[topAudioRaw] || topAudioRaw.toUpperCase();
+    };
+
+    const renderTable = (gifts) => {
+        allGifts = gifts;
+        if (!gifts || gifts.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="7" class="p-12 text-center text-gray-400 text-xs italic">Belum ada kado yang dipublikasikan.</td></tr>`;
             return;
         }
 
@@ -62,13 +142,11 @@ document.addEventListener('DOMContentLoaded', () => {
         gifts.sort((a, b) => new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0));
 
         tableBody.innerHTML = gifts.map(gift => {
+            const isSelected = selectedIds.has(gift.giftId);
             const date = gift.publishedAt ? new Date(gift.publishedAt).toLocaleString('id-ID', {
                 day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
             }) : '-';
 
-            // ── Smart Generator Detection ──
-            // Camera themes use gift-camera/* folders & studio
-            // Gift-pages themes use gift*/ folders & main studio
             const CAMERA_THEMES = ['camera', 'midnight', 'rosewood', 'mossy'];
             const GIFT_PAGE_THEME_FOLDERS = {
                 'rose': 'gift', 'original': 'gift', 'pinky': 'gift-pinky',
@@ -80,11 +158,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 'rosewood': 'gift-camera-rosewood', 'mossy': 'gift-camera-mossy'
             };
 
-            // Format theme badge colors based on theme name
             let themeBadgeClass = 'bg-gray-100 text-gray-700';
             let displayTheme = 'Original';
 
-            // Protect against non-string values
             const theme = String(gift.theme || 'rose').toLowerCase();
             const isCamera = CAMERA_THEMES.includes(theme);
 
@@ -99,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (theme === 'mossy') { themeBadgeClass = 'bg-emerald-100 text-emerald-700'; displayTheme = 'Mossy'; }
             else { displayTheme = theme; }
 
-            // Smart URL: route to correct gift folder & studio
             const giftFolder = isCamera
                 ? (CAMERA_THEME_FOLDERS[theme] || 'gift-camera')
                 : (GIFT_PAGE_THEME_FOLDERS[theme] || 'gift');
@@ -109,7 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const productLabel = isCamera ? '📷 Digicam' : '📝 Gift Pages';
             const productClass = isCamera ? 'bg-violet-50 text-violet-600' : 'bg-sky-50 text-sky-600';
 
-            // Format ambient text
             let ambientText = 'Tanpa SFX';
             const ambient = String(gift.ambient || 'none').toLowerCase();
             if (ambient !== 'none') {
@@ -125,7 +199,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             return `
-                <tr>
+                <tr class="${isSelected ? 'bg-rose-50/30' : ''} transition-all">
+                    <td class="p-6">
+                        <input type="checkbox" data-id="${gift.giftId}" ${isSelected ? 'checked' : ''} 
+                               class="gift-checkbox rounded border-gray-300 text-black focus:ring-black cursor-pointer">
+                    </td>
                     <td class="p-6">
                         <div class="flex flex-col">
                             <span class="text-xs font-bold font-mono tracking-tight">${gift.giftId}</span>
@@ -143,9 +221,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </td>
                     <td class="p-6">
-                        <div class="flex gap-2">
-                            <span class="text-[9px] bg-gray-100 px-2 py-1 rounded">📸 ${gift.photosCount} Foto</span>
-                            ${gift.hasVoice ? '<span class="text-[9px] bg-gray-100 px-2 py-1 rounded">🎙️ Ada Suara</span>' : ''}
+                        <div class="flex items-center gap-3">
+                            <!-- Thumbnail Preview -->
+                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border border-black/5">
+                                ${gift.firstPhotoUrl
+                    ? `<img src="${gift.firstPhotoUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/40x40?text=?'">`
+                    : `<div class="w-full h-full flex items-center justify-center text-[10px] text-gray-400 font-bold">?</div>`
+                }
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[9px] bg-gray-100 px-2 py-0.5 rounded-full w-fit">📸 ${gift.photosCount} Foto</span>
+                                ${gift.hasVoice ? '<span class="text-[9px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full w-fit font-bold">🎙️ Ada Suara</span>' : ''}
+                            </div>
                         </div>
                     </td>
                     <td class="p-6">
@@ -161,6 +248,70 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }).join('');
     };
+    // ── Interaction Logic ──
+
+    selectAllCheckbox.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            allGifts.forEach(g => selectedIds.add(g.giftId));
+        } else {
+            selectedIds.clear();
+        }
+        renderTable(allGifts);
+        updateBulkActionsUI();
+    });
+
+    tableBody.addEventListener('change', (e) => {
+        if (e.target.classList.contains('gift-checkbox')) {
+            const id = e.target.dataset.id;
+            if (e.target.checked) {
+                selectedIds.add(id);
+            } else {
+                selectedIds.delete(id);
+            }
+            renderTable(allGifts);
+            updateBulkActionsUI();
+        }
+    });
+
+    const deleteSelectedGifts = async () => {
+        const ids = Array.from(selectedIds);
+        if (ids.length === 0) return;
+
+        if (!confirm(`Apakah Anda yakin ingin menghapus ${ids.length} kado terpilih? Tindakan ini tidak dapat dibatalkan.`)) {
+            return;
+        }
+
+        const secret = adminSecretInput.value.trim();
+        btnBulkDelete.innerText = 'MENGHAPUS...';
+        btnBulkDelete.disabled = true;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/delete-gifts`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${secret}`
+                },
+                body: JSON.stringify({ ids })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert(result.message);
+                fetchGifts(); // Refresh table
+            } else {
+                alert(`Gagal menghapus: ${result.error}`);
+            }
+        } catch (error) {
+            alert('Terjadi kesalahan jaringan saat menghapus kado.');
+            console.error(error);
+        } finally {
+            btnBulkDelete.innerText = 'Hapus Terpilih';
+            btnBulkDelete.disabled = false;
+        }
+    };
+
+    btnBulkDelete.addEventListener('click', deleteSelectedGifts);
 
     btnRefresh.addEventListener('click', fetchGifts);
 
