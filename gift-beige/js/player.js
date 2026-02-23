@@ -90,7 +90,7 @@ const VoicePlayer = (() => {
       ambientAudio.crossOrigin = 'anonymous';
 
       // Only loop nature SFX, not songs
-      const isSong = ['nadin-ah', 'daniel', 'mitski'].includes(ambientId);
+      const isSong = ['nadin-ah', 'daniel', 'mitski', 'feast-nina', 'feast-tarot'].includes(ambientId);
       ambientAudio.loop = !isSong;
 
       ambientSource = ctx.createMediaElementSource(ambientAudio);
@@ -100,7 +100,11 @@ const VoicePlayer = (() => {
       ambientSource.connect(ambientGain);
       ambientGain.connect(ctx.destination);
 
-      ambientAudio.play().catch(() => { });
+      ambientAudio.muted = true;
+      ambientAudio.play().then(() => {
+        if (!isPlaying) ambientAudio.pause();
+        ambientAudio.muted = false;
+      }).catch(() => { });
     };
 
     // --- Continuous Mechanical Soundscape (Vinyl Crackle & Whir) ---
@@ -643,6 +647,7 @@ const VoicePlayer = (() => {
     const startPlaying = () => {
       if (!isPlaying) {
         if (audio.ended) audio.currentTime = 0;
+        audio.muted = false; // Ensure unmuted
         audio.play().catch(() => { });
         isPlaying = true;
         box.classList.add('is-cranking');

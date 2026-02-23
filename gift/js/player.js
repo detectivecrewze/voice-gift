@@ -90,7 +90,7 @@ const VoicePlayer = (() => {
       ambientAudio.crossOrigin = 'anonymous';
 
       // Only loop nature SFX, not songs
-      const isSong = ['nadin-ah', 'daniel', 'mitski'].includes(ambientId);
+      const isSong = ['nadin-ah', 'daniel', 'mitski', 'feast-nina', 'feast-tarot'].includes(ambientId);
       ambientAudio.loop = !isSong;
 
       ambientSource = ctx.createMediaElementSource(ambientAudio);
@@ -100,7 +100,11 @@ const VoicePlayer = (() => {
       ambientSource.connect(ambientGain);
       ambientGain.connect(ctx.destination);
 
-      ambientAudio.play().catch(() => { });
+      ambientAudio.muted = true;
+      ambientAudio.play().then(() => {
+        if (!isPlaying) ambientAudio.pause();
+        ambientAudio.muted = false;
+      }).catch(() => { });
     };
 
     // --- Continuous Mechanical Soundscape (Vinyl Crackle & Whir) ---
@@ -321,25 +325,36 @@ const VoicePlayer = (() => {
     let audioWarmed = false;
     const warmUpAudio = () => {
       if (audioWarmed) return;
+      audioWarmed = true;
 
       // Initialize AudioContext on first user gesture
       getAudioContext();
+
+      let prevMuted = audio.muted;
+      audio.muted = true; // Mute during warmup to prevent early play
 
       // Trick untuk memaksa browser kalkulasi durasi WebM yang tidak punya metadata cues (sering terjadi pada rekaman browser)
       if (audio.duration === Infinity || audio.duration === 0 || isNaN(audio.duration)) {
         audio.currentTime = 1e10; // Lompat ke ujung yang sangat jauh
         audio.addEventListener('timeupdate', function reset() {
-          audio.currentTime = 0;
+          if (!isPlaying) {
+             audio.pause();
+             audio.currentTime = 0;
+          }
           audio.removeEventListener('timeupdate', reset);
           updateDuration();
         }, { once: true });
       }
 
       audio.play().then(() => {
-        // Fix: Only pause if not currently playing (e.g. from Auto-Play button)
-        if (!isPlaying) audio.pause();
-        audioWarmed = true;
-      }).catch(() => { });
+        if (!isPlaying) {
+          audio.pause();
+          audio.currentTime = 0;
+        }
+        audio.muted = prevMuted;
+      }).catch(() => {
+        audio.muted = prevMuted;
+      });
 
       if (!noiseSource) initMechanicalSoundscape();
       if (!analyser) setupVisualizer();
@@ -653,6 +668,7 @@ const VoicePlayer = (() => {
     const startPlaying = () => {
       if (!isPlaying) {
         if (audio.ended) audio.currentTime = 0;
+        audio.muted = false; // Ensure unmuted
         audio.play().catch(() => { });
         isPlaying = true;
         box.classList.add('is-cranking');
