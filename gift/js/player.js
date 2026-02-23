@@ -684,7 +684,7 @@ const VoicePlayer = (() => {
         
         // Fix 8: iOS Auto-Play Block Failsafe. 
         // Force the paused background song to resume playing if blocked previously
-        if (ambientAudio && ambientAudio.paused) {
+        if (ambientAudio && ambientAudio.paused && !ambientAudio.ended) {
           ambientAudio.play().catch(() => {});
         }
       }
