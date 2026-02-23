@@ -170,6 +170,11 @@ const VoicePlayer = (() => {
           <div class="printer-tray" id="tray">
             ${photosMarkup}
           </div>
+          <div class="lcd-idle-overlay" id="lcd-idle-overlay">
+            <div class="lcd-idle-line"></div>
+            <div class="lcd-idle-label">press play</div>
+            <div class="lcd-idle-line"></div>
+          </div>
           <div class="printer-slot"></div>
         </div>
 
@@ -394,18 +399,130 @@ const VoicePlayer = (() => {
       autoPlayRafId = requestAnimationFrame(autoPlayLoop);
     }
 
+    let countdownWasStarted = false;
+
+    const hideIdleOverlay = () => {
+      const idleOverlay = document.getElementById('lcd-idle-overlay');
+      if (idleOverlay && !idleOverlay.classList.contains('hidden')) {
+        idleOverlay.classList.add('hidden');
+      }
+    };
+
+    const runCountdownThenPlay = () => {
+      if (countdownWasStarted) {
+        const oldOverlay = document.getElementById('countdown-overlay');
+        if (oldOverlay) oldOverlay.remove();
+        hideIdleOverlay();
+        autoPlayLoop();
+        return;
+      }
+
+      countdownWasStarted = true;
+
+      const viewport = document.getElementById('viewport');
+      if (!viewport) { autoPlayLoop(); return; }
+
+      const sfx = new Audio('https://dl.dropboxusercontent.com/scl/fi/kvr3bdvgi73t2nrtaj6y5/countdown.mp3?rlkey=ov8bf8msz3z6vxnwsvkst1ldc&st=j6jlhrhf');
+      sfx.volume = 0.3;
+      sfx.crossOrigin = 'anonymous';
+
+      const startVisuals = () => {
+        hideIdleOverlay();
+        if (document.getElementById('countdown-overlay')) return;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'countdown-overlay';
+        overlay.style.cssText = `
+          position: absolute; inset: 0; z-index: 100;
+          display: flex; align-items: center; justify-content: center;
+          background: #000; border-radius: 3px; overflow: hidden;
+        `;
+        const numEl = document.createElement('div');
+        numEl.style.cssText = `
+          font-family: var(--font-display); font-size: 36px; font-weight: 300;
+          color: rgba(255,255,255,0.9); letter-spacing: 0.15em;
+          text-shadow: 0 0 12px rgba(255,255,255,0.3);
+          opacity: 0; transform: scale(0.95);
+          transition: opacity 0.4s ease, transform 0.4s ease;
+        `;
+        overlay.appendChild(numEl);
+        viewport.appendChild(overlay);
+
+        const totalDur = sfx.duration || 4.0;
+        const stepMs = (totalDur * 1000) / 4;
+
+        sfx.play().catch(e => console.log('SFX blocked:', e));
+
+        let count = 3;
+        const tick = () => {
+          if (count > 0) {
+            numEl.textContent = count;
+            requestAnimationFrame(() => {
+              numEl.style.opacity = '1';
+              numEl.style.transform = 'scale(1)';
+            });
+            count--;
+            setTimeout(() => {
+              numEl.style.opacity = '0';
+              numEl.style.transform = 'scale(0.95)';
+              setTimeout(tick, stepMs * 0.1);
+            }, stepMs * 0.9);
+          } else {
+            overlay.innerHTML = '';
+            const canvas = document.createElement('canvas');
+            canvas.width = 64; canvas.height = 48;
+            canvas.style.cssText = 'width:100%;height:100%;image-rendering:pixelated;opacity:0.6;';
+            overlay.appendChild(canvas);
+            const ctx2d = canvas.getContext('2d');
+
+            const staticStartTime = Date.now();
+            const draw = () => {
+              const data = ctx2d.createImageData(64, 48);
+              for (let i = 0; i < data.data.length; i += 4) {
+                const v = Math.random() * 255;
+                data.data[i] = data.data[i + 1] = data.data[i + 2] = v;
+                data.data[i + 3] = 255;
+              }
+              ctx2d.putImageData(data, 0, 0);
+
+              if (Date.now() - staticStartTime < stepMs) {
+                requestAnimationFrame(draw);
+              } else {
+                overlay.remove();
+                autoPlayLoop();
+              }
+            };
+            draw();
+          }
+        };
+        tick();
+      };
+
+      if (sfx.readyState >= 1) {
+        startVisuals();
+      } else {
+        sfx.addEventListener('canplay', startVisuals, { once: true });
+        sfx.addEventListener('error', startVisuals, { once: true });
+        setTimeout(() => { if (!document.getElementById('countdown-overlay')) startVisuals(); }, 3000);
+      }
+    };
+
     if (toggleBtn) {
       toggleBtn.addEventListener('click', () => {
         isAutoPlaying = !isAutoPlaying;
         toggleBtn.classList.toggle('is-active', isAutoPlaying);
         warmUpAudio();
         getAudioContext();
-        if (isAutoPlaying) { autoPlayLoop(); }
+        if (isAutoPlaying) { runCountdownThenPlay(); }
         else { cancelAnimationFrame(autoPlayRafId); stopPlaying(); }
       });
     }
 
     const startDrag = (e) => {
+      // Hide idle overlay if user manually drags early
+      hideIdleOverlay();
+      countdownWasStarted = true;
+
       if (isAutoPlaying) {
         isAutoPlaying = false;
         if (toggleBtn) toggleBtn.classList.remove('is-active');
