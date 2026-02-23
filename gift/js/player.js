@@ -667,6 +667,12 @@ const VoicePlayer = (() => {
         if (ambientGain) {
           ambientGain.gain.setTargetAtTime(0.060, audioCtx.currentTime, 0.5);
         }
+        
+        // Fix 8: iOS Auto-Play Block Failsafe. 
+        // Force the paused background song to resume playing if blocked previously
+        if (ambientAudio && ambientAudio.paused) {
+          ambientAudio.play().catch(() => {});
+        }
       }
 
       // Fix 7: Reset stop-timeout each crank movement
