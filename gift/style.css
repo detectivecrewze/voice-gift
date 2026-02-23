@@ -1112,8 +1112,8 @@ body::after {
 
 .lcd-idle-label {
   font-family: var(--font-mono);
-  font-size: 6px;
-  letter-spacing: 0.28em;
+  font-size: 8.5px;
+  letter-spacing: 0.32em;
   color: rgba(255, 255, 255, 0.22);
   text-transform: uppercase;
 }
