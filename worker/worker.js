@@ -75,13 +75,25 @@ var index_default = {
         });
       }
       try {
-        const data = await env.VALENTINE_DATA.get(id);
+        const { value: data, metadata } = await env.VALENTINE_DATA.getWithMetadata(id);
         if (!data) {
           return new Response(JSON.stringify({ error: "Config not found", id }), {
             status: 404,
             headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
         }
+
+        // Background update "Last Opened" metadata
+        const newMetadata = metadata || {};
+        newMetadata.lastOpened = new Date().toISOString();
+
+        try {
+          // Fire and forget (almost) to keep response fast, but handling errors silently
+          await env.VALENTINE_DATA.put(id, data, { metadata: newMetadata });
+        } catch (writeErr) {
+          console.error("[KV] LastOpened write failed (limit?):", writeErr);
+        }
+
         return new Response(data, {
           headers: {
             ...corsHeaders,
@@ -331,7 +343,7 @@ async function handleAdminListGifts(request, env, corsHeaders) {
     const keys = list.keys;
     const detailPromises = keys.map(async (keyObj) => {
       try {
-        const data = await env.VALENTINE_DATA.get(keyObj.name);
+        const { value: data, metadata } = await env.VALENTINE_DATA.getWithMetadata(keyObj.name);
         if (data) {
           const config = JSON.parse(data);
           return {
@@ -343,7 +355,8 @@ async function handleAdminListGifts(request, env, corsHeaders) {
             firstPhotoUrl: config.photos?.[0]?.url || null,
             hasVoice: !!(config.voiceNote?.url),
             theme: config.theme || "rose",
-            ambient: config.ambient || "none"
+            ambient: config.ambient || "none",
+            lastOpened: metadata?.lastOpened || null
           };
         }
       } catch (e) {

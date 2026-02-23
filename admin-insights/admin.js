@@ -13,7 +13,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedCount = document.getElementById('selected-count');
     const btnBulkDelete = document.getElementById('btn-bulk-delete');
     const selectAllCheckbox = document.getElementById('select-all');
+    const searchInput = document.getElementById('search-input');
+    const filterTheme = document.getElementById('filter-theme');
+    const filterVoice = document.getElementById('filter-voice');
+    const filterStatus = document.getElementById('filter-status');
 
+    let allGiftsRaw = [];
     let allGifts = [];
     let selectedIds = new Set();
 
@@ -64,8 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
+                allGiftsRaw = data.gifts;
                 renderSummary(data.gifts);
-                renderTable(data.gifts);
+                applyFilters(); // This will call renderTable internally
             } else {
                 alert('Gagal mengambil data: ' + (data.error || 'Unknown error'));
                 tableBody.innerHTML = `<tr><td colspan="5" class="p-12 text-center text-red-400 text-xs font-bold">Error: ${data.error}</td></tr>`;
@@ -134,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderTable = (gifts) => {
         allGifts = gifts;
         if (!gifts || gifts.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="7" class="p-12 text-center text-gray-400 text-xs italic">Belum ada kado yang dipublikasikan.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="7" class="p-12 text-center text-gray-400 text-xs italic">Belum ada kado yang sesuai kriteria pencarian.</td></tr>`;
             return;
         }
 
@@ -181,25 +187,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const studioPath = isCamera ? 'gift-camera/studio' : 'studio';
             const giftUrl = `${window.location.origin}/${giftFolder}/index.html?to=${gift.giftId}`;
             const editorUrl = `../${studioPath}/index.html?token=${gift.giftId}`;
-            const productLabel = isCamera ? '📷 Digicam' : '📝 Gift Pages';
+            const productLabel = isCamera ? '📷 Gift Camera' : '📝 Gift Pages';
             const productClass = isCamera ? 'bg-violet-50 text-violet-600' : 'bg-sky-50 text-sky-600';
 
-            let ambientText = 'Tanpa SFX';
+            let sfxText = 'Hening';
             const ambient = String(gift.ambient || 'none').toLowerCase();
             if (ambient !== 'none') {
-                if (ambient === 'rain') ambientText = '🌧️ Rain';
-                else if (ambient === 'cafe') ambientText = '☕ Cafe';
-                else if (ambient === 'waves') ambientText = '🌊 Waves';
-                else if (ambient === 'fireplace') ambientText = '🔥 Fireplace';
-                else if (ambient === 'forest') ambientText = '🌲 Forest';
-                else if (ambient === 'nadin-ah') ambientText = '🎵 Nadin - Taruh';
-                else if (ambient === 'daniel') ambientText = '🎵 Daniel - Always';
-                else if (ambient === 'mitski') ambientText = '🎵 Mitski - My Love';
-                else ambientText = `🎵 ${gift.ambient}`;
+                if (ambient === 'rain') sfxText = 'Rain';
+                else if (ambient === 'cafe') sfxText = 'Cafe';
+                else if (ambient === 'waves') sfxText = 'Waves';
+                else if (ambient === 'fireplace') sfxText = 'Fire';
+                else if (ambient === 'forest') sfxText = 'Forest';
+                else if (ambient === 'nadin-ah') sfxText = 'Nadin';
+                else if (ambient === 'daniel') sfxText = 'Daniel';
+                else if (ambient === 'mitski') sfxText = 'Mitski';
+                else sfxText = gift.ambient;
             }
 
+            const lastOpenedDate = gift.lastOpened ? new Date(gift.lastOpened).toLocaleString('id-ID', {
+                day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            }) : '<span class="text-gray-300 italic">Belum dibuka</span>';
+
+            // Check if kado is "Stale" (older than 30 days)
+            const isStale = gift.lastOpened && (new Date() - new Date(gift.lastOpened)) > (30 * 24 * 60 * 60 * 1000);
+
             return `
-                <tr class="${isSelected ? 'bg-rose-50/30' : ''} transition-all">
+                <tr class="${isSelected ? 'bg-rose-50/30' : ''} ${isStale ? 'opacity-60' : ''} transition-all border-b border-gray-50 last:border-0 hover:bg-gray-50/20">
                     <td class="p-6">
                         <input type="checkbox" data-id="${gift.giftId}" ${isSelected ? 'checked' : ''} 
                                class="gift-checkbox rounded border-gray-300 text-black focus:ring-black cursor-pointer">
@@ -207,46 +220,103 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="p-6">
                         <div class="flex flex-col">
                             <span class="text-xs font-bold font-mono tracking-tight">${gift.giftId}</span>
-                            <a href="${giftUrl}" target="_blank" class="text-[9px] text-[#d4a373] hover:underline mt-1">Buka Link Publik ↗</a>
+                            <a href="${giftUrl}" target="_blank" class="text-[9px] text-[#d4a373] hover:underline mt-1 font-bold">BUKA KADO ↗</a>
                         </div>
                     </td>
                     <td class="p-6">
-                        <span class="text-xs font-medium">${gift.recipientName || '(Tanpa Nama)'}</span>
+                        <span class="text-xs font-medium text-gray-800">${gift.recipientName || '(Tanpa Nama)'}</span>
                     </td>
                     <td class="p-6">
-                        <div class="flex flex-col gap-1.5 items-start">
+                        <div class="flex flex-col gap-2 items-start">
+                            <span class="text-[8px] uppercase tracking-[0.2em] px-2 py-1 rounded-md font-bold ${productClass}">${productLabel}</span>
                             <span class="text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full font-bold ${themeBadgeClass}">${displayTheme}</span>
-                            <span class="text-[8px] uppercase tracking-widest px-2 py-0.5 rounded-full font-semibold ${productClass}">${productLabel}</span>
-                            <span class="text-[10px] text-gray-500">${ambientText}</span>
+                            <span class="text-[10px] text-gray-400 font-medium flex items-center gap-1">
+                                <span class="text-[10px]">🎵</span> ${sfxText}
+                            </span>
                         </div>
                     </td>
                     <td class="p-6">
                         <div class="flex items-center gap-3">
                             <!-- Thumbnail Preview -->
-                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border border-black/5">
+                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border border-black/5 shadow-sm">
                                 ${gift.firstPhotoUrl
                     ? `<img src="${gift.firstPhotoUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/40x40?text=?'">`
                     : `<div class="w-full h-full flex items-center justify-center text-[10px] text-gray-400 font-bold">?</div>`
                 }
                             </div>
                             <div class="flex flex-col gap-1">
-                                <span class="text-[9px] bg-gray-100 px-2 py-0.5 rounded-full w-fit">📸 ${gift.photosCount} Foto</span>
-                                ${gift.hasVoice ? '<span class="text-[9px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full w-fit font-bold">🎙️ Ada Suara</span>' : ''}
+                                <span class="text-[9px] bg-gray-50 text-gray-500 border border-gray-100 px-2 py-0.5 rounded-full w-fit">📸 ${gift.photosCount} Foto</span>
+                                ${gift.hasVoice ? '<span class="text-[9px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full w-fit font-bold">🎙️ Ada Voice</span>' : ''}
                             </div>
                         </div>
                     </td>
                     <td class="p-6">
-                        <span class="text-[9px] text-gray-500 font-medium">${date}</span>
+                        <span class="text-[10px] text-gray-400 font-mono">${date}</span>
+                    </td>
+                    <td class="p-6">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] ${isStale ? 'text-rose-400 font-bold' : 'text-gray-400'} font-mono">${lastOpenedDate}</span>
+                            ${isStale ? '<span class="text-[7px] uppercase tracking-tighter text-rose-300 font-bold mt-0.5">Sudah Lama Pasif</span>' : ''}
+                        </div>
                     </td>
                     <td class="p-6">
                         <a href="${editorUrl}" target="_blank" 
-                           class="text-[9px] border border-gray-200 px-4 py-2 rounded-full hover:bg-black hover:text-white transition-all whitespace-nowrap">
-                           Cek Editor
+                           class="text-[9px] font-bold tracking-widest bg-white border border-gray-100 shadow-sm px-4 py-2 rounded-full hover:bg-black hover:text-white transition-all whitespace-nowrap uppercase">
+                           Editor
                         </a>
                     </td>
                 </tr>
             `;
         }).join('');
+    };
+
+    const applyFilters = () => {
+        const query = searchInput.value.toLowerCase().trim();
+        const themeFilter = filterTheme.value;
+        const voiceFilter = filterVoice.value;
+        const statusFilter = filterStatus.value;
+
+        const filtered = allGiftsRaw.filter(gift => {
+            // 1. Search Query (ID or Recipient)
+            const matchesSearch = gift.giftId.toLowerCase().includes(query) ||
+                (gift.recipientName || '').toLowerCase().includes(query);
+
+            // 2. Theme Filter
+            let matchesTheme = true;
+            if (themeFilter !== 'all') {
+                const themeVal = String(gift.theme || 'rose').toLowerCase();
+                const themeMap = {
+                    'rose': 'original', 'original': 'original',
+                    'pinky': 'magenta',
+                    'beige': 'rosewood', 'rosewood': 'rosewood',
+                    'blanc': 'midnight', 'white': 'midnight', 'midnight': 'midnight',
+                    'sage': 'mossy', 'mossy': 'mossy',
+                    'camera': 'silver'
+                };
+                matchesTheme = themeMap[themeVal] === themeFilter;
+            }
+
+            // 3. Voice Filter
+            let matchesVoice = true;
+            if (voiceFilter === 'voice') matchesVoice = gift.hasVoice;
+            else if (voiceFilter === 'no-voice') matchesVoice = !gift.hasVoice;
+
+            // 4. Activity Status Filter
+            let matchesStatus = true;
+            if (statusFilter !== 'all') {
+                const now = new Date();
+                const lastOpened = gift.lastOpened ? new Date(gift.lastOpened) : null;
+                const daysDiff = lastOpened ? (now - lastOpened) / (1000 * 60 * 60 * 24) : null;
+
+                if (statusFilter === 'active') matchesStatus = (lastOpened && daysDiff <= 30);
+                else if (statusFilter === 'stale') matchesStatus = (lastOpened && daysDiff > 30);
+                else if (statusFilter === 'never') matchesStatus = !lastOpened;
+            }
+
+            return matchesSearch && matchesTheme && matchesVoice && matchesStatus;
+        });
+
+        renderTable(filtered);
     };
     // ── Interaction Logic ──
 
@@ -314,6 +384,11 @@ document.addEventListener('DOMContentLoaded', () => {
     btnBulkDelete.addEventListener('click', deleteSelectedGifts);
 
     btnRefresh.addEventListener('click', fetchGifts);
+
+    searchInput.addEventListener('input', applyFilters);
+    filterTheme.addEventListener('change', applyFilters);
+    filterVoice.addEventListener('change', applyFilters);
+    filterStatus.addEventListener('change', applyFilters);
 
     // Allow pressing enter on secret input
     adminSecretInput.addEventListener('keydown', (e) => {

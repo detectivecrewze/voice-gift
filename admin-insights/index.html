@@ -103,6 +103,53 @@
             </div>
         </header>
 
+        <!-- Search & Filters -->
+        <div class="glass-card p-6 mb-8 flex flex-col md:flex-row gap-6 items-center">
+            <div class="relative w-full md:w-1/2">
+                <input id="search-input" type="text" placeholder="Cari nama penerima atau ID kado..."
+                    class="w-full bg-gray-50/50 border border-gray-100 rounded-2xl px-12 py-4 text-xs focus:outline-none focus:ring-1 focus:ring-black/5 transition-all">
+                <span class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+            </div>
+
+            <div class="flex items-center gap-4 w-full md:w-1/2 justify-end">
+                <div class="flex flex-col gap-1.5 w-full md:w-40">
+                    <label class="text-[8px] uppercase tracking-widest text-gray-400 font-bold ml-1">Tema</label>
+                    <select id="filter-theme"
+                        class="bg-gray-50/50 border border-gray-100 rounded-xl px-4 py-2 text-[10px] focus:outline-none cursor-pointer">
+                        <option value="all">Semua Tema</option>
+                        <option value="original">Original</option>
+                        <option value="magenta">Magenta</option>
+                        <option value="rosewood">Rosewood</option>
+                        <option value="midnight">Midnight</option>
+                        <option value="mossy">Mossy</option>
+                        <option value="silver">Silver</option>
+                    </select>
+                </div>
+
+                <div class="flex flex-col gap-1.5 w-full md:w-40">
+                    <label class="text-[8px] uppercase tracking-widest text-gray-400 font-bold ml-1">Konten</label>
+                    <select id="filter-voice"
+                        class="bg-gray-50/50 border border-gray-100 rounded-xl px-4 py-2 text-[10px] focus:outline-none cursor-pointer">
+                        <option value="all">Semua Kado</option>
+                        <option value="voice">Ada Voice Note</option>
+                        <option value="no-voice">Hanya Teks</option>
+                    </select>
+                </div>
+
+                <div class="flex flex-col gap-1.5 w-full md:w-40">
+                    <label class="text-[8px] uppercase tracking-widest text-gray-400 font-bold ml-1">Status
+                        Keaktifan</label>
+                    <select id="filter-status"
+                        class="bg-gray-50/50 border border-gray-100 rounded-xl px-4 py-2 text-[10px] focus:outline-none cursor-pointer">
+                        <option value="all">Semua Status</option>
+                        <option value="active">Baru Saja Aktif</option>
+                        <option value="stale">Sudah Lama Pasif</option>
+                        <option value="never">Belum Pernah Dibuka</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <!-- Bulk Actions Bar -->
         <div id="bulk-actions" class="hidden flex items-center justify-between mb-6 animate-fade-in glass-card p-4">
             <div class="flex items-center gap-3">
@@ -155,13 +202,15 @@
                         <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold whitespace-nowrap">
                             Tanggal Publish</th>
                         <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold whitespace-nowrap">
+                            Terakhir Dibuka</th>
+                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold whitespace-nowrap">
                             Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="gift-table-body">
                     <!-- Data loaded via JS -->
                     <tr>
-                        <td colspan="6" class="p-12 text-center text-gray-400 text-xs italic">Silahkan masukkan Admin
+                        <td colspan="8" class="p-12 text-center text-gray-400 text-xs italic">Silahkan masukkan Admin
                             Secret dan klik Refresh.</td>
                     </tr>
                 </tbody>
