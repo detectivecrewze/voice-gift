@@ -102,8 +102,9 @@ const VoicePlayer = (() => {
 
       ambientAudio.muted = true;
       ambientAudio.play().then(() => {
-        if (!isPlaying) ambientAudio.pause();
-        ambientAudio.muted = false;
+        ambientAudio.pause();
+        ambientAudio.currentTime = 0;
+        // Don't unmute yet! startPlaying will handle it
       }).catch(() => { });
     };
 
@@ -325,25 +326,27 @@ const VoicePlayer = (() => {
     let audioWarmed = false;
     const warmUpAudio = () => {
       if (audioWarmed) return;
+      audioWarmed = true;
 
-      // Initialize AudioContext on first user gesture
       getAudioContext();
 
-      // Trick untuk memaksa browser kalkulasi durasi WebM yang tidak punya metadata cues (sering terjadi pada rekaman browser)
+      // Silent unlock for iOS
+      audio.muted = true;
+      audio.play().then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+      }).catch(() => { });
+
+      // WebM Duration Hack - perform while muted
       if (audio.duration === Infinity || audio.duration === 0 || isNaN(audio.duration)) {
-        audio.currentTime = 1e10; // Lompat ke ujung yang sangat jauh
+        audio.currentTime = 1e10;
         audio.addEventListener('timeupdate', function reset() {
+          audio.pause();
           audio.currentTime = 0;
           audio.removeEventListener('timeupdate', reset);
           updateDuration();
         }, { once: true });
       }
-
-      audio.play().then(() => {
-        // Fix: Only pause if not currently playing (e.g. from Auto-Play)
-        if (!isPlaying) audio.pause();
-        audioWarmed = true;
-      }).catch(() => { });
 
       if (!noiseSource) initMechanicalSoundscape();
       if (!analyser) setupVisualizer();
@@ -629,6 +632,8 @@ const VoicePlayer = (() => {
 
     const startPlaying = () => {
       if (!isPlaying) {
+        audio.muted = false;
+        if (ambientAudio) ambientAudio.muted = false;
         if (audio.ended) audio.currentTime = 0;
         audio.muted = false; // Ensure unmuted
         audio.play().catch(() => { });
