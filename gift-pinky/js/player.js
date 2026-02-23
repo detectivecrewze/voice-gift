@@ -469,30 +469,34 @@ const VoicePlayer = (() => {
             }, stepMs * 0.9);
           } else {
             overlay.innerHTML = '';
-            const canvas = document.createElement('canvas');
-            canvas.width = 64; canvas.height = 48;
-            canvas.style.cssText = 'width:100%;height:100%;image-rendering:pixelated;opacity:0.6;';
-            overlay.appendChild(canvas);
-            const ctx2d = canvas.getContext('2d');
+            const video = document.createElement('video');
+            video.src = 'https://dl.dropboxusercontent.com/scl/fi/wyyrz4764k2oilganvgfm/TV-Static-and-Color-Bars-Effect_Transition-4K-Second-Place-Productions-360p-h264.mp4?rlkey=qs0banrpnw0fmizp97p5bf16b&st=7r18t3g2&dl=1';
+            video.crossOrigin = 'anonymous';
+            video.playsInline = true;
+            video.muted = true;
+            video.autoplay = true;
+            video.style.cssText = 'width: 100%; height: 100%; object-fit: cover; opacity: 0.85; mix-blend-mode: screen;';
+            overlay.appendChild(video);
 
-            const staticStartTime = Date.now();
-            const draw = () => {
-              const data = ctx2d.createImageData(64, 48);
-              for (let i = 0; i < data.data.length; i += 4) {
-                const v = Math.random() * 255;
-                data.data[i] = data.data[i + 1] = data.data[i + 2] = v;
-                data.data[i + 3] = 255;
-              }
-              ctx2d.putImageData(data, 0, 0);
+            let videoFinished = false;
 
-              if (Date.now() - staticStartTime < stepMs) {
-                requestAnimationFrame(draw);
-              } else {
-                overlay.remove();
-                autoPlayLoop();
-              }
+            const finishCountdown = () => {
+              if (videoFinished) return;
+              videoFinished = true;
+              overlay.remove();
+              autoPlayLoop();
             };
-            draw();
+
+            video.addEventListener('ended', finishCountdown);
+            video.addEventListener('error', finishCountdown);
+
+            // Failsafe timeout
+            setTimeout(finishCountdown, 2500);
+
+            video.play().catch(e => {
+              console.log('Video transition playback blocked/failed:', e);
+              finishCountdown();
+            });
           }
         };
         tick();
