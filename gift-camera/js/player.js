@@ -45,6 +45,7 @@ const AMBIENT_SOUNDS = {
     daniel: 'https://dl.dropboxusercontent.com/scl/fi/nqpvliyw9r780t3wk4636/Daniel-Caesar-Who-Knows.mp3?rlkey=vnfwwhsmuwdyt2lrgwuhjyf9u&st=fgjxdbio',
     mitski: 'https://dl.dropboxusercontent.com/scl/fi/71ib9m69dm2ed9squj191/Mitski-My-Love-Mine-All-Mine.mp3?rlkey=i43d8ng7tbndbuflm1yw3j3r9&st=dad3r4yp',
     'feast-nina': 'https://dl.dropboxusercontent.com/scl/fi/gasq7z9wglw9n4pi01g2o/Feast-Nina-Official-Lyric-Video.mp3?rlkey=9kemwk8ojsee4rlaqj8s0h3rx&st=5szgp51v',
+    'feast-tarot': 'https://dl.dropboxusercontent.com/scl/fi/8eypewha6kurv9ffjx559/Tarot-.Feast-_-Lirik-Lagu.mp3?rlkey=jvp17k7g7mtahx0osdxstem9q&st=5e7q3pyd',
 };
 
 // ── Gift Player Init ─────────────────────────────────────────
@@ -286,33 +287,41 @@ const initPlayer = (config) => {
     const lensCore = document.getElementById('lens-core');
 
     // Frame width = 100% of the tray container (lcd-screen)
-    let VIEW_WIDTH = 0; // Will be set after layout
+    let VIEW_WIDTH = 150; // Fixed square frame width
 
     let totalCrankAngle = 0;
     let lastActiveIndex = -1;
-    const AUTO_SPEED = 3.5; // degrees per frame
+    const AUTO_SPEED = 4.5; // Sync with main gift pages
     let isAutoPlaying = false;
     let autoRafId = null;
     let countdownWasStarted = false; // New flag to prevent repeat countdowns
 
-    const getViewWidth = () => {
+    const getLcdWidth = () => {
         const screen = document.getElementById('lcd-screen');
-        return screen ? screen.offsetWidth : 200;
+        return screen ? screen.offsetWidth : 218;
     };
 
     // Cache film frame elements after injection
     const frameEls = tray ? tray.querySelectorAll('.film-frame') : [];
     let lastActiveFrameIndex = -1;
 
+
+
     const advanceTray = (loopSlide) => {
-        if (!tray) return;
-        tray.style.transform = `translate3d(-${loopSlide}px, 0, 0)`;
+        if (!tray || !frameEls.length) return;
 
-        const fullSetWidth = totalPhotos * VIEW_WIDTH;
-        const normSlide = ((loopSlide % fullSetWidth) + fullSetWidth) % fullSetWidth;
-        const activeIndex = Math.round(normSlide / VIEW_WIDTH);
+        // LCD visible width is bezel minus padding (approx 204px)
+        const screen = document.getElementById('lcd-screen');
+        const lcdWidth = screen ? screen.clientWidth : 204;
 
-        // Update counter (wrapped to real photo index)
+        // Centering offset: put the photo in the middle of the LCD
+        const offset = (lcdWidth - VIEW_WIDTH) / 2;
+        tray.style.transform = `translate3d(${-loopSlide + offset}px, 0, 0)`;
+
+        // Calculate active index based on which photo is at the physical center
+        const activeIndex = Math.round(loopSlide / VIEW_WIDTH);
+
+        // Update counter (wrapped to real photo index for display)
         const displayIndex = activeIndex % totalPhotos;
         if (counterEl) counterEl.textContent = `${displayIndex + 1} / ${totalPhotos}`;
 
@@ -328,7 +337,7 @@ const initPlayer = (config) => {
 
     const autoPlayLoop = () => {
         if (!isAutoPlaying) return;
-        VIEW_WIDTH = getViewWidth();
+        // VIEW_WIDTH is fixed at 164
 
         totalCrankAngle += AUTO_SPEED;
         const rawSlide = (totalCrankAngle / 720) * VIEW_WIDTH;
@@ -419,7 +428,6 @@ const initPlayer = (config) => {
             const oldOverlay = document.getElementById('countdown-overlay');
             if (oldOverlay) oldOverlay.remove();
 
-            VIEW_WIDTH = getViewWidth();
             autoPlayLoop();
             return;
         }
@@ -427,7 +435,7 @@ const initPlayer = (config) => {
         countdownWasStarted = true; // Mark as started immediately
 
         const lcdScreen = document.querySelector('#lcd-screen');
-        if (!lcdScreen) { VIEW_WIDTH = getViewWidth(); autoPlayLoop(); return; }
+        if (!lcdScreen) { autoPlayLoop(); return; }
 
         // Setup SFX and dynamic timing (using direct link for cross-device compatibility)
         const sfx = new Audio('https://dl.dropboxusercontent.com/scl/fi/kvr3bdvgi73t2nrtaj6y5/countdown.mp3?rlkey=ov8bf8msz3z6vxnwsvkst1ldc&st=j6jlhrhf');
@@ -500,7 +508,6 @@ const initPlayer = (config) => {
                             requestAnimationFrame(draw);
                         } else {
                             overlay.remove();
-                            VIEW_WIDTH = getViewWidth();
                             autoPlayLoop();
                         }
                     };
@@ -538,16 +545,6 @@ const initPlayer = (config) => {
     if (audio) {
         audio.addEventListener('loadedmetadata', updateDuration);
         audio.addEventListener('timeupdate', updateDuration);
-        audio.addEventListener('ended', () => {
-            isAutoPlaying = false;
-            cancelAnimationFrame(autoRafId);
-            stopPlayingAudio();
-            if (toggleBtn) {
-                toggleBtn.classList.remove('is-active');
-                toggleBtn.querySelector('.auto-play-icon').textContent = '▶';
-                toggleBtn.querySelector('.auto-play-text').textContent = 'AUTO PLAY';
-            }
-        });
     }
 };
 

@@ -604,7 +604,7 @@ body::after {
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 .lcd-screen::after {
@@ -644,13 +644,13 @@ body::after {
 }
 
 .film-frame {
-    flex: 0 0 100%;
-    width: 100%;
-    height: 100%;
+    flex: 0 0 150px;
+    width: 150px;
+    height: 150px;
     position: relative;
     overflow: hidden;
-    /* Thin film-strip dark border around each photo */
-    padding: 5px;
+    /* Frame padding to match main gift pages aesthetic */
+    padding: 10px;
     background: #000;
     box-sizing: border-box;
 }
@@ -669,7 +669,7 @@ body::after {
 
 /* Active frame zoom — matches .printer-photo.is-active img */
 .film-frame.is-active img {
-    transform: scale(1.05) rotate(0.3deg);
+    transform: scale(1.05) rotate(0.4deg);
 }
 
 /* Film grain texture overlay */
