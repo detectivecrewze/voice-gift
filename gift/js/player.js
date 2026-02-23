@@ -659,9 +659,18 @@ const VoicePlayer = (() => {
 
     const startPlaying = () => {
       if (!isPlaying) {
+        // Force resume for desktop browsers
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
         audio.muted = false;
+        audio.volume = 1;
         if (voiceGain) {
-          voiceGain.gain.setTargetAtTime(1, audioCtx.currentTime, 0.01);
+          // Robust ramp for desktop
+          voiceGain.gain.cancelScheduledValues(audioCtx.currentTime);
+          voiceGain.gain.setValueAtTime(0, audioCtx.currentTime);
+          voiceGain.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.1);
         }
         
         if (ambientAudio) ambientAudio.muted = false;
