@@ -40,12 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Load secret from localStorage if exists
-    if (localStorage.getItem('admin_secret')) {
+    if (localStorage.getItem('admin_secret') && adminSecretInput) {
         adminSecretInput.value = localStorage.getItem('admin_secret');
     }
 
     const fetchGifts = async () => {
-        const secret = adminSecretInput.value.trim();
+        const secret = adminSecretInput ? adminSecretInput.value.trim() : '';
         if (!secret) {
             alert('Masukkan Admin Secret dulu!');
             return;
@@ -270,10 +270,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const applyFilters = () => {
-        const query = searchInput.value.toLowerCase().trim();
-        const themeFilter = filterTheme.value;
-        const voiceFilter = filterVoice.value;
-        const statusFilter = filterStatus.value;
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        const themeFilter = filterTheme ? filterTheme.value : 'all';
+        const voiceFilter = filterVoice ? filterVoice.value : 'all';
+        const statusFilter = filterStatus ? filterStatus.value : 'all';
 
         const filtered = allGiftsRaw.filter(gift => {
             // 1. Search Query (ID or Recipient)
@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const secret = adminSecretInput.value.trim();
+        const secret = adminSecretInput ? adminSecretInput.value.trim() : '';
         btnBulkDelete.innerText = 'MENGHAPUS...';
         btnBulkDelete.disabled = true;
 
@@ -380,19 +380,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    btnBulkDelete.addEventListener('click', deleteSelectedGifts);
+    if (btnBulkDelete) btnBulkDelete.addEventListener('click', deleteSelectedGifts);
 
-    btnRefresh.addEventListener('click', fetchGifts);
+    if (btnRefresh) btnRefresh.addEventListener('click', fetchGifts);
 
-    searchInput.addEventListener('input', applyFilters);
-    filterTheme.addEventListener('change', applyFilters);
-    filterVoice.addEventListener('change', applyFilters);
-    filterStatus.addEventListener('change', applyFilters);
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
+    if (filterTheme) filterTheme.addEventListener('change', applyFilters);
+    if (filterVoice) filterVoice.addEventListener('change', applyFilters);
+    if (filterStatus) filterStatus.addEventListener('change', applyFilters);
 
     // Allow pressing enter on secret input
-    adminSecretInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') fetchGifts();
-    });
+    if (adminSecretInput) {
+        adminSecretInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') fetchGifts();
+        });
+    }
 
     // --- Particle System Implementation ---
     const canvas = document.getElementById('particles-canvas');

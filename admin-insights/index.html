@@ -218,8 +218,18 @@
                     </select>
                 </div>
 
+                <div class="flex flex-col gap-1.5 w-full md:w-32">
+                    <label class="text-[9px] uppercase tracking-[0.2em] text-white/30 font-bold ml-1">Content</label>
+                    <select id="filter-voice"
+                        class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-[10px] focus:outline-none cursor-pointer">
+                        <option value="all">All Content</option>
+                        <option value="voice">Voice Only</option>
+                        <option value="no-voice">Text Only</option>
+                    </select>
+                </div>
+
                 <div class="flex flex-col gap-1.5 w-full md:w-44">
-                    <label class="text-[8px] uppercase tracking-widest text-white/30 font-bold ml-1">Engagement</label>
+                    <label class="text-[9px] uppercase tracking-[0.2em] text-white/30 font-bold ml-1">Engagement</label>
                     <select id="filter-status"
                         class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-[10px] focus:outline-none cursor-pointer">
                         <option value="all">Active Spectrum</option>
@@ -268,25 +278,32 @@
         <div class="glass-card overflow-x-auto relative z-10">
             <table class="w-full text-left border-collapse min-w-[800px]">
                 <thead>
-                    <tr class="bg-white/2">
+                    <tr class="bg-white/[0.02]">
                         <th class="p-6 w-10">
                             <input type="checkbox" id="select-all"
-                                class="rounded border-gray-300 text-black focus:ring-black cursor-pointer">
+                                class="rounded-md border-white/10 bg-white/5 text-[#ff4d6d] focus:ring-[#ff4d6d] cursor-pointer w-4 h-4">
                         </th>
-                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold whitespace-nowrap">
+                        <th
+                            class="p-6 text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold whitespace-nowrap">
                             Gift ID / URL</th>
-                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold whitespace-nowrap">
-                            Penerima</th>
-                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold whitespace-nowrap">
-                            Tema & Audio</th>
-                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold whitespace-nowrap">
-                            Konten</th>
-                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold whitespace-nowrap">
-                            Tanggal Publish</th>
-                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold whitespace-nowrap">
-                            Terakhir Dibuka</th>
-                        <th class="p-6 text-[10px] uppercase tracking-widest text-gray-400 font-bold whitespace-nowrap">
-                            Aksi</th>
+                        <th
+                            class="p-6 text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold whitespace-nowrap">
+                            Recipient</th>
+                        <th
+                            class="p-6 text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold whitespace-nowrap">
+                            Configuration</th>
+                        <th
+                            class="p-6 text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold whitespace-nowrap">
+                            Media</th>
+                        <th
+                            class="p-6 text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold whitespace-nowrap">
+                            Published</th>
+                        <th
+                            class="p-6 text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold whitespace-nowrap">
+                            Last Active</th>
+                        <th
+                            class="p-6 text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold whitespace-nowrap">
+                            Actions</th>
                     </tr>
                 </thead>
                 <tbody id="gift-table-body">
@@ -299,10 +316,10 @@
             </table>
         </div>
 
-        <footer class="mt-12 flex justify-between items-center opacity-30">
-            <p class="text-[9px] uppercase tracking-widest">© 2026 FOR YOU, ALWAYS.</p>
-            <div class="h-px bg-gray-300 flex-grow mx-8"></div>
-            <p class="text-[9px] uppercase tracking-widest font-bold">Admin Panel v1.0</p>
+        <footer class="mt-12 flex justify-between items-center text-white/20">
+            <p class="text-[9px] uppercase tracking-[0.4em]">© 2026 FOR YOU, ALWAYS.</p>
+            <div class="h-px bg-white/5 flex-grow mx-10"></div>
+            <p class="text-[9px] uppercase tracking-[0.4em] font-bold">Admin Panel v1.0</p>
         </footer>
     </div>
 
