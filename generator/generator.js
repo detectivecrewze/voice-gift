@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Delay to ensure KV propagation & Telegram sempat terkirim 
         setTimeout(() => {
-            const studioFolder = giftType === 'digicam' ? 'gift-camera/studio' : 'studio';
+            const studioFolder = giftType === 'digicam' ? 'studio-camera' : 'studio';
             let url = `../${studioFolder}/index.html?token=${finalId}`;
             window.location.href = url;
         }, 600);
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const accessType = document.getElementById('input-access-type')?.value || 'classic';
 
         if (token) {
-            const studioFolder = accessType === 'digicam' ? 'gift-camera/studio' : 'studio';
+            const studioFolder = accessType === 'digicam' ? 'studio-camera' : 'studio';
             window.location.href = `../${studioFolder}/index.html?token=${token}`;
         } else {
             inputToken.classList.add('border-red-300');

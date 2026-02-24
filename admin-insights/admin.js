@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const giftFolder = isCamera
                 ? (CAMERA_THEME_FOLDERS[theme] || 'camera-themes/silver')
                 : (GIFT_PAGE_THEME_FOLDERS[theme] || 'gift');
-            const studioPath = isCamera ? 'camera-themes/silver/studio' : 'studio';
+            const studioPath = isCamera ? 'studio-camera' : 'studio';
             const giftUrl = `${window.location.origin}/${giftFolder}/index.html?to=${gift.giftId}`;
             const editorUrl = `../${studioPath}/index.html?token=${gift.giftId}`;
             const productLabel = isCamera ? '📷 Gift Camera' : '📝 Gift Pages';

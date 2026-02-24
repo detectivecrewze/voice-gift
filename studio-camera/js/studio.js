@@ -32,10 +32,10 @@ const OCCASIONS = [
 
 // ── Data: Themes ─────────────────────────────────────────────// Define available themes and their mapping
 const THEMES = [
-  { id: 'camera', folder: 'gift-camera', name: '📸 Silver', color: '#8f8d8a' },
-  { id: 'midnight', folder: 'gift-camera-midnight', name: '🌃 Midnight', color: '#1a1e2e' },
-  { id: 'rosewood', folder: 'gift-camera-rosewood', name: '🪵 Rosewood', color: '#b8886e' },
-  { id: 'mossy', folder: 'gift-camera-mossy', name: '🌿 Mossy', color: '#4a5a38' }
+  { id: 'camera', folder: 'camera-themes/silver', name: '📸 Silver', color: '#8f8d8a' },
+  { id: 'midnight', folder: 'camera-themes/midnight', name: '🌃 Midnight', color: '#1a1e2e' },
+  { id: 'rosewood', folder: 'camera-themes/rosewood', name: '🪵 Rosewood', color: '#b8886e' },
+  { id: 'mossy', folder: 'camera-themes/mossy', name: '🌿 Mossy', color: '#4a5a38' }
 ];
 
 // ── Data: Ambients ──────────────────────────────────────────
@@ -211,7 +211,7 @@ const Studio = (() => {
       // Token TIDAK ditemukan -> Lari ke Generator
       const token = Auth.getToken();
       if (!token) {
-        window.location.href = '../../generator/index.html';
+        window.location.href = '../generator/index.html';
       }
     }
   };
