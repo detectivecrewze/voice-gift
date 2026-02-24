@@ -30,13 +30,14 @@ const OCCASIONS = [
   { id: 'friendship', label: 'Friendship', emoji: '🤝', defaultTheme: 'lavender' },
 ];
 
-// ── Data: Themes ─────────────────────────────────────────────// Define available themes and their mapping
+// ── Data: Themes ─────────────────────────────────────────────// Define available themes and mapping to their respective folders
 const THEMES = [
-  { id: 'rose', folder: 'gift', name: '🤎 Original', color: '#a0866c' },
+  { id: 'rose', folder: 'camera-themes/rosewood', name: '🪵 Rosewood', color: '#b07860' },
+  { id: 'midnight', folder: 'camera-themes/midnight', name: '🌃 Midnight', color: '#1a1e2e' },
+  { id: 'mossy', folder: 'camera-themes/mossy', name: '🌿 Mossy', color: '#2a3a22' },
+  { id: 'silver', folder: 'camera-themes/silver', name: '📷 Silver Cam', color: '#9ca3af' },
+  { id: 'original', folder: 'gift', name: '🤎 Original', color: '#a0866c' },
   { id: 'pinky', folder: 'gift-pinky', name: '🌸 Magenta', color: '#f9a8d4' },
-  { id: 'beige', folder: 'gift-beige', name: '🪵 Rosewood', color: '#b07860' },
-  { id: 'blanc', folder: 'gift-blanc', name: '🌃 Midnight', color: '#1a1e2e' },
-  { id: 'sage', folder: 'gift-sage', name: '🌿 Mossy', color: '#2a3a22' },
 ];
 
 // ── Data: Ambients ──────────────────────────────────────────
@@ -64,8 +65,8 @@ const AMBIENT_SOUNDS = {
   'nadin-ah': 'https://dl.dropboxusercontent.com/scl/fi/itmvna64forw61thvwb19/AH-Nadin-Amizah.mp3?rlkey=lmzmxrhjgq9qrabe3sewox21q&st=0s3baidy',
   daniel: 'https://dl.dropboxusercontent.com/scl/fi/nqpvliyw9r780t3wk4636/Daniel-Caesar-Who-Knows.mp3?rlkey=vnfwwhsmuwdyt2lrgwuhjyf9u&st=fgjxdbio',
   mitski: 'https://dl.dropboxusercontent.com/scl/fi/71ib9m69dm2ed9squj191/Mitski-My-Love-Mine-All-Mine.mp3?rlkey=i43d8ng7tbndbuflm1yw3j3r9&st=dad3r4yp',
-  'feast-nina': 'https://dl.dropboxusercontent.com/scl/fi/gasq7z9wglw9n4pi01g2o/Feast-Nina-Official-Lyric-Video.mp3?rlkey=9kemwk8ojsee4rlaqj8s0h3rx&st=5szgp51v',
-  'feast-tarot': 'https://dl.dropboxusercontent.com/scl/fi/8eypewha6kurv9ffjx559/Tarot-.Feast-_-Lirik-Lagu.mp3?rlkey=jvp17k7g7mtahx0osdxstem9q&st=5e7q3pyd'
+  'feast-nina': 'https://dl.dropboxusercontent.com/scl/fi/2e0bd1yvyn9jq9vsonl9v/Feast-Nina-Official-Lyric-Video.mp3?rlkey=zc9ua50cujcdhv2dz8ibfz8bt&st=9xu4ozt0&dl=1',
+  'feast-tarot': 'https://dl.dropboxusercontent.com/scl/fi/8eypewha6kurv9ffjx559/Tarot-.Feast-_-Lirik-Lagu.mp3?rlkey=jvp17k7g7mtahx0osdxstem9q&st=pe2sk4yb&dl=1'
 };
 
 // ── Global State ─────────────────────────────────────────────
@@ -136,7 +137,7 @@ const Studio = (() => {
     _previewAudio.crossOrigin = 'anonymous';
 
     // Check if it's a song (should not loop)
-    const isSong = ['nadin-ah', 'daniel', 'mitski'].includes(ambientId);
+    const isSong = ['nadin-ah', 'daniel', 'mitski', 'feast-nina', 'feast-tarot'].includes(ambientId);
     _previewAudio.loop = !isSong;
 
     // Setup Web Audio nodes
