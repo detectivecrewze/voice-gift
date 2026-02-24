@@ -349,7 +349,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const ids = Array.from(selectedIds);
         if (ids.length === 0) return;
 
-        if (!confirm(`Apakah Anda yakin ingin menghapus ${ids.length} kado terpilih? Tindakan ini tidak dapat dibatalkan.`)) {
+        const namesList = ids.join('\n- ');
+        const confirmMessage = `Apakah Anda yakin ingin menghapus ${ids.length} kado terpilih?\n\nDaftar Gift ID:\n- ${namesList}\n\nTindakan ini tidak dapat dibatalkan.`;
+
+        if (!confirm(confirmMessage)) {
             return;
         }
 

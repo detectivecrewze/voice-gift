@@ -168,7 +168,7 @@ const initPlayer = (config) => {
     let voiceGain = null;
 
     // SFX for countdown
-    const sfx = new Audio('https://dl.dropboxusercontent.com/scl/fi/kvr3bdvgi73t2nrtaj6y5/countdown.mp3?rlkey=ov8bf8msz3z6vxnwsvkst1ldc&st=j6jlhrhf');
+    const sfx = new Audio('https://dl.dropboxusercontent.com/scl/fi/kvr3bdvgi73t2nrtaj6y5/countdown.mp3?rlkey=ov8bf8msz3z6vxnwsvkst1ldc&st=j6jlhrhf&dl=1');
     sfx.volume = 0.3;
     sfx.crossOrigin = 'anonymous';
     sfx.preload = 'auto';
@@ -213,6 +213,12 @@ const initPlayer = (config) => {
         const timerEl = document.getElementById('timer-display');
         if (timerEl && audio && audio.duration && isFinite(audio.duration)) {
             timerEl.textContent = fmt(audio.currentTime) + ' / ' + fmt(audio.duration);
+
+            // Reveal message near the end (5s remaining)
+            // Logic moved here to prevent reveal during pause
+            if (audio.currentTime >= (audio.duration - 5)) {
+                document.getElementById('message-text')?.classList.add('visible');
+            }
         }
     };
 
@@ -376,21 +382,7 @@ const initPlayer = (config) => {
             ambientGain.gain.setTargetAtTime(0.085, audioCtx.currentTime, 0.5);
         }
 
-        // Reveal message near the end
-        if (audio.duration && isFinite(audio.duration)) {
-            const msgDelay = Math.max(0, (audio.duration - 5) * 1000);
-            setTimeout(() => {
-                document.getElementById('message-text')?.classList.add('visible');
-            }, msgDelay);
-        } else {
-            // Try again once we know the duration
-            audio.addEventListener('loadedmetadata', () => {
-                const msgDelay = Math.max(0, (audio.duration - 5) * 1000);
-                setTimeout(() => {
-                    document.getElementById('message-text')?.classList.add('visible');
-                }, msgDelay);
-            }, { once: true });
-        }
+        // Message reveal handled in updateDuration
     };
 
     const stopPlayingAudio = () => {
