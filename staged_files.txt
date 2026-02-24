@@ -1,0 +1,6 @@
+﻿M  camera-themes/midnight/index.html
+M  camera-themes/mossy/index.html
+M  camera-themes/rosewood/index.html
+M  camera-themes/silver/index.html
+?? git_status.txt
+?? staged_files.txt
