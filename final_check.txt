@@ -1,9 +1,0 @@
-﻿M  camera-themes/midnight/index.html
-M  camera-themes/mossy/index.html
-M  camera-themes/rosewood/index.html
-M  camera-themes/silver/index.html
-?? diff.txt
-?? final_check.txt
-?? full_diff.txt
-?? git_status.txt
-?? staged_files.txt
