@@ -34,19 +34,7 @@ const setupBokeh = () => {
     }
 };
 
-// ── Ambient Sounds ───────────────────────────────────────────
-const AMBIENT_SOUNDS = {
-    rain: 'https://dl.dropboxusercontent.com/scl/fi/zwol73h41qnavbduc0qgh/rain.mp3?rlkey=7d82wac3ebncezhbe2vl09alf&st=cu5gupob',
-    cafe: 'https://dl.dropboxusercontent.com/scl/fi/awuth8dg03qy0ij2czddi/cafe.mp3?rlkey=5dzngx7pmnsx6utce484e65go&st=lzluvv25',
-    waves: 'https://dl.dropboxusercontent.com/scl/fi/9z17yg7u3l6wc2wv9lbp0/waves.mp3?rlkey=kwle5uf8h2vyodgt257t0lnwo&st=g1a3bxx5',
-    fireplace: 'https://dl.dropboxusercontent.com/scl/fi/orte59auc36wxng69iy3n/fireplace.mp3?rlkey=xohuvr0p6p1816hvp34kf387q&st=fgatk8qq',
-    forest: 'https://dl.dropboxusercontent.com/scl/fi/cy1k2ru7ddi1wm96uohqv/forest.mp3?rlkey=uvsqjyjxbwhk33cmaps931bqu&st=h2b6zlzk',
-    'nadin-ah': 'https://dl.dropboxusercontent.com/scl/fi/itmvna64forw61thvwb19/AH-Nadin-Amizah.mp3?rlkey=lmzmxrhjgq9qrabe3sewox21q&st=0s3baidy',
-    daniel: 'https://dl.dropboxusercontent.com/scl/fi/nqpvliyw9r780t3wk4636/Daniel-Caesar-Who-Knows.mp3?rlkey=vnfwwhsmuwdyt2lrgwuhjyf9u&st=fgjxdbio',
-    mitski: 'https://dl.dropboxusercontent.com/scl/fi/71ib9m69dm2ed9squj191/Mitski-My-Love-Mine-All-Mine.mp3?rlkey=i43d8ng7tbndbuflm1yw3j3r9&st=dad3r4yp',
-    'feast-nina': 'https://dl.dropboxusercontent.com/scl/fi/gasq7z9wglw9n4pi01g2o/Feast-Nina-Official-Lyric-Video.mp3?rlkey=9kemwk8ojsee4rlaqj8s0h3rx&st=5szgp51v',
-    'feast-tarot': 'https://dl.dropboxusercontent.com/scl/fi/8eypewha6kurv9ffjx559/Tarot-.Feast-_-Lirik-Lagu.mp3?rlkey=jvp17k7g7mtahx0osdxstem9q&st=5e7q3pyd',
-};
+// AMBIENT_SOUNDS is now loaded from ../../shared/ambient-data.js
 
 // ── Gift Player Init ─────────────────────────────────────────
 const initPlayer = (config) => {
@@ -179,6 +167,12 @@ const initPlayer = (config) => {
     let ambientGain = null;
     let voiceGain = null;
 
+    // SFX for countdown
+    const sfx = new Audio('https://dl.dropboxusercontent.com/scl/fi/kvr3bdvgi73t2nrtaj6y5/countdown.mp3?rlkey=ov8bf8msz3z6vxnwsvkst1ldc&st=j6jlhrhf');
+    sfx.volume = 0.3;
+    sfx.crossOrigin = 'anonymous';
+    sfx.preload = 'auto';
+
     const getAudioContext = () => {
         if (!audioCtx) audioCtx = new AudioCtx();
         if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => { });
@@ -190,14 +184,13 @@ const initPlayer = (config) => {
         const ctx = getAudioContext();
         ambientAudio = new Audio(AMBIENT_SOUNDS[ambientId]);
         ambientAudio.crossOrigin = 'anonymous';
-        const isSong = ['nadin-ah', 'daniel', 'mitski', 'feast-nina'].includes(ambientId);
+        const isSong = ['nadin-ah', 'daniel', 'mitski', 'feast-nina', 'feast-tarot'].includes(ambientId);
         ambientAudio.loop = !isSong;
         const src = ctx.createMediaElementSource(ambientAudio);
         ambientGain = ctx.createGain();
         ambientGain.gain.setValueAtTime(0, ctx.currentTime);
         src.connect(ambientGain);
         ambientGain.connect(ctx.destination);
-        ambientAudio.play().catch(() => { });
     };
 
     // ── Voice Note ─────────────────────────────────────────────
@@ -375,11 +368,12 @@ const initPlayer = (config) => {
             voiceGain.gain.setTargetAtTime(1, audioCtx.currentTime, 0.4);
         }
 
+        ambientAudio?.play().catch(() => { });
         audio.play().catch(() => { });
         updateVisuals();
 
         if (ambientGain) {
-            ambientGain.gain.setTargetAtTime(0.060, audioCtx.currentTime, 0.5);
+            ambientGain.gain.setTargetAtTime(0.085, audioCtx.currentTime, 0.5);
         }
 
         // Reveal message near the end
@@ -400,19 +394,22 @@ const initPlayer = (config) => {
     };
 
     const stopPlayingAudio = () => {
+        // Always kill countdown/sfx even if not mid-song
+        const overlay = document.getElementById('countdown-overlay');
+        if (overlay) overlay.remove();
+        sfx.pause();
+        sfx.currentTime = 0;
+
         if (!isPlaying) return;
         isPlaying = false;
         audio?.pause();
+        ambientAudio?.pause(); // Explicitly pause ambient too
         digicamBox?.classList.remove('is-playing');
         lensCore?.classList.remove('lens-active');
 
         if (ambientGain) {
             ambientGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.5);
         }
-
-        // Clean up countdown if active
-        const overlay = document.getElementById('countdown-overlay');
-        if (overlay) overlay.remove();
 
         cancelAnimationFrame(animationId);
     };
@@ -437,11 +434,7 @@ const initPlayer = (config) => {
         const lcdScreen = document.querySelector('#lcd-screen');
         if (!lcdScreen) { autoPlayLoop(); return; }
 
-        // Setup SFX and dynamic timing (using direct link for cross-device compatibility)
-        const sfx = new Audio('https://dl.dropboxusercontent.com/scl/fi/kvr3bdvgi73t2nrtaj6y5/countdown.mp3?rlkey=ov8bf8msz3z6vxnwsvkst1ldc&st=j6jlhrhf');
-        sfx.volume = 0.3;
-        sfx.crossOrigin = 'anonymous';
-
+        // Countdown uses the pre-initialized sfx
         const startVisuals = () => {
             if (document.getElementById('countdown-overlay')) return;
 
@@ -465,14 +458,16 @@ const initPlayer = (config) => {
 
             if (idleOverlay) idleOverlay.classList.add('hidden');
 
-            // Sync precisely with 4s audio (fallback to 4.0 if metadata pending)
             const totalDur = sfx.duration || 4.0;
             const stepMs = (totalDur * 1000) / 4;
 
+            if (!isAutoPlaying) return;
+            sfx.currentTime = 0;
             sfx.play().catch(e => console.log('SFX blocked:', e));
 
             let count = 3;
             const tick = () => {
+                if (!isAutoPlaying) return;
                 if (count > 0) {
                     numEl.textContent = count;
                     requestAnimationFrame(() => {
@@ -523,10 +518,17 @@ const initPlayer = (config) => {
 
     if (toggleBtn) {
         toggleBtn.addEventListener('click', () => {
-            getAudioContext(); // Ensure context on user gesture
+            const ctx = getAudioContext(); // Ensure context on user gesture
 
-            if (!ambientAudio) initAmbient();
-            if (audio && !sourceNode) setupVisualizer();
+            // Audio Priming: Unlock audio on mobile gesture
+            // Play and immediately pause to "prime" for later async playback
+            const primeAudio = (el) => {
+                if (!el) return;
+                el.play().then(() => {
+                    el.pause();
+                    // Don't reset currentTime if it's already playing (user might be toggling)
+                }).catch(() => { });
+            };
 
             isAutoPlaying = !isAutoPlaying;
             toggleBtn.classList.toggle('is-active', isAutoPlaying);
@@ -534,11 +536,25 @@ const initPlayer = (config) => {
             toggleBtn.querySelector('.auto-play-text').textContent = isAutoPlaying ? 'PAUSE' : 'AUTO PLAY';
 
             if (isAutoPlaying) {
-                runCountdownThenPlay();
+                if (!ambientAudio) initAmbient();
+
+                if (!countdownWasStarted) {
+                    // First time: Prime and start countdown sequence
+                    // primeAudio will allow them to play after countdown
+                    primeAudio(ambientAudio);
+                    primeAudio(audio);
+                    runCountdownThenPlay();
+                } else {
+                    // Resume: startPlayingAudio inside autoPlayLoop will handle play()
+                    autoPlayLoop();
+                }
             } else {
+                // Total stop
                 cancelAnimationFrame(autoRafId);
                 stopPlayingAudio();
             }
+
+            if (audio && !sourceNode) setupVisualizer();
         });
     }
 
