@@ -1131,6 +1131,28 @@ body::after {
     .digicam-container {
         border-radius: 40px;
         padding: 26px 18px 85px;
+        transform-origin: center top;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Scaling for narrow screens to prevent overflow */
+    @media (max-width: 450px) {
+        .digicam-container {
+            transform: scale(0.9);
+        }
+    }
+
+    @media (max-width: 400px) {
+        .digicam-container {
+            transform: scale(0.8);
+        }
+    }
+
+    @media (max-width: 360px) {
+        .digicam-container {
+            transform: scale(0.7);
+        }
     }
 
     .camera-body {

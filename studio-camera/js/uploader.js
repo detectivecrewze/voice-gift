@@ -19,7 +19,7 @@
 const Uploader = (() => {
 
   // ── Config ──────────────────────────────────────────────
-  const MAX_PHOTOS = 30;
+  const MAX_PHOTOS = 15;
   const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
   const MAX_DIMENSION = 1600; // px — resize sisi terpanjang (Optimasi Cloud)
 

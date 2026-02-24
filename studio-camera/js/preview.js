@@ -28,7 +28,7 @@ const Preview = (() => {
     const folder = themeConfig ? themeConfig.folder : 'gift-camera';
 
     // Buka tanpa parameter ?to= agar lari ke demo/mock data (tanpa password gate)
-    window.open(`../../${folder}/index.html`, '_blank');
+    window.open(`../${folder}/index.html`, '_blank');
   };
 
   // Expose public API

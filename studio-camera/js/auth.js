@@ -26,9 +26,8 @@ const Auth = (() => {
 
     // Fallback ke path-based
     const parts = window.location.pathname.split('/');
-    // Jika URL foryoualways.id/studio/xk9pq2mn3r, token ada di parts[2]
-    // Cari part setelah 'studio'
-    const studioIdx = parts.indexOf('studio');
+    // Cari part setelah 'studio' atau 'studio-camera'
+    const studioIdx = parts.findIndex(p => p === 'studio' || p === 'studio-camera');
     if (studioIdx !== -1 && parts[studioIdx + 1]) {
       const p = parts[studioIdx + 1];
       // Abaikan jika tokennya cuma 'index.html'
