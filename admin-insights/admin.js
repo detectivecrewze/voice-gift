@@ -160,8 +160,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 'sage': 'gift-sage'
             };
             const CAMERA_THEME_FOLDERS = {
-                'camera': 'gift-camera', 'midnight': 'gift-camera-midnight',
-                'rosewood': 'gift-camera-rosewood', 'mossy': 'gift-camera-mossy'
+                'camera': 'camera-themes/silver',
+                'silver': 'camera-themes/silver',
+                'midnight': 'camera-themes/midnight',
+                'rosewood': 'camera-themes/rosewood',
+                'mossy': 'camera-themes/mossy'
             };
 
             let themeBadgeClass = 'bg-white/10 text-white/80';
@@ -182,9 +185,9 @@ document.addEventListener('DOMContentLoaded', () => {
             else { displayTheme = theme; }
 
             const giftFolder = isCamera
-                ? (CAMERA_THEME_FOLDERS[theme] || 'gift-camera')
+                ? (CAMERA_THEME_FOLDERS[theme] || 'camera-themes/silver')
                 : (GIFT_PAGE_THEME_FOLDERS[theme] || 'gift');
-            const studioPath = isCamera ? 'gift-camera/studio' : 'studio';
+            const studioPath = isCamera ? 'camera-themes/silver/studio' : 'studio';
             const giftUrl = `${window.location.origin}/${giftFolder}/index.html?to=${gift.giftId}`;
             const editorUrl = `../${studioPath}/index.html?token=${gift.giftId}`;
             const productLabel = isCamera ? '📷 Gift Camera' : '📝 Gift Pages';

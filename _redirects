@@ -6,3 +6,9 @@
 
 # Gift Page — semua URL /gift/* diarahkan ke gift/index.html
 /gift/*    /gift/index.html    200
+
+# Camera Themes — Redirects to new folder structure
+/gift-camera-midnight/*  /camera-themes/midnight/:1  200
+/gift-camera-rosewood/*  /camera-themes/rosewood/:1  200
+/gift-camera-mossy/*     /camera-themes/mossy/:1     200
+/gift-camera/*           /camera-themes/silver/:1    200
