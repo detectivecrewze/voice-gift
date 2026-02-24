@@ -24,19 +24,19 @@ window.APP_CONFIG = {
 // ── Data: Occasions ──────────────────────────────────────────
 const OCCASIONS = [
   { id: 'romantic', label: 'Romantic', emoji: '💕', defaultTheme: 'rose' },
-  { id: 'birthday', label: 'Birthday', emoji: '🎂', defaultTheme: 'gold' },
+  { id: 'birthday', label: 'Birthday', emoji: '🎂', defaultTheme: 'rosewood' },
   { id: 'family', label: 'Family', emoji: '🏡', defaultTheme: 'sage' },
   { id: 'graduation', label: 'Graduation', emoji: '🎓', defaultTheme: 'midnight' },
-  { id: 'friendship', label: 'Friendship', emoji: '🤝', defaultTheme: 'lavender' },
+  { id: 'friendship', label: 'Friendship', emoji: '🤝', defaultTheme: 'pinky' },
 ];
 
-// ── Data: Themes ─────────────────────────────────────────────// Define available themes and mapping to their respective folders
+// ── Data: Themes ─────────────────────────────────────────────
+// Define available themes and mapping to their respective folders
 const THEMES = [
-  { id: 'rose', folder: 'camera-themes/rosewood', name: '🪵 Rosewood', color: '#b07860' },
-  { id: 'midnight', folder: 'camera-themes/midnight', name: '🌃 Midnight', color: '#1a1e2e' },
-  { id: 'mossy', folder: 'camera-themes/mossy', name: '🌿 Mossy', color: '#2a3a22' },
-  { id: 'silver', folder: 'camera-themes/silver', name: '📷 Silver Cam', color: '#9ca3af' },
-  { id: 'original', folder: 'gift', name: '🤎 Original', color: '#a0866c' },
+  { id: 'rose', folder: 'gift', name: '🤎 Original', color: '#a0866c' },
+  { id: 'rosewood', folder: 'gift-beige', name: '🪵 Rosewood', color: '#b07860' },
+  { id: 'midnight', folder: 'gift-blanc', name: '🌃 Midnight', color: '#1a1e2e' },
+  { id: 'sage', folder: 'gift-sage', name: '🌿 Mossy', color: '#2a3a22' },
   { id: 'pinky', folder: 'gift-pinky', name: '🌸 Magenta', color: '#f9a8d4' },
 ];
 
@@ -388,7 +388,16 @@ const Studio = (() => {
     onThemeSelected,
     onAmbientSelected,
     toggleAmbientPreview,
-    getThemeConfig: (themeId) => THEMES.find(t => t.id === themeId) || THEMES[0], // Helper for preview/publisher
+    getThemeConfig: (themeId) => {
+      // Robust lookup: try direct ID match, then handle legacy IDs
+      const legacyMap = {
+        'beige': 'rosewood',
+        'blanc': 'midnight',
+        'original': 'rose'
+      };
+      const actualId = legacyMap[themeId] || themeId;
+      return THEMES.find(t => t.id === actualId) || THEMES[0];
+    },
     showToast,
   };
 
