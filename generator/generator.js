@@ -63,8 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const customName = document.getElementById('input-new-token')?.value.trim();
         const studioPass = document.getElementById('input-studio-pass')?.value.trim();
         const giftPass = document.getElementById('input-gift-pass')?.value.trim();
-        const giftType = document.getElementById('input-gift-type')?.value || 'classic';
-        const defaultTheme = giftType === 'digicam' ? 'camera' : 'rose';
+        const defaultTheme = 'rose';
         let finalId = '';
 
         if (customName) {
@@ -136,11 +135,9 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('[Generator] Critical save error:', err);
         }
 
-        // Delay to ensure KV propagation & Telegram sempat terkirim 
+        // Delay to ensure KV propagation
         setTimeout(() => {
-            const studioFolder = giftType === 'digicam' ? 'studio-camera' : 'studio';
-            let url = `../${studioFolder}/index.html?token=${finalId}`;
-            window.location.href = url;
+            window.location.href = `../studio/index.html?token=${finalId}`;
         }, 600);
     });
 
@@ -148,11 +145,8 @@ document.addEventListener('DOMContentLoaded', () => {
     formAccess?.addEventListener('submit', (e) => {
         e.preventDefault();
         const token = inputToken.value.trim();
-        const accessType = document.getElementById('input-access-type')?.value || 'classic';
-
         if (token) {
-            const studioFolder = accessType === 'digicam' ? 'studio-camera' : 'studio';
-            window.location.href = `../${studioFolder}/index.html?token=${token}`;
+            window.location.href = `../studio/index.html?token=${token}`;
         } else {
             inputToken.classList.add('border-red-300');
             setTimeout(() => inputToken.classList.remove('border-red-300'), 2000);

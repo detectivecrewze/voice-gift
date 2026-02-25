@@ -1,15 +1,8 @@
 # Cloudflare Pages _redirects
 # File ini wajib ada agar routing /studio/* dan /gift/* berfungsi
 
-# Studio Editors — routing for both systems
-/studio-camera/*  /studio-camera/index.html  200
+# Studio Editors
 /studio/*         /studio/index.html         200
 
 # Gift Page — semua URL /gift/* diarahkan ke gift/index.html
 /gift/*    /gift/index.html    200
-
-# Camera Themes — Redirects to new folder structure
-/gift-camera-midnight/*  /camera-themes/midnight/:1  200
-/gift-camera-rosewood/*  /camera-themes/rosewood/:1  200
-/gift-camera-mossy/*     /camera-themes/mossy/:1     200
-/gift-camera/*           /camera-themes/silver/:1    200

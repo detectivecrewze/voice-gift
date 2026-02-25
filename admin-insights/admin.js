@@ -114,9 +114,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Pretty name mapping
         const themeNames = {
             'rose': 'Original', 'original': 'Original', 'pinky': 'Magenta',
-            'beige': 'Rosewood', 'blanc': 'Midnight', 'white': 'Midnight',
-            'sage': 'Mossy', 'camera': 'Silver', 'midnight': 'Midnight',
-            'rosewood': 'Rosewood', 'mossy': 'Mossy'
+            'beige': 'Rosewood', 'rosewood': 'Rosewood',
+            'blanc': 'Midnight', 'midnight': 'Midnight',
+            'sage': 'Mossy', 'mossy': 'Mossy'
         };
         document.getElementById('stat-theme').innerText = themeNames[topTheme] || topTheme.toUpperCase();
 
@@ -153,45 +153,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
             }) : '-';
 
-            const CAMERA_THEMES = ['camera', 'midnight', 'rosewood', 'mossy'];
             const GIFT_PAGE_THEME_FOLDERS = {
                 'rose': 'gift', 'original': 'gift', 'pinky': 'gift-pinky',
-                'beige': 'gift-beige', 'blanc': 'gift-blanc', 'white': 'gift-blanc',
-                'sage': 'gift-sage'
-            };
-            const CAMERA_THEME_FOLDERS = {
-                'camera': 'camera-themes/silver',
-                'silver': 'camera-themes/silver',
-                'midnight': 'camera-themes/midnight',
-                'rosewood': 'camera-themes/rosewood',
-                'mossy': 'camera-themes/mossy'
+                'beige': 'gift-beige', 'rosewood': 'gift-beige',
+                'blanc': 'gift-blanc', 'midnight': 'gift-blanc',
+                'sage': 'gift-sage', 'mossy': 'gift-sage'
             };
 
             let themeBadgeClass = 'bg-white/10 text-white/80';
             let displayTheme = 'Original';
 
             const theme = String(gift.theme || 'rose').toLowerCase();
-            const isCamera = CAMERA_THEMES.includes(theme);
 
             if (theme === 'pinky') { themeBadgeClass = 'bg-pink-500/20 text-pink-400 border border-pink-500/30'; displayTheme = 'Magenta'; }
             else if (theme === 'rose' || theme === 'original') { themeBadgeClass = 'bg-rose-500/20 text-rose-300 border border-rose-500/30'; displayTheme = 'Original'; }
-            else if (theme === 'beige') { themeBadgeClass = 'bg-orange-500/20 text-orange-400 border border-orange-500/30'; displayTheme = 'Rosewood'; }
-            else if (theme === 'blanc' || theme === 'white') { themeBadgeClass = 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'; displayTheme = 'Midnight'; }
-            else if (theme === 'sage') { themeBadgeClass = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'; displayTheme = 'Mossy'; }
-            else if (theme === 'camera') { themeBadgeClass = 'bg-gray-500/20 text-gray-300 border border-gray-500/30'; displayTheme = 'Silver'; }
-            else if (theme === 'midnight') { themeBadgeClass = 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'; displayTheme = 'Midnight'; }
-            else if (theme === 'rosewood') { themeBadgeClass = 'bg-orange-500/20 text-orange-400 border border-orange-500/30'; displayTheme = 'Rosewood'; }
-            else if (theme === 'mossy') { themeBadgeClass = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'; displayTheme = 'Mossy'; }
+            else if (theme === 'beige' || theme === 'rosewood') { themeBadgeClass = 'bg-orange-500/20 text-orange-400 border border-orange-500/30'; displayTheme = 'Rosewood'; }
+            else if (theme === 'blanc' || theme === 'midnight') { themeBadgeClass = 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'; displayTheme = 'Midnight'; }
+            else if (theme === 'sage' || theme === 'mossy') { themeBadgeClass = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/20'; displayTheme = 'Mossy'; }
             else { displayTheme = theme; }
 
-            const giftFolder = isCamera
-                ? (CAMERA_THEME_FOLDERS[theme] || 'camera-themes/silver')
-                : (GIFT_PAGE_THEME_FOLDERS[theme] || 'gift');
-            const studioPath = isCamera ? 'studio-camera' : 'studio';
+            const giftFolder = GIFT_PAGE_THEME_FOLDERS[theme] || 'gift';
             const giftUrl = `${window.location.origin}/${giftFolder}/index.html?to=${gift.giftId}`;
-            const editorUrl = `../${studioPath}/index.html?token=${gift.giftId}`;
-            const productLabel = isCamera ? '📷 Gift Camera' : '📝 Gift Pages';
-            const productClass = isCamera ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
+            const editorUrl = `../studio/index.html?token=${gift.giftId}`;
+            const productLabel = '📝 Gift Pages';
+            const productClass = 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
 
             let sfxText = 'Hening';
             const ambient = String(gift.ambient || 'none').toLowerCase();
@@ -292,8 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'pinky': 'magenta',
                     'beige': 'rosewood', 'rosewood': 'rosewood',
                     'blanc': 'midnight', 'white': 'midnight', 'midnight': 'midnight',
-                    'sage': 'mossy', 'mossy': 'mossy',
-                    'camera': 'silver'
+                    'sage': 'mossy', 'mossy': 'mossy'
                 };
                 matchesTheme = themeMap[themeVal] === themeFilter;
             }

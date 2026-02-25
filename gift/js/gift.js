@@ -14,7 +14,7 @@ const API_BASE_URL = 'https://valentine-upload.aldoramadhan16.workers.dev';
 
 // ── Helper: Tampilkan satu state ──────────────────────────────
 const showState = (stateId) => {
-  ['state-loading', 'state-error', 'state-password', 'state-gift', 'state-access'].forEach(id => {
+  ['state-loading', 'state-preloading', 'state-error', 'state-password', 'state-gift', 'state-access'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.toggle('hidden', id !== stateId);
   });
@@ -118,7 +118,6 @@ const _fetchAndRender = async (giftId) => {
     const mock = _getMockData(giftId);
     if (mock) {
       _renderGift(mock.gift);
-      showState('state-gift');
       return;
     }
 
@@ -153,7 +152,6 @@ const _fetchAndRender = async (giftId) => {
       showState('state-password');
     } else {
       _renderGift(gift);
-      showState('state-gift');
     }
 
   } catch (err) {
@@ -187,7 +185,6 @@ const _setupPasswordGate = (giftId, partialGift) => {
 
       if (data && data.password === password) {
         _renderGift(data);
-        showState('state-gift');
       } else {
         // Password salah — shake animation
         if (input) {
@@ -214,20 +211,24 @@ const _setupPasswordGate = (giftId, partialGift) => {
 
 // ── Render Gift Page ──────────────────────────────────────────
 const _renderGift = (gift) => {
-  const giftEl = document.getElementById('state-gift');
+  const voiceSection = document.getElementById('gift-voice');
+  const container = document.body;
 
   // Terapkan tema ke body untuk background full-screen
-  document.body.setAttribute('data-theme', gift.theme || 'rose');
+  container.setAttribute('data-theme', gift.theme || 'rose');
 
   // Voice Note (Printer-Music Box)
-  const voiceSection = document.getElementById('gift-voice');
-  if (gift.voiceNote?.url) {
+  const hasVoice = !!gift.voiceNote?.url;
+  const hasPhotos = !!(gift.photos && gift.photos.length > 0);
+
+  if (hasVoice || hasPhotos) {
     if (voiceSection) {
       voiceSection.classList.remove('hidden');
-      VoicePlayer.init(gift.voiceNote, voiceSection, gift.photos || [], gift.ambient || 'none');
+      VoicePlayer.handleAfterLoad(gift, voiceSection);
     }
   } else {
     voiceSection?.classList.add('hidden');
+    showState('state-gift'); // Jika benar-benar kosong
   }
 };
 

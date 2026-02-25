@@ -136,9 +136,15 @@ const VoiceRecorder = (() => {
 
     // Setup MediaRecorder
     const mimeType = _getSupportedMimeType();
+    const options = {
+      audioBitsPerSecond: 64000 // 64kbps: Premium vocal clarity with small file size
+    };
+    if (mimeType) options.mimeType = mimeType;
+
     try {
-      _mediaRecorder = new MediaRecorder(_stream, mimeType ? { mimeType } : {});
-    } catch {
+      _mediaRecorder = new MediaRecorder(_stream, options);
+    } catch (err) {
+      console.warn('[VoiceRecorder] MediaRecorder with options failed, falling back:', err);
       _mediaRecorder = new MediaRecorder(_stream);
     }
 

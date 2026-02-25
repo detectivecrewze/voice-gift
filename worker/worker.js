@@ -75,23 +75,13 @@ var index_default = {
         });
       }
       try {
-        const { value: data, metadata } = await env.VALENTINE_DATA.getWithMetadata(id);
+        // Optimized: Only GET without PUT to save KV write operations
+        const { value: data } = await env.VALENTINE_DATA.getWithMetadata(id);
         if (!data) {
           return new Response(JSON.stringify({ error: "Config not found", id }), {
             status: 404,
             headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
-        }
-
-        // Background update "Last Opened" metadata
-        const newMetadata = metadata || {};
-        newMetadata.lastOpened = new Date().toISOString();
-
-        try {
-          // Fire and forget (almost) to keep response fast, but handling errors silently
-          await env.VALENTINE_DATA.put(id, data, { metadata: newMetadata });
-        } catch (writeErr) {
-          console.error("[KV] LastOpened write failed (limit?):", writeErr);
         }
 
         return new Response(data, {
@@ -120,20 +110,20 @@ var index_default = {
       try {
         const body = await request.json();
         body._server_metadata = {
-          lastSaved: (/* @__PURE__ */ new Date()).toISOString(),
+          lastSaved: (new Date()).toISOString(),
           ip: request.headers.get("cf-connecting-ip") || "unknown"
         };
         await env.VALENTINE_DATA.put(id, JSON.stringify(body));
         const customer = body.metadata?.customerName || id;
         const photoCount = (body.gallery?.memories?.length || 0) + (body.map?.locations?.length || 0);
-        const notification = `\u{1F680} *Project Published!*
+        const notification = `🚀 *Project Published!*
 
-\u{1F464} *Customer:* ${customer}
-\u{1F194} *ID:* \`${id}\` 
-\u{1F4F8} *Photos:* ${photoCount}
-\u{1F3B5} *Music:* ${body.music?.length || 0} songs
+👤 *Customer:* ${customer}
+🆔 *ID:* \`${id}\` 
+📸 *Photos:* ${photoCount}
+🎵 *Music:* ${body.music?.length || 0} songs
 
-\u{1F517} [View Project](https://valentine-site-sigma.vercel.app/?to=${id})`;
+🔗 [View Project](https://valentine-site-sigma.vercel.app/?to=${id})`;
         await sendSimpleTelegram(notification, env);
         return new Response(JSON.stringify({
           success: true,
@@ -162,11 +152,11 @@ var index_default = {
         }
         const country = request.cf?.country || "Unknown";
         const city = request.cf?.city || "Unknown";
-        const loginMsg = `\u{1F6A8} *Admin Access Detected*
+        const loginMsg = `🚨 *Admin Access Detected*
 
-\u{1F4CD} *Location:* ${city}, ${country}
-\u{1F4F1} *Device:* ${userAgent || "Unknown"}
-\u23F0 *Time:* ${(/* @__PURE__ */ new Date()).toLocaleString()}`;
+📍 *Location:* ${city}, ${country}
+📱 *Device:* ${userAgent || "Unknown"}
+⏰ *Time:* ${(new Date()).toLocaleString()}`;
         await sendSimpleTelegram(loginMsg, env);
         return new Response(JSON.stringify({
           success: true,
@@ -254,8 +244,8 @@ var index_default = {
           </style>
         </head>
         <body>
-          <h1>\u{1F496} Valentine Backend API</h1>
-          <div class="status">\u2705 API is running!</div>
+          <h1>💖 Valentine Backend API</h1>
+          <div class="status">✅ API is running!</div>
           
           <h2>Endpoints:</h2>
           <ul>
@@ -410,4 +400,3 @@ __name(handleAdminDeleteGifts, "handleAdminDeleteGifts");
 export {
   index_default as default
 };
-//# sourceMappingURL=worker-telegram.js.map

@@ -13,7 +13,6 @@
   <!-- Open Graph (untuk preview link di WhatsApp) -->
   <meta property="og:title" content="Ada hadiah untukmu 💕" />
   <meta property="og:description" content="Buka untuk melihat hadiah spesial dari seseorang yang menyayangimu." />
-  <meta property="og:description" content="Buka untuk melihat hadiah spesial dari seseorang yang menyayangimu." />
   <meta property="og:type" content="website" />
 
   <!-- Favicon -->
@@ -49,6 +48,17 @@
   ============================================ -->
   <div id="state-loading" class="fullscreen-center">
     <div class="loading-spinner"></div>
+  </div>
+
+  <!-- STATE: PRELOADING -->
+  <div id="state-preloading" class="fullscreen-center hidden">
+    <div class="preloading-container">
+      <div class="loading-spinner"></div>
+      <p id="preload-text" class="preload-text">Mempersiapkan kenangan... 0%</p>
+      <div class="preload-progress-bg">
+        <div id="preload-bar" class="preload-progress-fill" style="width: 0%;"></div>
+      </div>
+    </div>
   </div>
 
   <!-- ============================================

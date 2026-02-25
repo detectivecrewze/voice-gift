@@ -46,6 +46,12 @@ const Publisher = (() => {
     const hasEnoughPhotos = state.photos?.length >= 6;
     const hasVoice = (state.voiceNote?.url);
 
+    // [GUARD] Ensure no active uploads are running
+    if (Uploader.isUploading()) {
+      Studio.showToast('Tunggu sebentar ya, foto kamu sedang diupload ke cloud... ⏳');
+      return;
+    }
+
     if (!hasEnoughPhotos || !hasVoice) {
       if (!hasEnoughPhotos && !hasVoice) {
         Studio.showToast('Wah, kado kamu masih kosong. Tambahkan min. 6 foto DAN suara dulu ya! 📸🎙️');
@@ -75,6 +81,12 @@ const Publisher = (() => {
     if (!customId || customId.length < 2) {
       const error = document.getElementById('name-error');
       if (error) error.classList.remove('hidden');
+      return;
+    }
+
+    // [GUARD] Double check uploader state
+    if (Uploader.isUploading()) {
+      Studio.showToast('Oops! Ada foto yang belum selesai diupload. Tunggu sebentar ya.');
       return;
     }
 

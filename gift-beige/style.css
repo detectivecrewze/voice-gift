@@ -1060,11 +1060,13 @@ body::after {
     text-shadow: 0 0 8px var(--primary);
   }
 }
+
 /* ── Idle Overlay (PRESS PLAY) ── */
 .lcd-idle-overlay {
   position: absolute;
   inset: 0;
-  background: #080706; /* Solid black to cover photos completely */
+  background: #080706;
+  /* Solid black to cover photos completely */
   z-index: 30;
   display: flex;
   flex-direction: column;
@@ -1091,4 +1093,39 @@ body::after {
   letter-spacing: 0.32em;
   color: rgba(255, 255, 255, 0.22);
   text-transform: uppercase;
+}
+
+/* ── Preloading UI ── */
+.preloading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  max-width: 280px;
+}
+
+.preload-text {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #9a7a68;
+  margin-top: 24px;
+}
+
+.preload-progress-bg {
+  width: 100%;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.preload-progress-fill {
+  height: 100%;
+  background: #c29571;
+  width: 0%;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }

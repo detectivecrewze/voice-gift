@@ -21,7 +21,8 @@ const Uploader = (() => {
   // ── Config ──────────────────────────────────────────────
   const MAX_PHOTOS = 30;
   const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
-  const MAX_DIMENSION = 1600; // px — resize sisi terpanjang (Optimasi Cloud)
+  const MAX_DIMENSION = 1080; // Reduced from 1600 for performance
+  const QUALITY = 0.6;        // Reduced from 0.75 for speed
 
   // ── State lokal ─────────────────────────────────────────
   // Array of: { id, url, order, status: 'uploading'|'success'|'error', localPreview }
@@ -275,6 +276,9 @@ const Uploader = (() => {
     });
   };
 
+  // ── Helpers ─────────────────────────────────────────────
+  const isUploading = () => _photos.some(p => p.status === 'uploading');
+
   // ── Render ────────────────────────────────────────────────
   const _render = () => {
     const dz = dropzone();
@@ -355,7 +359,8 @@ const Uploader = (() => {
     getPhotos: () => _photos.filter(p => p.status === 'success'),
     loadFromConfig: (photos) => init(photos),
     remove: deletePhoto,
-    retry: retryUpload
+    retry: retryUpload,
+    isUploading
   };
 
 })();

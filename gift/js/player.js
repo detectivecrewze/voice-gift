@@ -1,8 +1,8 @@
 const VoicePlayer = (() => {
 
   const init = (voiceNote, containerEl, allPhotos, ambientId = 'none') => {
-    const audio = new Audio(voiceNote.url);
-    audio.crossOrigin = 'anonymous'; // Required for Web Audio API (waveform visualizer) with remote files
+    const audio = (voiceNote && voiceNote.url) ? new Audio(voiceNote.url) : new Audio();
+    if (voiceNote?.url) audio.crossOrigin = 'anonymous'; // Required for Web Audio API (waveform visualizer) with remote files
     let isPlaying = false;
     let lastRotationTime = 0;
     let lastAngle = null;
@@ -22,6 +22,13 @@ const VoicePlayer = (() => {
     let sourceNode = null;
     let voiceGain = null;
     let animationId = null;
+
+    // ── DOM Utilities ────────────────────────────────────────
+    const showState = (name) => {
+      ['loading', 'preloading', 'access', 'error', 'password', 'gift'].forEach(s => {
+        document.getElementById(`state-${s}`)?.classList.toggle('hidden', s !== name);
+      });
+    };
 
     // ── Centralized AudioContext Helper ───────────────────────
     // Ensures AudioContext is created & resumed AFTER user gesture (iOS/Safari fix)
@@ -672,10 +679,10 @@ const VoicePlayer = (() => {
           voiceGain.gain.setValueAtTime(0, audioCtx.currentTime);
           voiceGain.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.1);
         }
-        
+
         if (ambientAudio) ambientAudio.muted = false;
         if (audio.ended) audio.currentTime = 0;
-         // Ensure unmuted
+        // Ensure unmuted
         audio.play().catch(() => { });
         isPlaying = true;
         box.classList.add('is-cranking');
@@ -690,11 +697,11 @@ const VoicePlayer = (() => {
         if (ambientGain) {
           ambientGain.gain.setTargetAtTime(0.060, audioCtx.currentTime, 0.5);
         }
-        
+
         // Fix 8: iOS Auto-Play Block Failsafe. 
         // Force the paused background song to resume playing if blocked previously
         if (ambientAudio && ambientAudio.paused && !ambientAudio.ended) {
-          ambientAudio.play().catch(() => {});
+          ambientAudio.play().catch(() => { });
         }
       }
 
@@ -737,6 +744,60 @@ const VoicePlayer = (() => {
     window.addEventListener('touchend', stopDrag);
   };
 
-  return { init };
+  const handleAfterLoad = async (giftConfig, containerEl) => {
+    if (!giftConfig) return;
+
+    // ── Preloading Assets ──
+    const showState = (name) => {
+      ['loading', 'preloading', 'access', 'error', 'password', 'gift'].forEach(s => {
+        document.getElementById(`state-${s}`)?.classList.toggle('hidden', s !== name);
+      });
+    };
+
+    showState('preloading');
+
+    const photos = giftConfig.photos || [];
+    const photoUrls = photos.map(p => typeof p === 'string' ? p : (p.url || p.localPreview)).filter(Boolean);
+    const voiceUrl = giftConfig.voiceNote?.url;
+
+    const assetsToLoad = [...photoUrls];
+    if (voiceUrl) assetsToLoad.push(voiceUrl);
+
+    const total = assetsToLoad.length;
+    let loaded = 0;
+
+    const updateProgress = () => {
+      loaded++;
+      const percent = Math.round((loaded / total) * 100);
+      const bar = document.getElementById('preload-bar');
+      const text = document.getElementById('preload-text');
+      if (bar) bar.style.width = `${percent}%`;
+      if (text) text.textContent = `Mempersiapkan kenangan... ${percent}%`;
+    };
+
+    if (total > 0) {
+      await Promise.all(assetsToLoad.map(url => {
+        return new Promise((resolve) => {
+          const isAudio = url.match(/\.(mp3|m4a|webm|wav)$/i) || url.includes('type=audio');
+          if (isAudio) {
+            const a = new Audio();
+            a.src = url;
+            a.oncanplaythrough = () => { updateProgress(); resolve(); };
+            a.onerror = () => { updateProgress(); resolve(); };
+          } else {
+            const img = new Image();
+            img.src = url;
+            img.onload = () => { updateProgress(); resolve(); };
+            img.onerror = () => { updateProgress(); resolve(); };
+          }
+        });
+      }));
+    }
+
+    showState('gift');
+    VoicePlayer.init(giftConfig.voiceNote, containerEl, giftConfig.photos, giftConfig.ambient || 'none');
+  };
+
+  return { init, handleAfterLoad };
 
 })();
