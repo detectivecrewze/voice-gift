@@ -751,17 +751,42 @@ const VoicePlayer = (() => {
     if (total > 0) {
       await Promise.all(assetsToLoad.map(url => {
         return new Promise((resolve) => {
+          // FAILSAFE: Jika 10 detik tidak load, lanjut saja agar tidak stuck
+          const timeout = setTimeout(() => {
+            console.warn(`[Preloader] Timeout loading: ${url}`);
+            updateProgress();
+            resolve();
+          }, 10000);
+
           const isAudio = url.match(/\.(mp3|m4a|webm|wav)$/i) || url.includes('type=audio');
           if (isAudio) {
             const a = new Audio();
             a.src = url;
-            a.oncanplaythrough = () => { updateProgress(); resolve(); };
-            a.onerror = () => { updateProgress(); resolve(); };
+            a.preload = "auto";
+
+            // iOS Safari friendly events
+            const onDone = () => {
+              clearTimeout(timeout);
+              updateProgress();
+              resolve();
+            };
+
+            a.onloadedmetadata = onDone;
+            a.oncanplaythrough = onDone;
+            a.onerror = onDone;
           } else {
             const img = new Image();
             img.src = url;
-            img.onload = () => { updateProgress(); resolve(); };
-            img.onerror = () => { updateProgress(); resolve(); };
+            img.onload = () => {
+              clearTimeout(timeout);
+              updateProgress();
+              resolve();
+            };
+            img.onerror = () => {
+              clearTimeout(timeout);
+              updateProgress();
+              resolve();
+            };
           }
         });
       }));
