@@ -143,7 +143,13 @@ var index_default = {
     if (request.method === "POST" && url.pathname === "/login") {
       try {
         const { password, userAgent } = await request.json();
-        const expected = "Aldobotak1@";
+        const expected = env.ADMIN_SECRET;
+        if (!expected) {
+          return new Response(JSON.stringify({ success: false, error: "Server Error: ADMIN_SECRET not configured" }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
         if (password !== expected) {
           return new Response(JSON.stringify({ success: false, error: "Invalid password" }), {
             status: 401,
@@ -153,10 +159,10 @@ var index_default = {
         const country = request.cf?.country || "Unknown";
         const city = request.cf?.city || "Unknown";
         const loginMsg = `🚨 *Admin Access Detected*
-
-📍 *Location:* ${city}, ${country}
-📱 *Device:* ${userAgent || "Unknown"}
-⏰ *Time:* ${(new Date()).toLocaleString()}`;
+ 
+ 📍 *Location:* ${city}, ${country}
+ 📱 *Device:* ${userAgent || "Unknown"}
+ ⏰ *Time:* ${(new Date()).toLocaleString()}`;
         await sendSimpleTelegram(loginMsg, env);
         return new Response(JSON.stringify({
           success: true,
@@ -167,6 +173,33 @@ var index_default = {
         });
       } catch (error) {
         return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+    }
+    if (request.method === "POST" && url.pathname === "/generator-login") {
+      try {
+        const { password } = await request.json();
+        const expected = env.GENERATOR_SECRET;
+        if (!expected) {
+          return new Response(JSON.stringify({ success: false, error: "Server Error: GENERATOR_SECRET not configured" }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+        if (password === expected) {
+          return new Response(JSON.stringify({ success: true }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        } else {
+          return new Response(JSON.stringify({ success: false, error: "Password salah" }), {
+            status: 401,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+      } catch (error) {
+        return new Response(JSON.stringify({ success: false, error: error.message }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
@@ -321,7 +354,9 @@ __name(sendSimpleTelegram, "sendSimpleTelegram");
 
 async function handleAdminListGifts(request, env, corsHeaders) {
   const authHeader = request.headers.get("Authorization");
-  const secret = "Aldobotak1@";
+  const secret = env.ADMIN_SECRET;
+  if (!secret) return new Response(JSON.stringify({ error: "ADMIN_SECRET not set" }), { status: 500, headers: corsHeaders });
+
   if (!authHeader || authHeader !== `Bearer ${secret}`) {
     return new Response(JSON.stringify({ success: false, error: "Akses ditolak." }), {
       status: 401,
@@ -368,7 +403,9 @@ async function handleAdminListGifts(request, env, corsHeaders) {
 }
 async function handleAdminDeleteGifts(request, env, corsHeaders) {
   const authHeader = request.headers.get("Authorization");
-  const secret = "Aldobotak1@";
+  const secret = env.ADMIN_SECRET;
+  if (!secret) return new Response(JSON.stringify({ error: "ADMIN_SECRET not set" }), { status: 500, headers: corsHeaders });
+
   if (!authHeader || authHeader !== `Bearer ${secret}`) {
     return new Response(JSON.stringify({ success: false, error: "Akses ditolak." }), {
       status: 401,

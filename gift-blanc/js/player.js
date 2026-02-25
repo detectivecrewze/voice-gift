@@ -391,6 +391,11 @@ const VoicePlayer = (() => {
     const AUTO_SPEED = 4.5;
     const toggleBtn = containerEl.querySelector('#auto-play-toggle');
 
+    // Add tutorial pulse on load
+    if (toggleBtn) {
+      toggleBtn.classList.add('tutorial-pulse');
+    }
+
     function autoPlayLoop() {
       if (!isAutoPlaying) return;
       visualCrankAngle += AUTO_SPEED;
@@ -526,14 +531,24 @@ const VoicePlayer = (() => {
     };
 
     if (toggleBtn) {
-      toggleBtn.addEventListener('click', () => {
+      const toggleAutoPlay = () => {
+        // Remove tutorial pulse on first interaction
+        if (toggleBtn) {
+          toggleBtn.classList.remove('tutorial-pulse');
+        }
+
         isAutoPlaying = !isAutoPlaying;
         toggleBtn.classList.toggle('is-active', isAutoPlaying);
         warmUpAudio();
         getAudioContext();
-        if (isAutoPlaying) { runCountdownThenPlay(); }
-        else { cancelAnimationFrame(autoPlayRafId); stopPlaying(); }
-      });
+        if (isAutoPlaying) {
+          runCountdownThenPlay();
+        } else {
+          cancelAnimationFrame(autoPlayRafId);
+          stopPlaying();
+        }
+      };
+      toggleBtn.addEventListener('click', toggleAutoPlay);
     }
 
     const startDrag = (e) => {

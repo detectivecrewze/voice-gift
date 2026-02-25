@@ -610,6 +610,33 @@ body::after {
     0 0 10px rgba(211, 84, 0, 0.4);
 }
 
+/* ── Tutorial: Pulse of Life ── */
+.tutorial-pulse {
+  animation: tutorial-pulse-anim 2s infinite ease-in-out;
+  position: relative;
+  z-index: 50;
+}
+
+@keyframes tutorial-pulse-anim {
+  0% {
+    box-shadow: 0 0 0 0 rgba(122, 143, 184, 0.4);
+    transform: scale(1);
+    border-color: rgba(122, 143, 184, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 15px 5px rgba(122, 143, 184, 0);
+    transform: scale(1.05);
+    border-color: rgba(122, 143, 184, 0.8);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(122, 143, 184, 0);
+    transform: scale(1);
+    border-color: rgba(122, 143, 184, 0.4);
+  }
+}
+
 /* Center-line decoration */
 .music-box-waveform::before {
   content: '';

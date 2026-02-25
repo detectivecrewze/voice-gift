@@ -22,16 +22,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const unlock = () => {
+    const unlock = async () => {
         const pass = inputPass.value;
-        if (pass === '12345') {
-            sessionStorage.setItem('generator_unlocked', 'true');
-            gate.classList.add('hidden');
-            mainContent.classList.remove('hidden');
-        } else {
+        if (!pass) return;
+
+        btnUnlock.disabled = true;
+        btnUnlock.innerText = 'MEMVERIFIKASI...';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/generator-login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: pass })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                sessionStorage.setItem('generator_unlocked', 'true');
+                gate.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+            } else {
+                gateError.innerText = result.error || 'Password salah';
+                gateError.classList.remove('hidden');
+                inputPass.classList.add('border-red-400');
+                setTimeout(() => inputPass.classList.remove('border-red-400'), 2000);
+            }
+        } catch (err) {
+            console.error('[Generator] Auth error:', err);
+            gateError.innerText = 'Gagal terhubung ke server';
             gateError.classList.remove('hidden');
-            inputPass.classList.add('border-red-400');
-            setTimeout(() => inputPass.classList.remove('border-red-400'), 2000);
+        } finally {
+            btnUnlock.disabled = false;
+            btnUnlock.innerText = 'BUKA AKSES';
         }
     };
 
