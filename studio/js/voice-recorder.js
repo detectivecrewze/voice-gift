@@ -411,8 +411,6 @@ const VoiceRecorder = (() => {
       formData.append('file', file);
       formData.append('type', 'audio');
 
-      formData.append('type', 'audio');
-
       // HARDCODED FIX: Bypass APP_CONFIG cache issues
       const API_BASE_URL = 'https://valentine-upload.aldoramadhan16.workers.dev';
 
