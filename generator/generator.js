@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Delay to ensure KV propagation
         setTimeout(() => {
-            window.location.href = `../studio/index.html?token=${finalId}`;
+            window.location.href = `../studio/${finalId}`;
         }, 600);
     });
 
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const token = inputToken.value.trim();
         if (token) {
-            window.location.href = `../studio/index.html?token=${token}`;
+            window.location.href = `../studio/${token}`;
         } else {
             inputToken.classList.add('border-red-300');
             setTimeout(() => inputToken.classList.remove('border-red-300'), 2000);

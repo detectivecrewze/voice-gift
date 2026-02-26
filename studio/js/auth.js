@@ -25,13 +25,11 @@ const Auth = (() => {
     if (tokenParam) return tokenParam;
 
     // Fallback ke path-based
-    const parts = window.location.pathname.split('/');
-    // Jika URL foryoualways.id/studio/xk9pq2mn3r, token ada di parts[2]
-    // Cari part setelah 'studio'
+    const parts = window.location.pathname.split('/').filter(Boolean);
+    // Jika URL /studio/xk9pq2mn3r, parts adalah ['studio', 'xk9pq2mn3r']
     const studioIdx = parts.indexOf('studio');
     if (studioIdx !== -1 && parts[studioIdx + 1]) {
       const p = parts[studioIdx + 1];
-      // Abaikan jika tokennya cuma 'index.html'
       if (p !== 'index.html') return p;
     }
 

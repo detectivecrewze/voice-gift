@@ -123,7 +123,7 @@ var index_default = {
 📸 *Photos:* ${photoCount}
 🎵 *Music:* ${body.music?.length || 0} songs
 
-🔗 [View Project](https://valentine-site-sigma.vercel.app/?to=${id})`;
+🔗 [View Project](https://voice.for-you-always.my.id/gift/${id})`;
         await sendSimpleTelegram(notification, env);
         return new Response(JSON.stringify({
           success: true,

@@ -63,13 +63,20 @@ const initGiftPage = async () => {
   const queryId = urlParams.get('id');
 
   // Fallback ke path-based ID jika query param kosong
-  const pathParts = window.location.pathname.split('/');
-  let pathId = pathParts[pathParts.length - 1];
+  const pathParts = window.location.pathname.split('/').filter(Boolean);
+  let pathId = null;
+  const giftIdx = pathParts.indexOf('gift');
+  if (giftIdx !== -1 && pathParts[giftIdx + 1]) {
+    pathId = pathParts[giftIdx + 1];
+  } else if (pathParts.length > 0) {
+    // Last stand: just take the last part if not 'gift'
+    pathId = pathParts[pathParts.length - 1];
+  }
 
   let giftId = toId || queryId || pathId;
 
   // Bersihkan ID jika lari ke index.html
-  if (giftId === 'index.html' || giftId === 'gift') {
+  if (giftId === 'index.html' || giftId === 'gift' || giftId === '') {
     giftId = null;
   }
 

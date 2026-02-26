@@ -150,7 +150,7 @@ const Publisher = (() => {
       // Construct gift URL dynamically based on the selected theme's folder
       const themeConfig = Studio.getThemeConfig(state.theme);
       const folder = themeConfig ? themeConfig.folder : 'gift'; // fallback
-      const giftUrl = `${window.location.origin}/${folder}/index.html?to=${customId}`;
+      const giftUrl = `${window.location.origin}/${folder}/${customId}`;
 
       _showSuccessModal(giftUrl);
 
