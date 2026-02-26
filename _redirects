@@ -4,5 +4,9 @@
 # Studio Editors
 /studio/*         /studio/index.html         200
 
-# Gift Page — semua URL /gift/* diarahkan ke gift/index.html
-/gift/*    /gift/index.html    200
+# Gift Page — semua URL diarahkan ke index.html masing-masing tema
+/gift/*            /gift/index.html            200
+/gift-beige/*      /gift-beige/index.html      200
+/gift-blanc/*      /gift-blanc/index.html      200
+/gift-pinky/*      /gift-pinky/index.html      200
+/gift-sage/*       /gift-sage/index.html       200

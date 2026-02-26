@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else { displayTheme = theme; }
 
             const giftFolder = GIFT_PAGE_THEME_FOLDERS[theme] || 'gift';
-            const giftUrl = `${window.location.origin}/${giftFolder}/index.html?to=${gift.giftId}`;
+            const giftUrl = `${window.location.origin}/${giftFolder}/${gift.giftId}`;
             const editorUrl = `../studio/index.html?token=${gift.giftId}`;
             const productLabel = '📝 Gift Pages';
             const productClass = 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
