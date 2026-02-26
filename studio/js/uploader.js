@@ -364,16 +364,16 @@ const Uploader = (() => {
 
     return `
       <div class="photo-item group relative" data-id="${photo.id}">
+        <!-- Sequence Number Tag -->
+        <div class="photo-number absolute top-2 left-2 w-5 h-5 bg-[#d4a373] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm z-20">
+          ${index}
+        </div>
+
         <!-- Drag Handle -->
-        <div class="drag-handle absolute top-2 left-2 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-grab active:cursor-grabbing shadow-sm z-10">
+        <div class="drag-handle absolute top-2 left-9 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-grab active:cursor-grabbing shadow-sm z-10">
           <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
           </svg>
-        </div>
-
-        <!-- Sequence Number Tag -->
-        <div class="photo-number absolute bottom-[40px] right-2 w-5 h-5 bg-[#d4a373] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm z-10">
-          ${index}
         </div>
 
         <img src="${photo.url || photo.localPreview}" class="animate-in fade-in duration-700 w-full h-full object-cover" alt="" />
