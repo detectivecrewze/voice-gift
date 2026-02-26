@@ -50,9 +50,9 @@ const Uploader = (() => {
         ghostClass: 'sortable-ghost',
         dragClass: 'sortable-drag',
         handle: '.drag-handle',
-        delay: 150, // Added delay for mobile to distinguish from scroll
+        delay: 250, // Increased delay to 250ms for better mobile distinction
         delayOnTouchOnly: true,
-        touchStartThreshold: 3, // Allow small finger movement before canceling
+        touchStartThreshold: 10, // Increased threshold to avoid accidental cancellations
         onEnd: () => {
           // Update urutan setelah drag selesai
           _syncOrderFromDOM();

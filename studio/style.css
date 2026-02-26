@@ -173,6 +173,16 @@ section {
   -webkit-touch-callout: none;
   /* Prevent context menu on long press */
   user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Force drag handle visibility on touch devices */
+@media (pointer: coarse) {
+  .drag-handle {
+    opacity: 1 !important;
+    background: #fff;
+    border: 1px solid rgba(212, 163, 115, 0.2);
+  }
 }
 
 .photo-item:hover {
@@ -193,6 +203,11 @@ section {
 .drag-handle:hover {
   background: #fff;
   color: var(--accent);
+}
+
+.photo-number {
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .sortable-ghost {
