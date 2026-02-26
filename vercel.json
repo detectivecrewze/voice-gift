@@ -1,0 +1,28 @@
+{
+    "rewrites": [
+        {
+            "source": "/studio/(.*)",
+            "destination": "/studio/index.html"
+        },
+        {
+            "source": "/gift/(.*)",
+            "destination": "/gift/index.html"
+        },
+        {
+            "source": "/gift-beige/(.*)",
+            "destination": "/gift-beige/index.html"
+        },
+        {
+            "source": "/gift-blanc/(.*)",
+            "destination": "/gift-blanc/index.html"
+        },
+        {
+            "source": "/gift-pinky/(.*)",
+            "destination": "/gift-pinky/index.html"
+        },
+        {
+            "source": "/gift-sage/(.*)",
+            "destination": "/gift-sage/index.html"
+        }
+    ]
+}
