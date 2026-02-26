@@ -43,7 +43,7 @@ const THEMES = [
 // ── Data: Ambients ──────────────────────────────────────────
 const AMBIENTS = [
   { id: 'none', label: 'Tanpa Suasana', emoji: '🔇' },
-  { id: 'custom', label: 'Upload Musik Mandiri', emoji: '🎵' },
+  { id: 'custom', label: 'Upload Musik Sendiri', emoji: '🎵' },
   { id: 'rain', label: 'Rintik Hujan', emoji: '🌧️' },
   { id: 'cafe', label: 'Cozy Cafe', emoji: '☕' },
   { id: 'waves', label: 'Deburan Ombak', emoji: '🌊' },
