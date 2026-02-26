@@ -1,6 +1,6 @@
 const VoicePlayer = (() => {
 
-  const init = (voiceNote, containerEl, allPhotos, ambientId = 'none', customAmbientUrl = null) => {
+  const init = (voiceNote, containerEl, allPhotos, ambientId = 'none', customAmbientUrl = null, voiceVol = 1.0, ambientVol = 0.085) => {
     const audio = (voiceNote && voiceNote.url) ? new Audio(voiceNote.url) : new Audio();
     if (voiceNote?.url) audio.crossOrigin = 'anonymous'; // Required for Web Audio API (waveform visualizer) with remote files
     let isPlaying = false;
@@ -14,6 +14,10 @@ const VoicePlayer = (() => {
     let stopTimeoutId = null;      // Fix 7: Conditional stop timeout
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
+    // Use volumes from config if available
+    const VOICE_VOL = voiceNote?.voiceVolume !== undefined ? voiceNote.voiceVolume : voiceVol;
+    const AMBIENT_VOL = voiceNote?.ambientVolume !== undefined ? voiceNote.ambientVolume : ambientVol;
+
     // --- Sound Engine & Haptics ---
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
@@ -22,6 +26,13 @@ const VoicePlayer = (() => {
     let sourceNode = null;
     let voiceGain = null;
     let animationId = null;
+
+    // ── DOM Utilities ────────────────────────────────────────
+    const showState = (name) => {
+      ['loading', 'preloading', 'access', 'error', 'password', 'gift'].forEach(s => {
+        document.getElementById(`state-${s}`)?.classList.toggle('hidden', s !== name);
+      });
+    };
 
     // ── Centralized AudioContext Helper ───────────────────────
     // Ensures AudioContext is created & resumed AFTER user gesture (iOS/Safari fix)
@@ -33,13 +44,6 @@ const VoicePlayer = (() => {
         audioCtx.resume().catch(() => { });
       }
       return audioCtx;
-    };
-
-    // ── DOM Utilities ────────────────────────────────────────
-    const showState = (name) => {
-      ['loading', 'preloading', 'access', 'error', 'password', 'gift'].forEach(s => {
-        document.getElementById(`state-${s}`)?.classList.toggle('hidden', s !== name);
-      });
     };
 
     const playMechanicalClick = () => {
@@ -202,7 +206,7 @@ const VoicePlayer = (() => {
 
         <div class="music-box-info">
           <div class="music-box-waveform" id="waveform">
-            ${Array(48).fill('<div class="waveform-bar"></div>').join('')}
+            ${Array(24).fill('<div class="waveform-bar"></div>').join('')}
           </div>
 
           <div class="music-box-timer">
@@ -245,7 +249,7 @@ const VoicePlayer = (() => {
       const container = document.getElementById('bokeh-container');
       if (!container || container.children.length > 0) return;
 
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < 4; i++) {
         const dot = document.createElement('div');
         dot.className = 'bokeh-particle';
         const size = Math.random() * 300 + 200;
@@ -299,7 +303,7 @@ const VoicePlayer = (() => {
       const nowSec = now / 1000;
 
       for (let i = 0; i < bars.length; i++) {
-        const distanceToCenter = Math.abs(i - 24);
+        const distanceToCenter = Math.abs(i - 12);
         const binIndex = Math.floor(distanceToCenter * 0.8) + 2;
         const val = dataArray[binIndex] || 0;
 
@@ -387,7 +391,7 @@ const VoicePlayer = (() => {
 
     audio.addEventListener('ended', () => {
       audio.currentTime = 0;
-      stopPlaying();
+      // Removed stopPlaying() to keep ambient looping even after voice ends
     });
 
     // ── Interaction Logic (Infinite) ──────────────────────────
@@ -397,7 +401,7 @@ const VoicePlayer = (() => {
     // ── Auto-Play Logic ──
     let isAutoPlaying = false;
     let autoPlayRafId = null;
-    const AUTO_SPEED = 4.5;
+    const AUTO_SPEED = 4.5; // degrees per frame (overall auto-play speed - increased for slightly faster photos)
     const toggleBtn = containerEl.querySelector('#auto-play-toggle');
 
     // Add tutorial pulse on load
@@ -407,13 +411,23 @@ const VoicePlayer = (() => {
 
     function autoPlayLoop() {
       if (!isAutoPlaying) return;
+
+      // 1. Increment rotations (1:1 sync)
       visualCrankAngle += AUTO_SPEED;
       totalCrankAngle += AUTO_SPEED;
+
+      // 2. Visually rotate crank
       arm.style.transform = `rotate(${visualCrankAngle}deg) translateZ(0)`;
+
+      // 3. Move photos
       const rawSlide = (totalCrankAngle / 720) * VIEW_WIDTH;
       const fullSetWidth = totalPhotos * VIEW_WIDTH;
+      // Gunakan modulo ganda untuk memastikan range selalu [0, fullSetWidth)
       const loopSlide = ((rawSlide % fullSetWidth) + fullSetWidth) % fullSetWidth;
+
       tray.style.transform = `translate3d(-${loopSlide}px, 0, 0)`;
+
+      // 4. Update active photo index
       const activeIndex = Math.round(loopSlide / VIEW_WIDTH);
       if (activeIndex !== lastActivePhotoIndex && photoEls[activeIndex]) {
         if (lastActivePhotoIndex >= 0 && photoEls[lastActivePhotoIndex]) {
@@ -422,12 +436,20 @@ const VoicePlayer = (() => {
         photoEls[activeIndex].classList.add('is-active');
         lastActivePhotoIndex = activeIndex;
       }
+
+      // 5. Trigger clicks & audio
       if (Math.abs(totalCrankAngle - lastClickRotation) > 15) {
         const clickNow = performance.now();
-        if (clickNow - lastClickTime > 50) { playMechanicalClick(); lastClickTime = clickNow; }
+        if (clickNow - lastClickTime > 50) {
+          playMechanicalClick();
+          lastClickTime = clickNow;
+        }
         lastClickRotation = totalCrankAngle;
       }
-      startPlaying();
+
+      startPlaying(); // keeps audio & visualizer running
+
+      // Loop
       autoPlayRafId = requestAnimationFrame(autoPlayLoop);
     }
 
@@ -548,8 +570,10 @@ const VoicePlayer = (() => {
 
         isAutoPlaying = !isAutoPlaying;
         toggleBtn.classList.toggle('is-active', isAutoPlaying);
-        warmUpAudio();
+
+        warmUpAudio(); // Fix: Initialize AudioContext and Visualizer for Auto-Play
         getAudioContext();
+
         if (isAutoPlaying) {
           runCountdownThenPlay();
         } else {
@@ -557,17 +581,22 @@ const VoicePlayer = (() => {
           stopPlaying();
         }
       };
+
       toggleBtn.addEventListener('click', toggleAutoPlay);
     }
 
     const startDrag = (e) => {
+      // Hide idle overlay if user manually drags early
       hideIdleOverlay();
       countdownWasStarted = true;
+
+      // Manual Override: If user touches crank, kill auto-play immediately
       if (isAutoPlaying) {
         isAutoPlaying = false;
         if (toggleBtn) toggleBtn.classList.remove('is-active');
         cancelAnimationFrame(autoPlayRafId);
       }
+
       isDragging = true;
       lastAngle = null;
 
@@ -625,8 +654,6 @@ const VoicePlayer = (() => {
           const rawSlide = (totalCrankAngle / 720) * VIEW_WIDTH;
           const fullSetWidth = totalPhotos * VIEW_WIDTH;
           const loopSlide = ((rawSlide % fullSetWidth) + fullSetWidth) % fullSetWidth;
-
-          // Use translate3d for GPU acceleration
           tray.style.transform = `translate3d(-${loopSlide}px, 0, 0)`;
 
           // Optimize: Only update active photo when index changes
@@ -669,7 +696,7 @@ const VoicePlayer = (() => {
           // Robust ramp for desktop
           voiceGain.gain.cancelScheduledValues(audioCtx.currentTime);
           voiceGain.gain.setValueAtTime(0, audioCtx.currentTime);
-          voiceGain.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.1);
+          voiceGain.gain.linearRampToValueAtTime(VOICE_VOL, audioCtx.currentTime + 0.1);
         }
 
         if (ambientAudio) ambientAudio.muted = false;
@@ -687,7 +714,7 @@ const VoicePlayer = (() => {
 
         // Fade in Ambient Sound
         if (ambientGain) {
-          ambientGain.gain.setTargetAtTime(0.085, audioCtx.currentTime, 0.5);
+          ambientGain.gain.setTargetAtTime(AMBIENT_VOL, audioCtx.currentTime, 0.5);
         }
 
         // Fix 8: iOS Auto-Play Block Failsafe. 
@@ -812,7 +839,7 @@ const VoicePlayer = (() => {
     }
 
     showState('gift');
-    VoicePlayer.init(giftConfig.voiceNote, containerEl, giftConfig.photos, giftConfig.ambient || 'none', giftConfig.customAmbientUrl);
+    VoicePlayer.init(giftConfig.voiceNote, containerEl, giftConfig.photos, giftConfig.ambient || 'none', giftConfig.customAmbientUrl, giftConfig.voiceVolume, giftConfig.ambientVolume);
   };
 
   return { init, handleAfterLoad };

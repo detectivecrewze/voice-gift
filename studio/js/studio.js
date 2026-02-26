@@ -84,6 +84,8 @@ const Studio = (() => {
     ambient: 'none',
     customAmbientUrl: null,
     customUploadCount: 0,
+    voiceVolume: 1.0,      // Default 100%
+    ambientVolume: 0.1,    // Default 10% (background)
     password: null,
     studioPassword: null,
   };
@@ -111,6 +113,106 @@ const Studio = (() => {
       _renderAmbients(_state.ambient);
     }, 300);
   };
+
+  // ── Combined Mixer (Voice + Ambient) ───────────────────────
+  const CombinedMixer = (() => {
+    let _ctx = null;
+    let _voiceAudio = null;
+    let _ambientAudio = null;
+    let _voiceGain = null;
+    let _ambientGain = null;
+    let _isPlaying = false;
+
+    const stop = () => {
+      if (!_isPlaying) return;
+
+      const now = _ctx.currentTime;
+      if (_voiceGain) _voiceGain.gain.setTargetAtTime(0, now, 0.1);
+      if (_ambientGain) _ambientGain.gain.setTargetAtTime(0, now, 0.2);
+
+      setTimeout(() => {
+        if (_voiceAudio) { _voiceAudio.pause(); _voiceAudio = null; }
+        if (_ambientAudio) { _ambientAudio.pause(); _ambientAudio = null; }
+        _isPlaying = false;
+
+        // Update UI state if needed
+        const btnCombinedPreview = document.getElementById('btn-combined-preview');
+        const btnCombinedPreviewSaved = document.getElementById('btn-combined-preview-saved');
+        if (btnCombinedPreview) btnCombinedPreview.classList.remove('bg-black', 'text-white');
+        if (btnCombinedPreviewSaved) btnCombinedPreviewSaved.classList.remove('bg-black', 'text-white');
+      }, 300);
+    };
+
+    const play = async () => {
+      if (_isPlaying) { stop(); return; }
+
+      const voiceUrl = VoiceRecorder.getActiveAudioUrl();
+      if (!voiceUrl) {
+        showToast('Rekam suara dulu ya! 🎙️');
+        return;
+      }
+
+      let ambientUrl = AMBIENT_SOUNDS[_state.ambient];
+      if (_state.ambient === 'custom') ambientUrl = _state.customAmbientUrl;
+
+      // Init AudioContext
+      if (!_ctx) _ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (_ctx.state === 'suspended') await _ctx.resume();
+
+      // Setup Voice
+      _voiceAudio = new Audio(voiceUrl);
+      _voiceAudio.crossOrigin = 'anonymous';
+      const voiceSource = _ctx.createMediaElementSource(_voiceAudio);
+      _voiceGain = _ctx.createGain();
+      _voiceGain.gain.setValueAtTime(0, _ctx.currentTime);
+      voiceSource.connect(_voiceGain);
+      _voiceGain.connect(_ctx.destination);
+
+      // Setup Ambient
+      if (ambientUrl) {
+        _ambientAudio = new Audio(ambientUrl);
+        _ambientAudio.crossOrigin = 'anonymous';
+        const isSong = ['nadin-ah', 'daniel', 'mitski', 'feast-nina', 'feast-tarot', 'custom'].includes(_state.ambient);
+        _ambientAudio.loop = !isSong;
+        const ambientSource = _ctx.createMediaElementSource(_ambientAudio);
+        _ambientGain = _ctx.createGain();
+        _ambientGain.gain.setValueAtTime(0, _ctx.currentTime);
+        ambientSource.connect(_ambientGain);
+        _ambientGain.connect(_ctx.destination);
+      }
+
+      // Start Both
+      _isPlaying = true;
+      const combinedBtn = document.getElementById('btn-combined-preview');
+      const combinedBtnSaved = document.getElementById('btn-combined-preview-saved');
+      if (combinedBtn) combinedBtn.classList.add('bg-black', 'text-white');
+      if (combinedBtnSaved) combinedBtnSaved.classList.add('bg-black', 'text-white');
+
+      if (_ambientAudio) _ambientAudio.play().catch(e => console.warn(e));
+      _voiceAudio.play().then(() => {
+        const now = _ctx.currentTime;
+        _voiceGain.gain.setTargetAtTime(_state.voiceVolume, now, 0.1);
+        if (_ambientGain) _ambientGain.gain.setTargetAtTime(_state.ambientVolume, now, 0.5);
+      }).catch(e => {
+        console.error(e);
+        _isPlaying = false;
+        if (combinedBtn) combinedBtn.classList.remove('bg-black', 'text-white');
+        if (combinedBtnSaved) combinedBtnSaved.classList.remove('bg-black', 'text-white');
+      });
+    };
+
+    const updateLiveVolume = (type, val) => {
+      if (!_isPlaying || !_ctx) return;
+      const now = _ctx.currentTime;
+      if (type === 'voice' && _voiceGain) {
+        _voiceGain.gain.setTargetAtTime(val, now, 0.1);
+      } else if (type === 'ambient' && _ambientGain) {
+        _ambientGain.gain.setTargetAtTime(val, now, 0.1);
+      }
+    };
+
+    return { play, stop, updateLiveVolume };
+  })();
 
   const playAmbientPreview = (ambientId) => {
     // If already playing this, stop it
@@ -214,6 +316,7 @@ const Studio = (() => {
       // Setup Preview Iframe and Events
       Preview.update(state);
       _initMusicUpload();
+      _initVolumeControls();
 
       const iframe = document.getElementById('preview-frame');
       if (iframe) {
@@ -252,6 +355,47 @@ const Studio = (() => {
         _triggerSaveAndPreview();
       });
     });
+  };
+
+  // ── Helper: Init Volume Sliders ────────────────────────
+  const _initVolumeControls = () => {
+    const controls = [
+      { sliderId: 'slider-voice-vol', labelId: 'label-voice-vol', key: 'voiceVolume', type: 'voice' },
+      { sliderId: 'slider-ambient-vol', labelId: 'label-ambient-vol', key: 'ambientVolume', type: 'ambient' },
+      { sliderId: 'slider-voice-vol-saved', labelId: 'label-voice-vol-saved', key: 'voiceVolume', type: 'voice' },
+      { sliderId: 'slider-ambient-vol-saved', labelId: 'label-ambient-vol-saved', key: 'ambientVolume', type: 'ambient' }
+    ];
+
+    controls.forEach(c => {
+      const slider = document.getElementById(c.sliderId);
+      const label = document.getElementById(c.labelId);
+      if (!slider) return;
+
+      // Set initial
+      slider.value = _state[c.key];
+      if (label) label.textContent = `${Math.round(slider.value * 100)}%`;
+
+      slider.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        _state[c.key] = val;
+        if (label) label.textContent = `${Math.round(val * 100)}%`;
+
+        // Sync siblings (because we have dual UI for preview/saved state)
+        controls.filter(other => other.key === c.key && other.sliderId !== c.sliderId).forEach(sibling => {
+          const s = document.getElementById(sibling.sliderId);
+          const l = document.getElementById(sibling.labelId);
+          if (s) s.value = val;
+          if (l) l.textContent = `${Math.round(val * 100)}%`;
+        });
+
+        CombinedMixer.updateLiveVolume(c.type, val);
+        _triggerSaveAndPreview();
+      });
+    });
+
+    // Bind combined preview buttons
+    document.getElementById('btn-combined-preview')?.addEventListener('click', CombinedMixer.play);
+    document.getElementById('btn-combined-preview-saved')?.addEventListener('click', CombinedMixer.play);
   };
 
   // ── Helper: Update karakter counter ──────────────────────

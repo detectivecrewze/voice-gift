@@ -493,6 +493,7 @@ const VoiceRecorder = (() => {
       duration: _savedDuration,
       mimeType: _savedMimeType,
     }),
+    getActiveAudioUrl: () => _audioUrl || _savedUrl,
   };
 
 })();

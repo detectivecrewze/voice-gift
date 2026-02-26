@@ -1,6 +1,6 @@
 const VoicePlayer = (() => {
 
-  const init = (voiceNote, containerEl, allPhotos, ambientId = 'none', customAmbientUrl = null) => {
+  const init = (voiceNote, containerEl, allPhotos, ambientId = 'none', customAmbientUrl = null, voiceVol = 1.0, ambientVol = 0.085) => {
     const audio = (voiceNote && voiceNote.url) ? new Audio(voiceNote.url) : new Audio();
     if (voiceNote?.url) audio.crossOrigin = 'anonymous'; // Required for Web Audio API (waveform visualizer) with remote files
     let isPlaying = false;
@@ -13,6 +13,10 @@ const VoicePlayer = (() => {
     let frameCounter = 0;          // Fix 2: Proper frame-skip counter
     let stopTimeoutId = null;      // Fix 7: Conditional stop timeout
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+    // Use volumes from config if available
+    const VOICE_VOL = voiceNote?.voiceVolume !== undefined ? voiceNote.voiceVolume : voiceVol;
+    const AMBIENT_VOL = voiceNote?.ambientVolume !== undefined ? voiceNote.ambientVolume : ambientVol;
 
     // --- Sound Engine & Haptics ---
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -387,7 +391,7 @@ const VoicePlayer = (() => {
 
     audio.addEventListener('ended', () => {
       audio.currentTime = 0;
-      stopPlaying();
+      // Removed stopPlaying() to keep ambient looping even after voice ends
     });
 
     // ── Interaction Logic (Infinite) ──────────────────────────
@@ -692,7 +696,7 @@ const VoicePlayer = (() => {
           // Robust ramp for desktop
           voiceGain.gain.cancelScheduledValues(audioCtx.currentTime);
           voiceGain.gain.setValueAtTime(0, audioCtx.currentTime);
-          voiceGain.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.1);
+          voiceGain.gain.linearRampToValueAtTime(VOICE_VOL, audioCtx.currentTime + 0.1);
         }
 
         if (ambientAudio) ambientAudio.muted = false;
@@ -710,7 +714,7 @@ const VoicePlayer = (() => {
 
         // Fade in Ambient Sound
         if (ambientGain) {
-          ambientGain.gain.setTargetAtTime(0.085, audioCtx.currentTime, 0.5);
+          ambientGain.gain.setTargetAtTime(AMBIENT_VOL, audioCtx.currentTime, 0.5);
         }
 
         // Fix 8: iOS Auto-Play Block Failsafe. 
@@ -835,7 +839,7 @@ const VoicePlayer = (() => {
     }
 
     showState('gift');
-    VoicePlayer.init(giftConfig.voiceNote, containerEl, giftConfig.photos, giftConfig.ambient || 'none', giftConfig.customAmbientUrl);
+    VoicePlayer.init(giftConfig.voiceNote, containerEl, giftConfig.photos, giftConfig.ambient || 'none', giftConfig.customAmbientUrl, giftConfig.voiceVolume, giftConfig.ambientVolume);
   };
 
   return { init, handleAfterLoad };
