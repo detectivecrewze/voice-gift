@@ -315,6 +315,10 @@ const Uploader = (() => {
     g.classList.toggle('hidden', !hasPhotos);
     if (label) label.textContent = `(${successCount} / ${MAX_PHOTOS})`;
 
+    // Toggle Reorder Hint
+    const hint = document.getElementById('reorder-hint');
+    if (hint) hint.classList.toggle('hidden', !hasPhotos);
+
     // Render thumbnail grid
     g.innerHTML = _photos.map(photo => _renderThumbnail(photo)).join('');
 
