@@ -108,7 +108,7 @@ const Auth = (() => {
 
       const API_BASE_URL = 'https://valentine-upload.aldoramadhan16.workers.dev';
 
-      const response = await fetch(`${API_BASE_URL}/get-config?id=${_studioToken}`);
+      const response = await fetch(`${API_BASE_URL}/get-config?id=${_studioToken}&t=${Date.now()}`);
 
       if (!response.ok) {
         // Jika 404, mungkin project baru atau KV belum propagasi

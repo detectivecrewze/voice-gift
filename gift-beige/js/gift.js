@@ -128,7 +128,7 @@ const _fetchAndRender = async (giftId) => {
       return;
     }
 
-    const endpoint = `${API_BASE_URL}/get-config?id=${giftId}`;
+    const endpoint = `${API_BASE_URL}/get-config?id=${giftId}&t=${Date.now()}`;
 
     // Set timeout untuk fetch agar tidak buffering selamanya
     const controller = new AbortController();
@@ -187,7 +187,7 @@ const _setupPasswordGate = (giftId, partialGift) => {
 
     try {
       // Re-fetch with ID (Simplified for now: if password matches what's in local memory or just re-fetch)
-      const response = await fetch(`${API_BASE_URL}/get-config?id=${giftId}`);
+      const response = await fetch(`${API_BASE_URL}/get-config?id=${giftId}&t=${Date.now()}`);
       const data = await response.json();
 
       if (data && data.password === password) {
