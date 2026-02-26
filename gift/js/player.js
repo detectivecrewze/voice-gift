@@ -154,13 +154,19 @@ const VoicePlayer = (() => {
     let VIEW_WIDTH = 240;
 
     // For Infinite Loop: Clone the list of photos
-    const displayPhotos = (allPhotos && allPhotos.length > 0) ? allPhotos : [{ url: '../assets/1.jpg' }];
+    // Normalisasi: pastikan semua p adalah object dengan p.url
+    const normalizedPhotos = (allPhotos || []).map(p => {
+      if (typeof p === 'string') return { url: p };
+      return { url: p.url || p.localPreview || '' };
+    }).filter(p => p.url);
+
+    const displayPhotos = normalizedPhotos.length > 0 ? normalizedPhotos : [{ url: '../assets/1.jpg' }];
     const totalPhotos = displayPhotos.length;
 
-    // Triple for seamless looping
-    const triplePhotos = [...displayPhotos, ...displayPhotos, ...displayPhotos];
+    // Double for seamless looping (hanya perlu 1 extra di akhir untuk wrap-around)
+    const doublePhotos = [...displayPhotos, displayPhotos[0]];
 
-    const photosMarkup = triplePhotos.map((p, idx) => `
+    const photosMarkup = doublePhotos.map((p, idx) => `
       <div class="printer-photo">
         <img src="${p.url}" alt="Memory">
       </div>
@@ -409,7 +415,8 @@ const VoicePlayer = (() => {
       // 3. Move photos
       const rawSlide = (totalCrankAngle / 720) * VIEW_WIDTH;
       const fullSetWidth = totalPhotos * VIEW_WIDTH;
-      const loopSlide = (rawSlide % fullSetWidth) + fullSetWidth;
+      // Gunakan modulo ganda untuk memastikan range selalu [0, fullSetWidth)
+      const loopSlide = ((rawSlide % fullSetWidth) + fullSetWidth) % fullSetWidth;
 
       tray.style.transform = `translate3d(-${loopSlide}px, 0, 0)`;
 
@@ -639,14 +646,7 @@ const VoicePlayer = (() => {
           // Or 720deg = 1 photo
           const rawSlide = (totalCrankAngle / 720) * VIEW_WIDTH;
           const fullSetWidth = totalPhotos * VIEW_WIDTH;
-
-          // INFINITE WRAP MATH:
-          // Keep the translateX within the second set of photos to allow forward/backward looping
-          // slide = (rawSlide % fullSetWidth) + fullSetWidth
-          // But for simple forward-only:
-          const loopSlide = (rawSlide % fullSetWidth) + fullSetWidth;
-
-          // Use translate3d for GPU acceleration
+          const loopSlide = ((rawSlide % fullSetWidth) + fullSetWidth) % fullSetWidth;
           tray.style.transform = `translate3d(-${loopSlide}px, 0, 0)`;
 
           // Optimize: Only update active photo when index changes
