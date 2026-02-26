@@ -696,7 +696,7 @@ const VoicePlayer = (() => {
 
         // Fade in Ambient Sound
         if (ambientGain) {
-          ambientGain.gain.setTargetAtTime(0.060, audioCtx.currentTime, 0.5);
+          ambientGain.gain.setTargetAtTime(0.085, audioCtx.currentTime, 0.5);
         }
 
         // Fix 8: iOS Auto-Play Block Failsafe. 
