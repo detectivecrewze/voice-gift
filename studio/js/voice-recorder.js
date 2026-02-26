@@ -51,6 +51,12 @@ const VoiceRecorder = (() => {
 
   // ── Transisi state ────────────────────────────────────────
   const _setState = (newState) => {
+    // Revoke old blob URL if switching AWAY from preview to prevent memory leak
+    if (_state === 'preview' && newState !== 'preview' && _audioUrl) {
+      URL.revokeObjectURL(_audioUrl);
+      _audioUrl = null;
+    }
+
     _state = newState;
     // Sembunyikan semua state panels
     ['idle', 'requesting', 'denied', 'recording', 'preview', 'saved'].forEach(s => {
@@ -426,7 +432,9 @@ const VoiceRecorder = (() => {
       _savedMimeType = file.type;
 
       // Hitung durasi audio secara otomatis
-      const dur = await _getAudioDuration(URL.createObjectURL(file));
+      const tempUrl = URL.createObjectURL(file);
+      const dur = await _getAudioDuration(tempUrl);
+      URL.revokeObjectURL(tempUrl);
       _savedDuration = dur || 0;
 
       _setState('saved');

@@ -185,6 +185,25 @@ section {
   border-radius: 1px;
 }
 
+.drag-handle:hover {
+  background: #fff;
+  color: var(--accent);
+}
+
+.sortable-ghost {
+  opacity: 0.3;
+  filter: grayscale(1);
+  transform: scale(0.95);
+}
+
+.sortable-drag {
+  cursor: grabbing !important;
+  opacity: 0.9;
+  transform: rotate(2deg) scale(1.05);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25);
+  z-index: 100 !important;
+}
+
 /* ── Voice Studio ── */
 #voice-recorder-ui {
   padding: 2.5rem;

@@ -53,6 +53,8 @@ const Uploader = (() => {
         onEnd: () => {
           // Update urutan setelah drag selesai
           _syncOrderFromDOM();
+          // Render ulang untuk update nomor urut di layar
+          _render();
           // Beri tahu studio.js bahwa foto berubah
           Studio.onPhotosChanged(_photos.filter(p => p.status === 'success'));
         },
@@ -181,7 +183,11 @@ const Uploader = (() => {
       if (!result.success) throw new Error(result.error || 'Upload gagal');
 
       // 6. Update state dengan URL dari R2
-      _updatePhoto(tempId, { url: result.url, status: 'success' });
+      const photo = _photos.find(p => p.id === tempId);
+      if (photo && photo.localPreview) {
+        URL.revokeObjectURL(photo.localPreview);
+      }
+      _updatePhoto(tempId, { url: result.url, status: 'success', localPreview: null });
       _render();
 
       // 7. Beri tahu studio.js
@@ -243,6 +249,12 @@ const Uploader = (() => {
 
   // ── Delete Photo ──────────────────────────────────────────
   const deletePhoto = (photoId) => {
+    // Revoke local preview URL if exists to prevent memory leak
+    const photo = _photos.find(p => p.id === photoId);
+    if (photo && photo.localPreview) {
+      URL.revokeObjectURL(photo.localPreview);
+    }
+
     _photos = _photos.filter(p => p.id !== photoId);
     _syncOrder();
     _render();
@@ -270,10 +282,18 @@ const Uploader = (() => {
   const _syncOrderFromDOM = () => {
     const items = grid()?.querySelectorAll('.photo-item');
     if (!items) return;
-    items.forEach((el, i) => {
+
+    // Create new array based on DOM order
+    const orderedPhotos = [];
+    items.forEach((el) => {
       const id = el.dataset.id;
-      _updatePhoto(id, { order: i });
+      const photo = _photos.find(p => p.id === id);
+      if (photo) orderedPhotos.push(photo);
     });
+
+    // Update local state and sync numeric order property
+    _photos = orderedPhotos;
+    _syncOrder();
   };
 
   // ── Helpers ─────────────────────────────────────────────
@@ -339,11 +359,26 @@ const Uploader = (() => {
     }
 
     // SUCCESS (Polaroid Style)
+    // Find index to show number
+    const index = _photos.findIndex(p => p.id === photo.id) + 1;
+
     return `
       <div class="photo-item group relative" data-id="${photo.id}">
+        <!-- Drag Handle -->
+        <div class="drag-handle absolute top-2 left-2 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-grab active:cursor-grabbing shadow-sm z-10">
+          <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
+          </svg>
+        </div>
+
+        <!-- Sequence Number Tag -->
+        <div class="photo-number absolute bottom-[40px] right-2 w-5 h-5 bg-[#d4a373] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm z-10">
+          ${index}
+        </div>
+
         <img src="${photo.url || photo.localPreview}" class="animate-in fade-in duration-700 w-full h-full object-cover" alt="" />
         <button 
-          class="btn-delete-photo absolute top-2 right-2 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500 hover:text-white shadow-sm"
+          class="btn-delete-photo absolute top-2 right-2 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500 hover:text-white shadow-sm z-10"
           data-id="${photo.id}"
           title="Hapus Memo"
         >
