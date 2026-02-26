@@ -189,6 +189,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 else if (ambient === 'nadin-ah') sfxText = 'Nadin';
                 else if (ambient === 'daniel') sfxText = 'Daniel';
                 else if (ambient === 'mitski') sfxText = 'Mitski';
+                else if (ambient === 'custom') {
+                    const count = gift.customUploadCount || 0;
+                    sfxText = `<span class="text-emerald-400 font-bold">Custom Audio</span> <span class="text-[8px] opacity-50">(${count}/2)</span>`;
+                }
                 else sfxText = gift.ambient;
             }
 
@@ -200,20 +204,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return `
                 <tr class="${isSelected ? 'bg-white/5' : ''} ${isStale ? 'opacity-40' : ''} transition-all border-b border-white/5 last:border-0 hover:bg-white/[0.03]">
-                    <td class="p-6">
+                    <td class="p-6" data-label="Select">
                         <input type="checkbox" data-id="${gift.giftId}" ${isSelected ? 'checked' : ''} 
-                               class="gift-checkbox rounded-md border-white/10 bg-white/5 text-[#ff4d6d] focus:ring-[#ff4d6d] cursor-pointer w-4 h-4">
+                                class="gift-checkbox rounded-md border-white/10 bg-white/5 text-[#ff4d6d] focus:ring-[#ff4d6d] cursor-pointer w-4 h-4">
                     </td>
-                    <td class="p-6">
+                    <td class="p-6" data-label="Gift ID">
                         <div class="flex flex-col">
                             <span class="text-xs font-bold font-mono tracking-tight text-white">${gift.giftId}</span>
                             <a href="${giftUrl}" target="_blank" class="text-[9px] text-[#ff4d6d] hover:underline mt-1 font-bold tracking-widest uppercase">Inspect Link ↗</a>
                         </div>
                     </td>
-                    <td class="p-6">
+                    <td class="p-6" data-label="Recipient">
                         <span class="text-xs font-semibold text-white/90">${gift.recipientName || '(Tanpa Nama)'}</span>
                     </td>
-                    <td class="p-6">
+                    <td class="p-6" data-label="Config">
                         <div class="flex flex-col gap-2 items-start">
                             <span class="text-[8px] uppercase tracking-[0.2em] px-2.5 py-1 rounded-lg font-bold ${productClass}">${productLabel}</span>
                             <span class="text-[9px] uppercase tracking-[0.1em] px-2.5 py-0.5 rounded-full font-bold ${themeBadgeClass}">${displayTheme}</span>
@@ -222,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </span>
                         </div>
                     </td>
-                    <td class="p-6">
+                    <td class="p-6" data-label="Media">
                         <div class="flex items-center gap-4">
                             <!-- Thumbnail Preview -->
                             <div class="w-12 h-12 rounded-2xl overflow-hidden bg-white/5 flex-shrink-0 border border-white/10 shadow-lg">
@@ -237,16 +241,16 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </div>
                     </td>
-                    <td class="p-6">
+                    <td class="p-6" data-label="Published">
                         <span class="text-[10px] text-white/40 font-mono tracking-tighter">${date}</span>
                     </td>
-                    <td class="p-6">
+                    <td class="p-6" data-label="Activity">
                         <div class="flex flex-col">
                             <span class="text-[10px] ${isStale ? 'text-rose-400 font-bold' : 'text-white/40'} font-mono">${lastOpenedDate}</span>
                             ${isStale ? '<span class="text-[7px] uppercase tracking-[0.1em] text-rose-500/60 font-bold mt-1">Anomaly: Stale Content</span>' : ''}
                         </div>
                     </td>
-                    <td class="p-6">
+                    <td class="p-6" data-label="Actions">
                         <a href="${editorUrl}" target="_blank" 
                            class="text-[9px] font-bold tracking-[0.2em] bg-white/5 border border-white/10 text-white px-5 py-2.5 rounded-xl hover:bg-[#ff4d6d] hover:border-[#ff4d6d] transition-all whitespace-nowrap uppercase">
                            Configure

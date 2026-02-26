@@ -43,6 +43,7 @@ const THEMES = [
 // ── Data: Ambients ──────────────────────────────────────────
 const AMBIENTS = [
   { id: 'none', label: 'Tanpa Suasana', emoji: '🔇' },
+  { id: 'custom', label: 'Upload Musik Mandiri', emoji: '🎵' },
   { id: 'rain', label: 'Rintik Hujan', emoji: '🌧️' },
   { id: 'cafe', label: 'Cozy Cafe', emoji: '☕' },
   { id: 'waves', label: 'Deburan Ombak', emoji: '🌊' },
@@ -81,6 +82,8 @@ const Studio = (() => {
     photos: [],
     voiceNote: { url: null, duration: null, mimeType: null },
     ambient: 'none',
+    customAmbientUrl: null,
+    customUploadCount: 0,
     password: null,
     studioPassword: null,
   };
@@ -121,8 +124,18 @@ const Studio = (() => {
       stopAmbientPreview();
     }
 
-    // Check if valid sound
-    if (!AMBIENT_SOUNDS[ambientId]) return;
+    // Check if valid sound (Custom or Preset)
+    let soundUrl = AMBIENT_SOUNDS[ambientId];
+    if (ambientId === 'custom') {
+      soundUrl = _state.customAmbientUrl;
+    }
+
+    if (!soundUrl) {
+      if (ambientId === 'custom') {
+        showToast('Pilih file musik dulu ya!');
+      }
+      return;
+    }
 
     // Initialize AudioContext if needed
     if (!_previewCtx) {
@@ -133,11 +146,11 @@ const Studio = (() => {
     }
 
     // Create audio element
-    _previewAudio = new Audio(AMBIENT_SOUNDS[ambientId]);
+    _previewAudio = new Audio(soundUrl);
     _previewAudio.crossOrigin = 'anonymous';
 
     // Check if it's a song (should not loop)
-    const isSong = ['nadin-ah', 'daniel', 'mitski', 'feast-nina', 'feast-tarot'].includes(ambientId);
+    const isSong = ['nadin-ah', 'daniel', 'mitski', 'feast-nina', 'feast-tarot', 'custom'].includes(ambientId);
     _previewAudio.loop = !isSong;
 
     // Setup Web Audio nodes
@@ -200,6 +213,7 @@ const Studio = (() => {
 
       // Setup Preview Iframe and Events
       Preview.update(state);
+      _initMusicUpload();
 
       const iframe = document.getElementById('preview-frame');
       if (iframe) {
@@ -287,11 +301,106 @@ const Studio = (() => {
   };
 
   const onAmbientSelected = (ambientId) => {
+    // Handling for Custom Music Re-upload
+    if (ambientId === 'custom' && _state.customAmbientUrl) {
+      // If already active, ask if they want to CHANGE it
+      if (_state.ambient === 'custom') {
+        const confirmChange = confirm('Ganti lagu yang sudah ada dengan file baru?');
+        if (confirmChange) {
+          document.getElementById('file-input-music')?.click();
+        }
+        return;
+      }
+      // If not active, but already has a URL, just select it (don't ask)
+    }
+
+    if (ambientId === 'custom' && !_state.customAmbientUrl) {
+      document.getElementById('file-input-music')?.click();
+      return; // Wait for upload before selecting
+    }
+
     if (_state.ambient === ambientId) return;
 
     _state.ambient = ambientId;
     _renderAmbients(ambientId);
     _triggerImmediateSave();
+  };
+
+  const onRemoveCustomMusic = (e) => {
+    if (e) e.stopPropagation();
+    const confirmRemove = confirm('Hapus lagu custom ini?');
+    if (confirmRemove) {
+      _state.customAmbientUrl = null;
+      if (_state.ambient === 'custom') {
+        _state.ambient = 'none';
+      }
+      stopAmbientPreview();
+      _renderAmbients(_state.ambient);
+      _triggerImmediateSave();
+
+      const remaining = 2 - _state.customUploadCount;
+      alert(`Lagu dihapus. Kamu sudah menggunakan ${_state.customUploadCount} dari 2 kesempatan upload lagu sendiri.`);
+      showToast('Lagu berhasil dihapus. ✨');
+    }
+  };
+
+  // ── Music Upload Logic ─────────────────────────────────────
+  const _initMusicUpload = () => {
+    const input = document.getElementById('file-input-music');
+    if (!input) return;
+
+    input.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // VALIDASI QUOTA: Maks 2x
+      if (_state.customUploadCount >= 2) {
+        alert('Maaf, kamu sudah mencapai batas maksimal 2x upload lagu sendiri untuk kado ini.');
+        input.value = '';
+        return;
+      }
+
+      // VALIDASI: Max 7MB
+      const MAX_SIZE = 7 * 1024 * 1024;
+      if (file.size > MAX_SIZE) {
+        alert('File musik terlalu besar (Maks 6MB). Silakan pilih file yang lebih kecil ya!');
+        input.value = '';
+        return;
+      }
+
+      // Mulai Upload
+      showToast('Sedang mengupload musik... 🎶');
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'audio'); // Same endpoint as voice
+
+      try {
+        const API_BASE_URL = 'https://valentine-upload.aldoramadhan16.workers.dev';
+        const response = await fetch(`${API_BASE_URL}/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) throw new Error('Upload gagal');
+        const result = await response.json();
+
+        if (result.success) {
+          _state.customAmbientUrl = result.url;
+          _state.ambient = 'custom';
+          _state.customUploadCount = (_state.customUploadCount || 0) + 1;
+          _renderAmbients('custom');
+          _triggerImmediateSave();
+          showToast('Musik berhasil terpasang! ✨');
+        } else {
+          throw new Error(result.error || 'Server error');
+        }
+      } catch (err) {
+        console.error('[Studio] Music upload error:', err);
+        showToast('Gagal upload musik. Coba lagi.');
+      } finally {
+        input.value = '';
+      }
+    });
   };
 
   // ── Render UI ──────────────────────────────────────────────
@@ -320,7 +429,7 @@ const Studio = (() => {
     container.innerHTML = AMBIENTS.map(a => {
       const isActive = a.id === activeAmbientId;
       const isPlaying = _currentPreviewId === a.id;
-      const hasSound = a.id !== 'none' && AMBIENT_SOUNDS[a.id];
+      const hasSound = (a.id !== 'none' && AMBIENT_SOUNDS[a.id]) || (a.id === 'custom' && _state.customAmbientUrl);
 
       return `
         <div class="inline-flex items-center gap-2 mb-2">
@@ -336,10 +445,17 @@ const Studio = (() => {
           
           <button 
             onclick="Studio.onAmbientSelected('${a.id}')"
-            class="flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all text-left ${isActive ? 'border-black bg-black text-white' : 'border-gray-200 hover:border-black text-gray-500 hover:text-black'}"
+            class="flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all text-left group ${isActive ? 'border-black bg-black text-white' : 'border-gray-200 hover:border-black text-gray-500 hover:text-black'}"
           >
             <span class="text-xs">${a.emoji}</span>
             <span class="text-[9px] uppercase tracking-widest font-bold whitespace-nowrap">${a.label}</span>
+            ${a.id === 'custom' && _state.customAmbientUrl ? `
+              <span 
+                onclick="event.stopPropagation(); Studio.onRemoveCustomMusic(event)"
+                class="ml-1 w-4 h-4 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center text-[8px] transition-all"
+                title="Hapus Lagu"
+              >✕</span>
+            ` : ''}
           </button>
         </div>
       `;
@@ -387,6 +503,7 @@ const Studio = (() => {
     onVoiceNoteChanged,
     onThemeSelected,
     onAmbientSelected,
+    onRemoveCustomMusic,
     toggleAmbientPreview,
     getThemeConfig: (themeId) => {
       // Robust lookup: try direct ID match, then handle legacy IDs

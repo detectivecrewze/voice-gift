@@ -1,6 +1,6 @@
 const VoicePlayer = (() => {
 
-  const init = (voiceNote, containerEl, allPhotos, ambientId = 'none') => {
+  const init = (voiceNote, containerEl, allPhotos, ambientId = 'none', customAmbientUrl = null) => {
     const audio = (voiceNote && voiceNote.url) ? new Audio(voiceNote.url) : new Audio();
     if (voiceNote?.url) audio.crossOrigin = 'anonymous'; // Required for Web Audio API (waveform visualizer) with remote files
     let isPlaying = false;
@@ -88,17 +88,20 @@ const VoicePlayer = (() => {
     let ambientSource = null;
 
     const initAmbientSound = () => {
-      if (!ambientId || ambientId === 'none' || !AMBIENT_SOUNDS[ambientId]) {
+      let soundUrl = AMBIENT_SOUNDS[ambientId];
+      if (ambientId === 'custom') soundUrl = customAmbientUrl;
+
+      if (!ambientId || ambientId === 'none' || !soundUrl) {
         return;
       }
       const ctx = getAudioContext();
       if (!ctx) return;
 
-      ambientAudio = new Audio(AMBIENT_SOUNDS[ambientId]);
+      ambientAudio = new Audio(soundUrl);
       ambientAudio.crossOrigin = 'anonymous';
 
       // Only loop nature SFX, not songs
-      const isSong = ['nadin-ah', 'daniel', 'mitski', 'feast-nina', 'feast-tarot'].includes(ambientId);
+      const isSong = ['nadin-ah', 'daniel', 'mitski', 'feast-nina', 'feast-tarot', 'custom'].includes(ambientId);
       ambientAudio.loop = !isSong;
 
       ambientSource = ctx.createMediaElementSource(ambientAudio);
@@ -809,7 +812,7 @@ const VoicePlayer = (() => {
     }
 
     showState('gift');
-    VoicePlayer.init(giftConfig.voiceNote, containerEl, giftConfig.photos, giftConfig.ambient || 'none');
+    VoicePlayer.init(giftConfig.voiceNote, containerEl, giftConfig.photos, giftConfig.ambient || 'none', giftConfig.customAmbientUrl);
   };
 
   return { init, handleAfterLoad };
