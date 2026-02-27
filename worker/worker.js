@@ -7,7 +7,8 @@ var index_default = {
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization, Cache-Control, Pragma"
+      "Access-Control-Allow-Headers": "Content-Type, Authorization, Cache-Control, Pragma, Range",
+      "Access-Control-Expose-Headers": "Content-Length, Content-Range, Accept-Ranges"
     };
     if (request.method === "OPTIONS") {
       return new Response(null, {
@@ -241,27 +242,56 @@ var index_default = {
     if (request.method === "GET" && url.pathname !== "/") {
       const filename = url.pathname.substring(1);
       try {
-        const object = await env.BUCKET.get(filename);
-        if (!object) {
-          return new Response("File not found", {
-            status: 404,
-            headers: corsHeaders
-          });
+        const rangeHeader = request.headers.get("Range");
+        let r2Options = {};
+        let parsedRange = null;
+
+        if (rangeHeader) {
+          const match = rangeHeader.match(/bytes=(\d+)-(\d*)/);
+          if (match) {
+            const start = parseInt(match[1]);
+            parsedRange = { start, end: match[2] ? parseInt(match[2]) : undefined };
+            r2Options = {
+              range: {
+                offset: parsedRange.start,
+                length: parsedRange.end !== undefined
+                  ? parsedRange.end - parsedRange.start + 1
+                  : undefined
+              }
+            };
+          }
         }
+
+        const object = await env.BUCKET.get(filename, r2Options);
+
+        if (!object) {
+          return new Response("File not found", { status: 404, headers: corsHeaders });
+        }
+
         const headers = new Headers();
         object.writeHttpMetadata(headers);
         headers.set("etag", object.httpEtag);
-        headers.set("Cache-Control", "public, max-age=31536000");
+        headers.set("Cache-Control", "public, max-age=31536000, immutable");
+        headers.set("Accept-Ranges", "bytes");
+
+        // Set Content-Range jika ini partial response
+        if (parsedRange) {
+          const totalSize = object.size || '*';
+          const end = parsedRange.end ?? (object.size - 1);
+          headers.set("Content-Range", `bytes ${parsedRange.start}-${end}/${totalSize}`);
+          headers.set("Content-Length", String(end - parsedRange.start + 1));
+        }
+
         for (const [key, value] of Object.entries(corsHeaders)) {
           headers.set(key, value);
         }
-        return new Response(object.body, { headers });
+
+        const status = parsedRange ? 206 : 200;
+        return new Response(object.body, { headers, status });
+
       } catch (error) {
         console.error("Download error:", error);
-        return new Response("Error fetching file", {
-          status: 500,
-          headers: corsHeaders
-        });
+        return new Response("Error fetching file", { status: 500, headers: corsHeaders });
       }
     }
     return new Response(`

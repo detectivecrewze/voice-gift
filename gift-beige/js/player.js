@@ -1,8 +1,12 @@
 const VoicePlayer = (() => {
 
-  const init = (voiceNote, containerEl, allPhotos, ambientId = 'none', customAmbientUrl = null, voiceVol = 1.0, ambientVol = 0.085) => {
-    const audio = (voiceNote && voiceNote.url) ? new Audio(voiceNote.url) : new Audio();
-    if (voiceNote?.url) audio.crossOrigin = 'anonymous'; // Required for Web Audio API (waveform visualizer) with remote files
+  // FIX ROOT CAUSE: Terima audio element yang sudah di-preload dari handleAfterLoad
+  // agar buffer yang sudah terkumpul tidak terbuang sia-sia saat membuat Audio() baru
+  const init = (voiceNote, containerEl, allPhotos, ambientId = 'none', customAmbientUrl = null, voiceVol = 1.0, ambientVol = 0.085, preloadedAudio = null) => {
+    const audio = preloadedAudio || ((voiceNote && voiceNote.url) ? new Audio(voiceNote.url) : new Audio());
+    // crossOrigin WAJIB di-set untuk semua kasus — termasuk preloadedAudio
+    // Tanpa ini, createMediaElementSource() gagal → voiceGain null → suara tidak keluar
+    if (voiceNote?.url) audio.crossOrigin = 'anonymous';
     let isPlaying = false;
     let lastRotationTime = 0;
     let lastAngle = null;
@@ -291,14 +295,22 @@ const VoicePlayer = (() => {
 
       animationId = requestAnimationFrame(updateVisuals);
 
-      // Fix 2: Proper frame-skip — skip 2 of 3 frames on mobile, every other on desktop
       frameCounter++;
       const skipRate = isMobile ? 3 : 2;
       if (frameCounter % skipRate !== 0) return;
 
+      // FIX: Guard analyser — jika Web Audio gagal, tampilkan animasi idle sederhana
+      if (!analyser || !dataArray) {
+        for (let i = 0; i < bars.length; i++) {
+          const idleScale = 0.125 + Math.sin(Date.now() / 400 + i * 0.4) * 0.06;
+          bars[i].style.transform = `scaleY(${idleScale})`;
+          bars[i].style.opacity = '0.18';
+        }
+        return;
+      }
+
       analyser.getByteFrequencyData(dataArray);
 
-      // Fix 3: Batch all style writes together, minimize classList operations
       const now = Date.now();
       const nowSec = now / 1000;
 
@@ -312,7 +324,6 @@ const VoicePlayer = (() => {
         bars[i].style.opacity = scaleFactor > 0.3 ? (0.5 + scaleFactor * 0.5) : (0.1 + scaleFactor * 0.2);
       }
 
-      // Fix 3: Reduce bokeh update frequency — every 4th frame (effectively ~7.5fps)
       if (frameCounter % 4 === 0) {
         const avgVolume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
 
@@ -354,12 +365,16 @@ const VoicePlayer = (() => {
 
       getAudioContext();
 
-      // Silent unlock for iOS
+      // Silent unlock for iOS — set volume 0 sementara, lalu kembalikan
+      const prevVolume = audio.volume;
       audio.volume = 0;
       audio.play().then(() => {
         audio.pause();
         audio.currentTime = 0;
-      }).catch(() => { });
+        audio.volume = prevVolume; // Kembalikan volume setelah unlock
+      }).catch(() => {
+        audio.volume = prevVolume; // Kembalikan juga kalau gagal
+      });
 
       // WebM Duration Hack - perform while muted
       if (audio.duration === Infinity || audio.duration === 0 || isNaN(audio.duration)) {
@@ -586,11 +601,11 @@ const VoicePlayer = (() => {
     }
 
     const startDrag = (e) => {
-      // Hide idle overlay if user manually drags early
+      // Hide idle overlay jika user drag manual lebih awal
       hideIdleOverlay();
       countdownWasStarted = true;
 
-      // Manual Override: If user touches crank, kill auto-play immediately
+      // Manual Override: Jika auto-play aktif, matikan saat user pegang tuas
       if (isAutoPlaying) {
         isAutoPlaying = false;
         if (toggleBtn) toggleBtn.classList.remove('is-active');
@@ -600,13 +615,12 @@ const VoicePlayer = (() => {
       isDragging = true;
       lastAngle = null;
 
-      // ── iOS/Safari Fix: Initialize AudioContext SYNCHRONOUSLY in user gesture handler ──
-      // This MUST happen directly in the event handler, not in a callback/helper
-      if (!audioCtx) {
-        audioCtx = new AudioCtx();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
+      // FIX: Gunakan getAudioContext() saja, jangan buat manual AudioCtx baru
+      // Sebelumnya ada duplikasi: buat audioCtx manual DAN panggil warmUpAudio()
+      // yang juga panggil getAudioContext() → bisa terbuat 2 AudioContext
+      const ctx = getAudioContext();
+      if (ctx && ctx.state === 'suspended') {
+        ctx.resume();
       }
 
       warmUpAudio();
@@ -616,6 +630,13 @@ const VoicePlayer = (() => {
     const stopDrag = () => {
       isDragging = false;
       lastAngle = null;
+      // FIX: Saat jari diangkat, langsung jadwalkan stop
+      // Sebelumnya stopDrag tidak melakukan apa-apa → audio bisa tidak pernah berhenti
+      // dengan bersih, atau berhenti terlalu dini saat drag lambat
+      if (stopTimeoutId) clearTimeout(stopTimeoutId);
+      stopTimeoutId = setTimeout(() => {
+        stopPlaying();
+      }, 150); // 150ms setelah jari diangkat — cukup natural
     };
 
     const handleMove = (e) => {
@@ -685,69 +706,87 @@ const VoicePlayer = (() => {
 
     const startPlaying = () => {
       if (!isPlaying) {
-        // Force resume for desktop browsers
+        // Resume AudioContext jika suspended (iOS: wajib setelah tab background)
         if (audioCtx && audioCtx.state === 'suspended') {
           audioCtx.resume();
         }
 
         audio.muted = false;
-        audio.volume = 1;
-        if (voiceGain) {
-          // Robust ramp for desktop
+
+        // FIX: Guard audioCtx sebelum akses .currentTime
+        // Tanpa guard ini → TypeError crash saat Web Audio gagal di iPhone
+        if (voiceGain && audioCtx && audioCtx.state === 'running') {
           voiceGain.gain.cancelScheduledValues(audioCtx.currentTime);
           voiceGain.gain.setValueAtTime(0, audioCtx.currentTime);
           voiceGain.gain.linearRampToValueAtTime(VOICE_VOL, audioCtx.currentTime + 0.1);
+        } else {
+          // HTML5 fallback: set volume langsung tanpa GainNode
+          audio.volume = VOICE_VOL;
         }
 
         if (ambientAudio) ambientAudio.muted = false;
         if (audio.ended) audio.currentTime = 0;
-        // Ensure unmuted
-        audio.play().catch(() => { });
+
+        audio.play().catch((e) => {
+          // AbortError bisa di-retry, NotAllowedError tidak bisa tanpa gesture baru
+          if (e.name === 'AbortError') {
+            setTimeout(() => audio.play().catch(() => { }), 300);
+          }
+        });
+
         isPlaying = true;
         box.classList.add('is-cranking');
         updateVisuals();
 
-        // Fade in Mechanical Soundscape
-        if (noiseGain) {
+        // FIX: Guard audioCtx sebelum akses noiseGain & ambientGain
+        if (noiseGain && audioCtx && audioCtx.state === 'running') {
           noiseGain.gain.setTargetAtTime(0.12, audioCtx.currentTime, 0.1);
         }
 
-        // Fade in Ambient Sound
-        if (ambientGain) {
+        if (ambientGain && audioCtx && audioCtx.state === 'running') {
           ambientGain.gain.setTargetAtTime(AMBIENT_VOL, audioCtx.currentTime, 0.5);
+        } else if (ambientAudio) {
+          ambientAudio.volume = AMBIENT_VOL;
         }
 
-        // Fix 8: iOS Auto-Play Block Failsafe. 
-        // Force the paused background song to resume playing if blocked previously
+        // iOS Failsafe: paksa resume ambient jika tertahan autoplay policy
         if (ambientAudio && ambientAudio.paused && !ambientAudio.ended) {
           ambientAudio.play().catch(() => { });
         }
       }
 
-      // Fix 7: Reset stop-timeout each crank movement
+      // Reset stop-timeout setiap ada gerakan crank
+      // FIX: Dinaikkan dari 300ms ke 500ms
+      // 300ms terlalu pendek — di HP jadul gap antar touchmove bisa >300ms
+      // sehingga stop dipanggil di tengah drag aktif → audio putus-putus
       if (stopTimeoutId) clearTimeout(stopTimeoutId);
+      if (isDragging) {
+        // Selama masih drag, jangan auto-stop — biarkan stopDrag yang handle
+        return;
+      }
       stopTimeoutId = setTimeout(() => {
         stopPlaying();
-      }, 300);
+      }, 500);
     };
 
     const stopPlaying = () => {
       if (isPlaying) {
-        if (voiceGain) {
+        // FIX: Guard audioCtx sebelum akses .currentTime
+        if (voiceGain && audioCtx && audioCtx.state === 'running') {
           voiceGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
         }
         audio.pause();
         isPlaying = false;
         box.classList.remove('is-cranking');
 
-        // Fade out Mechanical Soundscape
-        if (noiseGain) {
+        if (noiseGain && audioCtx && audioCtx.state === 'running') {
           noiseGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.2);
         }
 
-        // Fade out Ambient Sound
-        if (ambientGain) {
+        if (ambientGain && audioCtx && audioCtx.state === 'running') {
           ambientGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.5);
+        } else if (ambientAudio) {
+          ambientAudio.volume = 0;
         }
 
         if (stopTimeoutId) { clearTimeout(stopTimeoutId); stopTimeoutId = null; }
@@ -761,12 +800,25 @@ const VoicePlayer = (() => {
     handle.addEventListener('touchstart', startDrag, { passive: false });
     window.addEventListener('touchmove', handleMove, { passive: false });
     window.addEventListener('touchend', stopDrag);
+
+    // FIX 5: iOS Tab Background Recovery
+    // Saat customer buka WhatsApp lalu balik ke halaman gift,
+    // iOS Safari suspend AudioContext → suara mati. Handler ini auto-resume.
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) return;
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => { });
+      }
+      // iOS bug: audio bisa di-pause paksa saat tab background
+      if (isPlaying && audio.paused) {
+        audio.play().catch(() => { });
+      }
+    });
   };
 
   const handleAfterLoad = async (giftConfig, containerEl) => {
     if (!giftConfig) return;
 
-    // ── Preloading Assets ──
     const showState = (name) => {
       ['loading', 'preloading', 'access', 'error', 'password', 'gift'].forEach(s => {
         document.getElementById(`state-${s}`)?.classList.toggle('hidden', s !== name);
@@ -779,10 +831,7 @@ const VoicePlayer = (() => {
     const photoUrls = photos.map(p => typeof p === 'string' ? p : (p.url || p.localPreview)).filter(Boolean);
     const voiceUrl = giftConfig.voiceNote?.url;
 
-    const assetsToLoad = [...photoUrls];
-    if (voiceUrl) assetsToLoad.push(voiceUrl);
-
-    const total = assetsToLoad.length;
+    const total = photoUrls.length + (voiceUrl ? 1 : 0);
     let loaded = 0;
 
     const updateProgress = () => {
@@ -794,52 +843,62 @@ const VoicePlayer = (() => {
       if (text) text.textContent = `Mempersiapkan kenangan... ${percent}%`;
     };
 
-    if (total > 0) {
-      await Promise.all(assetsToLoad.map(url => {
-        return new Promise((resolve) => {
-          // FAILSAFE: Jika 10 detik tidak load, lanjut saja agar tidak stuck
-          const timeout = setTimeout(() => {
-            console.warn(`[Preloader] Timeout loading: ${url}`);
-            updateProgress();
-            resolve();
-          }, 10000);
+    // FIX ROOT CAUSE: Buat audio element di sini dan SIMPAN referensinya
+    // Lalu pass ke init() agar buffer yang sudah terkumpul tidak terbuang
+    let preloadedAudio = null;
+    if (voiceUrl) {
+      preloadedAudio = new Audio();
+      preloadedAudio.crossOrigin = 'anonymous';
+      preloadedAudio.preload = 'auto';
+      preloadedAudio.src = voiceUrl;
+    }
 
-          const isAudio = url.match(/\.(mp3|m4a|webm|wav)$/i) || url.includes('type=audio');
-          if (isAudio) {
-            const a = new Audio();
-            a.src = url;
-            a.preload = "auto";
+    // Load semua assets secara paralel
+    const allLoads = [];
 
-            // iOS Safari friendly events
-            const onDone = () => {
-              clearTimeout(timeout);
-              updateProgress();
-              resolve();
-            };
+    // Load foto
+    photoUrls.forEach(url => {
+      allLoads.push(new Promise((resolve) => {
+        const timeout = setTimeout(() => { updateProgress(); resolve(); }, 10000);
+        const img = new Image();
+        img.src = url;
+        img.onload = () => { clearTimeout(timeout); updateProgress(); resolve(); };
+        img.onerror = () => { clearTimeout(timeout); updateProgress(); resolve(); };
+      }));
+    });
 
-            a.onloadedmetadata = onDone;
-            a.oncanplaythrough = onDone;
-            a.onerror = onDone;
-          } else {
-            const img = new Image();
-            img.src = url;
-            img.onload = () => {
-              clearTimeout(timeout);
-              updateProgress();
-              resolve();
-            };
-            img.onerror = () => {
-              clearTimeout(timeout);
-              updateProgress();
-              resolve();
-            };
-          }
-        });
+    // Load audio — gunakan element yang SAMA yang akan dipakai player
+    if (preloadedAudio) {
+      allLoads.push(new Promise((resolve) => {
+        const timeout = setTimeout(() => {
+          console.warn('[Preloader] Audio timeout, lanjut dengan buffer yang ada');
+          updateProgress();
+          resolve();
+        }, 10000);
+
+        const onDone = () => {
+          clearTimeout(timeout);
+          updateProgress();
+          resolve();
+        };
+
+        // iOS Safari friendly: gunakan beberapa event sebagai fallback
+        preloadedAudio.addEventListener('canplay', onDone, { once: true });
+        preloadedAudio.addEventListener('canplaythrough', onDone, { once: true });
+        preloadedAudio.addEventListener('error', onDone, { once: true });
+
+        // Jika sudah siap dari cache, langsung resolve
+        if (preloadedAudio.readyState >= 3) onDone();
       }));
     }
 
+    if (total > 0) {
+      await Promise.all(allLoads);
+    }
+
     showState('gift');
-    VoicePlayer.init(giftConfig.voiceNote, containerEl, giftConfig.photos, giftConfig.ambient || 'none', giftConfig.customAmbientUrl, giftConfig.voiceVolume, giftConfig.ambientVolume);
+    // FIX: Pass preloadedAudio ke init() agar tidak buat Audio baru dari nol
+    VoicePlayer.init(giftConfig.voiceNote, containerEl, giftConfig.photos, giftConfig.ambient || 'none', giftConfig.customAmbientUrl, giftConfig.voiceVolume, giftConfig.ambientVolume, preloadedAudio);
   };
 
   return { init, handleAfterLoad };
