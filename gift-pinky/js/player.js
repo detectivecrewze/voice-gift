@@ -868,13 +868,16 @@ const VoicePlayer = (() => {
     });
 
     // Load audio — gunakan element yang SAMA yang akan dipakai player
+    // FIX LOADING LAMA: Cukup tunggu loadedmetadata (ukuran + durasi sudah diketahui)
+    // Tidak perlu tunggu canplay/canplaythrough — itu butuh download sebagian besar file
+    // Range Request di worker sudah handle streaming, jadi tidak perlu buffer penuh dulu
     if (preloadedAudio) {
       allLoads.push(new Promise((resolve) => {
         const timeout = setTimeout(() => {
-          console.warn('[Preloader] Audio timeout, lanjut dengan buffer yang ada');
+          console.warn('[Preloader] Audio timeout, lanjut tanpa menunggu');
           updateProgress();
           resolve();
-        }, 10000);
+        }, 5000); // Turunkan timeout dari 10s ke 5s
 
         const onDone = () => {
           clearTimeout(timeout);
@@ -882,13 +885,12 @@ const VoicePlayer = (() => {
           resolve();
         };
 
-        // iOS Safari friendly: gunakan beberapa event sebagai fallback
-        preloadedAudio.addEventListener('canplay', onDone, { once: true });
-        preloadedAudio.addEventListener('canplaythrough', onDone, { once: true });
+        // Cukup tunggu metadata — jauh lebih cepat dari canplay
+        preloadedAudio.addEventListener('loadedmetadata', onDone, { once: true });
         preloadedAudio.addEventListener('error', onDone, { once: true });
 
-        // Jika sudah siap dari cache, langsung resolve
-        if (preloadedAudio.readyState >= 3) onDone();
+        // Jika metadata sudah ada (dari cache), langsung resolve
+        if (preloadedAudio.readyState >= 1) onDone();
       }));
     }
 
