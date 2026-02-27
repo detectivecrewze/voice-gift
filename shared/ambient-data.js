@@ -14,6 +14,7 @@ const AMBIENT_SOUNDS = {
     mitski: 'https://valentine-upload.aldoramadhan16.workers.dev/1772227092846-paa3bd.mp3',
     'feast-nina': 'https://valentine-upload.aldoramadhan16.workers.dev/1772227124627-yaxp9g.mp3',
     'feast-tarot': 'https://valentine-upload.aldoramadhan16.workers.dev/1772227035785-lvjl94.mp3',
+    countdown: 'https://valentine-upload.aldoramadhan16.workers.dev/1772227895645-j1jcgl.mp3',
 };
 
 const AMBIENTS = [
