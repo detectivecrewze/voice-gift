@@ -135,11 +135,19 @@ const Studio = (() => {
         if (_ambientAudio) { _ambientAudio.pause(); _ambientAudio = null; }
         _isPlaying = false;
 
-        // Update UI state if needed
-        const btnCombinedPreview = document.getElementById('btn-combined-preview');
-        const btnCombinedPreviewSaved = document.getElementById('btn-combined-preview-saved');
-        if (btnCombinedPreview) btnCombinedPreview.classList.remove('bg-black', 'text-white');
-        if (btnCombinedPreviewSaved) btnCombinedPreviewSaved.classList.remove('bg-black', 'text-white');
+        // Update UI state - Back to normal
+        const buttons = [
+          { id: 'btn-combined-preview', html: '<span class="text-xs group-hover:scale-110 transition-transform">🎧</span> <span class="text-[9px] uppercase tracking-widest font-bold text-gray-600">Dengarkan dengan Musik Latar</span>' },
+          { id: 'btn-combined-preview-saved', html: '<span class="text-xs group-hover:scale-110 transition-transform">🎧</span> <span class="text-[9px] uppercase tracking-widest font-bold text-gray-600">Dengarkan dengan Musik Latar</span>' }
+        ];
+
+        buttons.forEach(b => {
+          const el = document.getElementById(b.id);
+          if (el) {
+            el.classList.remove('btn-combined-active');
+            el.innerHTML = b.html;
+          }
+        });
       }, 300);
     };
 
@@ -183,10 +191,21 @@ const Studio = (() => {
 
       // Start Both
       _isPlaying = true;
-      const combinedBtn = document.getElementById('btn-combined-preview');
-      const combinedBtnSaved = document.getElementById('btn-combined-preview-saved');
-      if (combinedBtn) combinedBtn.classList.add('bg-black', 'text-white');
-      if (combinedBtnSaved) combinedBtnSaved.classList.add('bg-black', 'text-white');
+
+      const buttons = [
+        document.getElementById('btn-combined-preview'),
+        document.getElementById('btn-combined-preview-saved')
+      ];
+
+      buttons.forEach(btn => {
+        if (btn) {
+          btn.classList.add('btn-combined-active');
+          btn.innerHTML = `
+            <span class="text-xs animate-spin-slow">⏸</span>
+            <span class="text-[9px] uppercase tracking-widest font-bold">Stop..</span>
+          `;
+        }
+      });
 
       if (_ambientAudio) _ambientAudio.play().catch(e => console.warn(e));
       _voiceAudio.play().then(() => {
@@ -196,8 +215,19 @@ const Studio = (() => {
       }).catch(e => {
         console.error(e);
         _isPlaying = false;
-        if (combinedBtn) combinedBtn.classList.remove('bg-black', 'text-white');
-        if (combinedBtnSaved) combinedBtnSaved.classList.remove('bg-black', 'text-white');
+
+        const buttons = [
+          { id: 'btn-combined-preview', html: '<span class="text-xs group-hover:scale-110 transition-transform">🎧</span> <span class="text-[9px] uppercase tracking-widest font-bold text-gray-600">Dengarkan dengan Musik Latar</span>' },
+          { id: 'btn-combined-preview-saved', html: '<span class="text-xs group-hover:scale-110 transition-transform">🎧</span> <span class="text-[9px] uppercase tracking-widest font-bold text-gray-600">Dengarkan dengan Musik Latar</span>' }
+        ];
+
+        buttons.forEach(b => {
+          const el = document.getElementById(b.id);
+          if (el) {
+            el.classList.remove('btn-combined-active');
+            el.innerHTML = b.html;
+          }
+        });
       });
     };
 
