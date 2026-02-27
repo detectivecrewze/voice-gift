@@ -31,7 +31,7 @@ const _getMockData = (id) => {
         theme: 'rose',
         ambient: 'rain',
         voiceNote: {
-          url: 'https://dl.dropboxusercontent.com/scl/fi/nqpvliyw9r780t3wk4636/Daniel-Caesar-Who-Knows.mp3?rlkey=vnfwwhsmuwdyt2lrgwuhjyf9u&st=fgjxdbio',
+          url: 'https://valentine-upload.aldoramadhan16.workers.dev/1772227226601-vibhce.mp3',
           duration: 300
         },
         photos: [
