@@ -491,7 +491,7 @@ const VoicePlayer = (() => {
       const viewport = document.getElementById('viewport');
       if (!viewport) { autoPlayLoop(); return; }
 
-      const sfx = new Audio('https://dl.dropboxusercontent.com/scl/fi/kvr3bdvgi73t2nrtaj6y5/countdown.mp3?rlkey=ov8bf8msz3z6vxnwsvkst1ldc&st=j6jlhrhf');
+      const sfx = new Audio('https://valentine-upload.aldoramadhan16.workers.dev/1772227895645-j1jcgl.mp3');
       sfx.volume = 0.3;
       sfx.crossOrigin = 'anonymous';
 
