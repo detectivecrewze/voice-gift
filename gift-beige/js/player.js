@@ -161,8 +161,8 @@ const VoicePlayer = (() => {
       noiseSource.start();
     };
 
-    // Viewport width in CSS is 240px (Compact)
-    let VIEW_WIDTH = 240;
+    // Viewport width in CSS is 240px (Desktop) / 200px (Mobile)
+    let VIEW_WIDTH = isMobile ? 200 : 240;
 
     // For Infinite Loop: Clone the list of photos
     // Normalisasi: pastikan semua p adalah object dengan p.url

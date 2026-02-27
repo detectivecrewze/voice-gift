@@ -19,11 +19,11 @@ bucket_name = "for-you-always-files"
 
 # KV Namespace — Database config studio & gift
 [[kv_namespaces]]
-binding = "GIFT_DATA"
-id = "GANTI_DENGAN_KV_NAMESPACE_ID_ASLI"
+binding = "VALENTINE_DATA"
+id = "86ef0ba0095c4d9cb428e2959c827812"
 
 # Untuk development lokal (wrangler dev):
 # [[kv_namespaces]]
 # binding = "GIFT_DATA"
-# id = "GANTI_DENGAN_KV_NAMESPACE_ID_ASLI"
+# id = "d9d5a841781244e3ae156a0ba80ac577"
 # preview_id = "GANTI_DENGAN_KV_PREVIEW_ID"
