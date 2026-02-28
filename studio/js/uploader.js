@@ -38,7 +38,7 @@ const Uploader = (() => {
 
   // ── Init ─────────────────────────────────────────────────
   const init = (initialPhotos = []) => {
-    _photos = initialPhotos.map((p, i) => ({ ...p, status: 'success' }));
+    _photos = initialPhotos.map((p, i) => ({ ...p, status: 'success', caption: p.caption || '' }));
 
     _bindEvents();
     _render();
@@ -119,7 +119,7 @@ const Uploader = (() => {
       const tempId = `photo_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 
       // Tambahkan ke state dengan status uploading
-      _photos.push({ id: tempId, url: null, order: _photos.length, status: 'uploading', localPreview: null });
+      _photos.push({ id: tempId, url: null, order: _photos.length, status: 'uploading', localPreview: null, caption: '' });
       _render();
 
       // Proses dan upload file
@@ -338,6 +338,27 @@ const Uploader = (() => {
         retryUpload(btn.dataset.id);
       });
     });
+
+    // Bind caption input via event delegation on the grid container
+    // (prevents listener accumulation on each re-render)
+    let _captionSaveTimer = null;
+    g.addEventListener('input', (e) => {
+      if (!e.target.classList.contains('caption-input')) return;
+      _updatePhoto(e.target.dataset.id, { caption: e.target.value });
+      // Debounce: only trigger autosave 800ms after user stops typing
+      clearTimeout(_captionSaveTimer);
+      _captionSaveTimer = setTimeout(() => {
+        Studio.onPhotosChanged(_photos.filter(p => p.status === 'success'));
+      }, 800);
+    });
+
+    // Prevent sortable drag when user is typing in a caption field
+    g.addEventListener('mousedown', (e) => {
+      if (e.target.classList.contains('caption-input')) e.stopPropagation();
+    });
+    g.addEventListener('touchstart', (e) => {
+      if (e.target.classList.contains('caption-input')) e.stopPropagation();
+    }, { passive: true });
   };
 
   const _renderThumbnail = (photo) => {
@@ -368,29 +389,49 @@ const Uploader = (() => {
     // SUCCESS (Polaroid Style)
     // Find index to show number
     const index = _photos.findIndex(p => p.id === photo.id) + 1;
+    const captionVal = (photo.caption || '').replace(/"/g, '&quot;');
 
     return `
-      <div class="photo-item group relative" data-id="${photo.id}">
-        <!-- Sequence Number Tag -->
-        <div class="photo-number absolute top-2 left-2 w-5 h-5 bg-[#d4a373] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm z-20">
-          ${index}
+      <div class="photo-item group relative flex flex-col" data-id="${photo.id}" style="aspect-ratio: unset; height: auto;">
+        <!-- Foto area dengan rasio 4/5 -->
+        <div class="relative w-full" style="aspect-ratio: 4/5; overflow: hidden; border-radius: 2px;">
+          <!-- Sequence Number Tag -->
+          <div class="photo-number absolute top-2 left-2 w-5 h-5 bg-[#d4a373] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm z-20">
+            ${index}
+          </div>
+
+          <!-- Drag Handle -->
+          <div class="drag-handle absolute top-2 left-9 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-grab active:cursor-grabbing shadow-sm z-10">
+            <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
+            </svg>
+          </div>
+
+          <img src="${photo.url || photo.localPreview}" class="animate-in fade-in duration-700 w-full h-full object-cover" alt="" />
+          <button 
+            class="btn-delete-photo absolute top-2 right-2 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500 hover:text-white shadow-sm z-10"
+            data-id="${photo.id}"
+            title="Hapus Memo"
+          >
+            ✕
+          </button>
         </div>
 
-        <!-- Drag Handle -->
-        <div class="drag-handle absolute top-2 left-9 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-grab active:cursor-grabbing shadow-sm z-10">
-          <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
-          </svg>
+        <!-- Styled Caption Field (Multiline Textarea) -->
+        <div class="relative mt-3 px-1">
+          <textarea
+            class="caption-input w-full px-1 py-1 text-[11px] text-center text-gray-700 bg-transparent border-b border-gray-100 focus:border-[#d4a373] focus:text-gray-900 focus:outline-none placeholder-gray-300 transition-all leading-relaxed font-serif italic resize-none overflow-hidden"
+            placeholder="Tambah cerita..."
+            maxlength="120"
+            rows="2"
+            data-id="${photo.id}"
+          >${captionVal}</textarea>
+          <div class="absolute right-0 bottom-2 opacity-10 pointer-events-none group-hover:opacity-20 transition-opacity">
+            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+            </svg>
+          </div>
         </div>
-
-        <img src="${photo.url || photo.localPreview}" class="animate-in fade-in duration-700 w-full h-full object-cover" alt="" />
-        <button 
-          class="btn-delete-photo absolute top-2 right-2 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500 hover:text-white shadow-sm z-10"
-          data-id="${photo.id}"
-          title="Hapus Memo"
-        >
-          ✕
-        </button>
       </div>
     `;
   };

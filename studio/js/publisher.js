@@ -52,14 +52,9 @@ const Publisher = (() => {
       return;
     }
 
-    if (!hasEnoughPhotos || !hasVoice) {
-      if (!hasEnoughPhotos && !hasVoice) {
-        Studio.showToast('Wah, kado kamu masih kosong. Tambahkan min. 6 foto DAN suara dulu ya! 📸🎙️');
-      } else if (!hasEnoughPhotos) {
-        Studio.showToast(`Hampir siap! Kamu perlu menambahkan minimal 6 foto (sekarang: ${state.photos?.length || 0}). 📸`);
-      } else {
-        Studio.showToast('Satu langkah lagi! Jangan lupa rekam atau upload suara kamu. 🎙️');
-      }
+    // Foto minimal 6 wajib — suara sekarang opsional
+    if (!hasEnoughPhotos) {
+      Studio.showToast(`Hampir siap! Kamu perlu menambahkan minimal 6 foto (sekarang: ${state.photos?.length || 0}). 📸`);
       return;
     }
 

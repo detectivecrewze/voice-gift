@@ -1,5 +1,22 @@
 const VoicePlayer = (() => {
 
+  // ── Module-level Singleton AudioContext ──────────────────────
+  // Prevents AudioContext leak: browser limits ~6-20 contexts per tab.
+  // Previously, every call to init() created a new AudioContext that was
+  // never closed. Now all calls share one context.
+  const _AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+  let _sharedAudioCtx = null;
+
+  const _getSharedAudioContext = () => {
+    if (!_sharedAudioCtx || _sharedAudioCtx.state === 'closed') {
+      _sharedAudioCtx = new _AudioCtxClass();
+    }
+    if (_sharedAudioCtx.state === 'suspended') {
+      _sharedAudioCtx.resume().catch(() => { });
+    }
+    return _sharedAudioCtx;
+  };
+
   // FIX ROOT CAUSE: Terima audio element yang sudah di-preload dari handleAfterLoad
   // agar buffer yang sudah terkumpul tidak terbuang sia-sia saat membuat Audio() baru
   const init = (voiceNote, containerEl, allPhotos, ambientId = 'none', customAmbientUrl = null, voiceVol = 1.0, ambientVol = 0.085, preloadedAudio = null) => {
@@ -23,7 +40,8 @@ const VoicePlayer = (() => {
     const AMBIENT_VOL = voiceNote?.ambientVolume !== undefined ? voiceNote.ambientVolume : ambientVol;
 
     // --- Sound Engine & Haptics ---
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    // audioCtx is a local alias to the shared singleton — kept for compatibility
+    // with 20+ references inside init() (startPlaying, stopPlaying, etc.)
     let audioCtx = null;
     let analyser = null;
     let dataArray = null;
@@ -39,14 +57,9 @@ const VoicePlayer = (() => {
     };
 
     // ── Centralized AudioContext Helper ───────────────────────
-    // Ensures AudioContext is created & resumed AFTER user gesture (iOS/Safari fix)
+    // Uses the module-level singleton to prevent AudioContext leak
     const getAudioContext = () => {
-      if (!audioCtx) {
-        audioCtx = new AudioCtx();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume().catch(() => { });
-      }
+      audioCtx = _getSharedAudioContext();
       return audioCtx;
     };
 
@@ -167,8 +180,11 @@ const VoicePlayer = (() => {
     // For Infinite Loop: Clone the list of photos
     // Normalisasi: pastikan semua p adalah object dengan p.url
     const normalizedPhotos = (allPhotos || []).map(p => {
-      if (typeof p === 'string') return { url: p };
-      return { url: p.url || p.localPreview || '' };
+      if (typeof p === 'string') return { url: p, caption: '' };
+      return {
+        url: p.url || p.localPreview || '',
+        caption: p.caption || ''
+      };
     }).filter(p => p.url);
 
     const displayPhotos = normalizedPhotos.length > 0 ? normalizedPhotos : [{ url: '../assets/1.jpg' }];
@@ -206,6 +222,31 @@ const VoicePlayer = (() => {
             <div class="lcd-idle-line"></div>
           </div>
           <div class="printer-slot"></div>
+
+          <!-- Caption overlay — melayang di bawah foto, di dalam viewport -->
+          <div id="photo-caption" style="
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 12px;
+            z-index: 22;
+            padding: 28px 14px 12px;
+            background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.3) 60%, transparent 100%);
+            font-family: inherit;
+            font-size: 9.5px;
+            font-style: italic;
+            letter-spacing: 0.12em;
+            line-height: 1.65;
+            text-align: center;
+            color: rgba(255,255,255,0.82);
+            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.6s cubic-bezier(0.4,0,0.2,1), transform 0.6s cubic-bezier(0.4,0,0.2,1);
+            pointer-events: none;
+            box-sizing: border-box;
+            border-radius: 0 0 32px 32px;
+          "></div>
         </div>
 
         <div class="music-box-info">
@@ -243,6 +284,33 @@ const VoicePlayer = (() => {
     const bars = containerEl.querySelectorAll('.waveform-bar');
     const currentEl = containerEl.querySelector('#v-current');
     const totalEl = containerEl.querySelector('#v-total');
+    const captionEl = containerEl.querySelector('#photo-caption');
+
+    // ── Caption Updater ───────────────────────────────────────
+    let captionTimeout = null;
+    let currentCaptionText = '';
+    const updateCaption = (newCaption) => {
+      if (!captionEl) return;
+      const text = (newCaption || '').trim();
+
+      // Jangan animasi kalau teksnya sama
+      if (text === currentCaptionText) return;
+      currentCaptionText = text;
+
+      // Slide down + fade out dulu
+      captionEl.style.opacity = '0';
+      captionEl.style.transform = 'translateY(6px)';
+      clearTimeout(captionTimeout);
+
+      captionTimeout = setTimeout(() => {
+        captionEl.textContent = text ? `"${text}"` : '';
+        // Slide up + fade in jika ada teks
+        requestAnimationFrame(() => {
+          captionEl.style.opacity = text ? '1' : '0';
+          captionEl.style.transform = text ? 'translateY(0px)' : 'translateY(6px)';
+        });
+      }, 200);
+    };
 
     // ── Performance: Cache DOM elements ──────────────────────────
     const photoEls = tray.querySelectorAll('.printer-photo');
@@ -376,8 +444,8 @@ const VoicePlayer = (() => {
         audio.volume = prevVolume; // Kembalikan juga kalau gagal
       });
 
-      // WebM Duration Hack - perform while muted
-      if (audio.duration === Infinity || audio.duration === 0 || isNaN(audio.duration)) {
+      // WebM Duration Hack - perform while muted, ONLY if an audio source exists
+      if (voiceNote?.url && (audio.duration === Infinity || audio.duration === 0 || isNaN(audio.duration))) {
         audio.currentTime = 1e10;
         audio.addEventListener('timeupdate', function reset() {
           audio.pause();
@@ -416,7 +484,7 @@ const VoicePlayer = (() => {
     // ── Auto-Play Logic ──
     let isAutoPlaying = false;
     let autoPlayRafId = null;
-    const AUTO_SPEED = 4.5; // degrees per frame (overall auto-play speed - increased for slightly faster photos)
+    let AUTO_SPEED = 3.3; // Narrative speed for photo transitions
     const toggleBtn = containerEl.querySelector('#auto-play-toggle');
 
     // Add tutorial pulse on load
@@ -450,6 +518,9 @@ const VoicePlayer = (() => {
         }
         photoEls[activeIndex].classList.add('is-active');
         lastActivePhotoIndex = activeIndex;
+        // Update caption
+        const currentCaption = displayPhotos[activeIndex % displayPhotos.length]?.caption;
+        updateCaption(currentCaption);
       }
 
       // 5. Trigger clicks & audio
@@ -685,6 +756,9 @@ const VoicePlayer = (() => {
             }
             photoEls[activeIndex].classList.add('is-active');
             lastActivePhotoIndex = activeIndex;
+            // Update caption saat foto berganti
+            const currentCaption = displayPhotos[activeIndex % displayPhotos.length]?.caption;
+            updateCaption(currentCaption);
           }
 
           // Trigger Click Sound & Haptic every 15 degrees (Fix 6: with 50ms cooldown)
@@ -713,8 +787,6 @@ const VoicePlayer = (() => {
 
         audio.muted = false;
 
-        // FIX: Guard audioCtx sebelum akses .currentTime
-        // Tanpa guard ini → TypeError crash saat Web Audio gagal di iPhone
         if (voiceGain && audioCtx && audioCtx.state === 'running') {
           voiceGain.gain.cancelScheduledValues(audioCtx.currentTime);
           voiceGain.gain.setValueAtTime(0, audioCtx.currentTime);
@@ -800,6 +872,10 @@ const VoicePlayer = (() => {
     handle.addEventListener('touchstart', startDrag, { passive: false });
     window.addEventListener('touchmove', handleMove, { passive: false });
     window.addEventListener('touchend', stopDrag);
+
+    // Initial caption state
+    const firstCaption = displayPhotos[0]?.caption;
+    updateCaption(firstCaption);
 
     // FIX 5: iOS Tab Background Recovery
     // Saat customer buka WhatsApp lalu balik ke halaman gift,
@@ -900,7 +976,16 @@ const VoicePlayer = (() => {
 
     showState('gift');
     // FIX: Pass preloadedAudio ke init() agar tidak buat Audio baru dari nol
-    VoicePlayer.init(giftConfig.voiceNote, containerEl, giftConfig.photos, giftConfig.ambient || 'none', giftConfig.customAmbientUrl, giftConfig.voiceVolume, giftConfig.ambientVolume, preloadedAudio);
+    VoicePlayer.init(
+      giftConfig.voiceNote,
+      containerEl,
+      giftConfig.photos,
+      giftConfig.ambient || 'none',
+      giftConfig.customAmbientUrl,
+      giftConfig.voiceVolume,
+      giftConfig.ambientVolume,
+      preloadedAudio
+    );
   };
 
   return { init, handleAfterLoad };

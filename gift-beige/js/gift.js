@@ -186,8 +186,11 @@ const _setupPasswordGate = (giftId, partialGift) => {
     btn.disabled = true;
 
     try {
-      // Re-fetch with ID (Simplified for now: if password matches what's in local memory or just re-fetch)
-      const response = await fetch(`${API_BASE_URL}/get-config?id=${giftId}&t=${Date.now()}`);
+      // Re-fetch with ID — with timeout protection
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 detik
+      const response = await fetch(`${API_BASE_URL}/get-config?id=${giftId}&t=${Date.now()}`, { signal: controller.signal });
+      clearTimeout(timeoutId);
       const data = await response.json();
 
       if (data && data.password === password) {
@@ -204,6 +207,12 @@ const _setupPasswordGate = (giftId, partialGift) => {
       }
     } catch (err) {
       console.error('[Gift] Unlock error:', err);
+      if (err.name === 'AbortError') {
+        if (errorMsg) {
+          errorMsg.textContent = 'Koneksi timeout. Coba lagi.';
+          errorMsg.classList.remove('hidden');
+        }
+      }
     } finally {
       btn.textContent = '❤️ Buka Hadiah';
       btn.disabled = false;

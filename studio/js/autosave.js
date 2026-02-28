@@ -11,6 +11,7 @@
 const Autosave = (() => {
 
   let _debounceTimer = null;
+  let _saveController = null; // Cancel in-flight saves to prevent race conditions
   const DEBOUNCE_MS = 1500;
 
   const _setIndicator = (text, color = 'text-gray-400') => {
@@ -39,7 +40,14 @@ const Autosave = (() => {
 
   const _save = async (stateData) => {
     const token = Auth.getToken();
-    if (!token) return;
+    if (!token) {
+      _setIndicator(''); // Reset indicator when token is missing
+      return;
+    }
+
+    // Cancel any in-flight save to prevent race condition
+    if (_saveController) _saveController.abort();
+    _saveController = new AbortController();
 
     try {
       // VALENTINE API COMPATIBILITY: Use /save-config?id=...
@@ -50,6 +58,7 @@ const Autosave = (() => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(stateData),
+        signal: _saveController.signal,
       });
 
       if (!response.ok) {
@@ -67,6 +76,8 @@ const Autosave = (() => {
         console.warn('[Autosave] Server error:', result);
       }
     } catch (err) {
+      // Silently ignore cancelled saves (replaced by newer save)
+      if (err.name === 'AbortError') return;
       console.error('[Autosave] Error:', err);
       _setIndicator('⚠ Gagal menyimpan', 'text-amber-500');
     }

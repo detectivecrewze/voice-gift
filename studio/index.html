@@ -181,156 +181,164 @@
         </div>
 
         <div id="voice-recorder-ui" class="py-12">
-          <!-- Content is similar, but contained in section-card -->
+          <!-- VOICE RECORDING MODE -->
+          <div id="voice-mode-container" class="animate-in fade-in duration-500">
+            <!-- Content is similar, but contained in section-card -->
 
-          <!-- IDLE -->
-          <div id="voice-state-idle" class="flex flex-col items-center">
-            <button id="btn-start-record"
-              class="w-16 h-16 rounded-full border border-gray-100 flex items-center justify-center transition-all hover:scale-105 active:scale-95 group">
-              <div
-                class="w-10 h-10 bg-black rounded-full transition-all group-hover:bg-[#d4a373] flex items-center justify-center">
-                <span class="text-white text-xs">REC</span>
-              </div>
-            </button>
-            <p class="text-[9px] uppercase tracking-[0.2em] text-gray-400 mt-8">Klik untuk merekam pesan</p>
-
-            <div class="mt-12">
-              <button id="btn-upload-audio"
-                class="text-[10px] uppercase tracking-widest text-gray-500 hover:text-black font-bold">Atau upload file
-                audio</button>
-              <input id="file-input-audio" type="file" accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.wma" class="hidden" />
-            </div>
-          </div>
-
-          <!-- RECORDING -->
-          <div id="voice-state-recording" class="hidden">
-            <div class="waveform-container" id="waveform-bars"></div>
-            <div class="flex flex-col items-center">
-              <span id="record-timer" class="text-2xl font-light tracking-[0.2em] tabular-nums">0:00</span>
-              <button id="btn-stop-record"
-                class="mt-12 text-[9px] uppercase tracking-[0.3em] font-bold text-rose-500 flex items-center gap-2">
-                <span class="w-1.5 h-1.5 bg-rose-500 rounded-full pulse-record"></span> Hentikan
-              </button>
-            </div>
-          </div>
-
-          <!-- PREVIEW -->
-          <div id="voice-state-preview" class="hidden flex flex-col items-center">
-            <div class="waveform-container px-12 w-full">
-              <div class="mb-4 flex justify-between text-[9px] uppercase tracking-widest text-[#d4a373] font-bold">
-                <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-[#d4a373] rounded-full"></span>
-                  Rekaman Selesai</span>
-                <span id="preview-time">0:00</span>
-              </div>
-              <div class="w-full h-0.5 bg-gray-100 rounded-full relative">
-                <div id="preview-progress-fill" class="absolute h-full bg-black transition-all" style="width: 0%"></div>
-              </div>
-            </div>
-            <p class="text-[8px] uppercase tracking-[0.2em] text-gray-400 mt-6 mb-2">Klik "Simpan" agar tidak hilang</p>
-            <div class="flex items-center gap-12 mt-4">
-              <button id="btn-preview-play"
-                class="text-[10px] uppercase tracking-widest bg-gray-50 px-4 py-2 rounded">Putar</button>
-              <button id="btn-rerecord"
-                class="text-[10px] uppercase tracking-widest text-gray-500 font-medium">Ulang</button>
-              <button id="btn-confirm-recording"
-                class="text-[10px] uppercase tracking-widest font-bold text-[#d4a373] px-6 py-3 border border-[#d4a373] rounded-full hover:bg-[#d4a373]/5 transition-all">✓
-                Simpan Rekaman</button>
-            </div>
-
-            <!-- Volume Controls for Preview -->
-            <div class="mt-12 flex flex-col gap-6 w-full max-w-[280px]">
-              <div class="space-y-3">
+            <!-- IDLE -->
+            <div id="voice-state-idle" class="flex flex-col items-center">
+              <button id="btn-start-record"
+                class="w-16 h-16 rounded-full border border-gray-100 flex items-center justify-center transition-all hover:scale-105 active:scale-95 group">
                 <div
-                  class="flex justify-between items-center text-[8px] uppercase tracking-widest text-gray-400 font-bold">
-                  <span>Vol. Suara Utama</span>
-                  <span id="label-voice-vol">100%</span>
+                  class="w-10 h-10 bg-black rounded-full transition-all group-hover:bg-[#d4a373] flex items-center justify-center">
+                  <span class="text-white text-xs">REC</span>
                 </div>
-                <input type="range" id="slider-voice-vol" min="0" max="1" step="0.05" value="1" class="volume-slider" />
-              </div>
-              <div class="space-y-3">
-                <div
-                  class="flex justify-between items-center text-[8px] uppercase tracking-widest text-gray-400 font-bold">
-                  <span>Vol. Musik Latar</span>
-                  <span id="label-ambient-vol">10%</span>
-                </div>
-                <input type="range" id="slider-ambient-vol" min="0" max="0.5" step="0.01" value="0.1"
-                  class="volume-slider" />
-              </div>
-
-              <button id="btn-combined-preview"
-                class="mt-4 flex items-center justify-center gap-2 py-3 px-6 rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-all group">
-                <span class="text-xs group-hover:scale-110 transition-transform">🎧</span>
-                <span class="text-[9px] uppercase tracking-widest font-bold text-gray-600">Dengarkan dengan Musik
-                  Latar</span>
               </button>
+              <p class="text-[9px] uppercase tracking-[0.2em] text-gray-400 mt-8">Klik untuk merekam pesan</p>
 
-              <p class="text-[10px] text-gray-400 mt-4 italic text-center">
-                * Rekomendasi: Vol. Suara Utama 80% & Vol. Musik Latar 10% agar pesan Anda terdengar jernih.
+              <div class="mt-12">
+                <button id="btn-upload-audio"
+                  class="text-[10px] uppercase tracking-widest text-gray-500 hover:text-black font-bold">Atau upload
+                  file
+                  audio</button>
+                <input id="file-input-audio" type="file" accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.wma"
+                  class="hidden" />
+              </div>
+            </div>
+
+            <!-- RECORDING -->
+            <div id="voice-state-recording" class="hidden">
+              <div class="waveform-container" id="waveform-bars"></div>
+              <div class="flex flex-col items-center">
+                <span id="record-timer" class="text-2xl font-light tracking-[0.2em] tabular-nums">0:00</span>
+                <button id="btn-stop-record"
+                  class="mt-12 text-[9px] uppercase tracking-[0.3em] font-bold text-rose-500 flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 bg-rose-500 rounded-full pulse-record"></span> Hentikan
+                </button>
+              </div>
+            </div>
+
+            <!-- PREVIEW -->
+            <div id="voice-state-preview" class="hidden flex flex-col items-center">
+              <div class="waveform-container px-12 w-full">
+                <div class="mb-4 flex justify-between text-[9px] uppercase tracking-widest text-[#d4a373] font-bold">
+                  <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-[#d4a373] rounded-full"></span>
+                    Rekaman Selesai</span>
+                  <span id="preview-time">0:00</span>
+                </div>
+                <div class="w-full h-0.5 bg-gray-100 rounded-full relative">
+                  <div id="preview-progress-fill" class="absolute h-full bg-black transition-all" style="width: 0%">
+                  </div>
+                </div>
+              </div>
+              <p class="text-[8px] uppercase tracking-[0.2em] text-gray-400 mt-6 mb-2">Klik "Simpan" agar tidak hilang
               </p>
-            </div>
-          </div>
-
-          <!-- SAVED -->
-          <div id="voice-state-saved"
-            class="hidden flex flex-col items-center animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <div class="w-12 h-12 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-6">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-            </div>
-            <p class="text-[10px] uppercase tracking-widest mb-4 font-bold text-green-600">Audio Berhasil Tersimpan! ✨
-            </p>
-            <div class="w-48 mb-6">
-              <div class="flex justify-between text-[8px] text-gray-300 uppercase tracking-widest mb-2">
-                <span>Siap Digunakan</span>
-                <span id="saved-time">0:00</span>
+              <div class="flex items-center gap-12 mt-4">
+                <button id="btn-preview-play"
+                  class="text-[10px] uppercase tracking-widest bg-gray-50 px-4 py-2 rounded">Putar</button>
+                <button id="btn-rerecord"
+                  class="text-[10px] uppercase tracking-widest text-gray-500 font-medium">Ulang</button>
+                <button id="btn-confirm-recording"
+                  class="text-[10px] uppercase tracking-widest font-bold text-[#d4a373] px-6 py-3 border border-[#d4a373] rounded-full hover:bg-[#d4a373]/5 transition-all">✓
+                  Simpan Rekaman</button>
               </div>
-              <div class="w-full h-0.5 bg-gray-100 rounded-full relative">
-                <div id="saved-progress-fill" class="absolute h-full bg-[#d4a373]" style="width: 0%"></div>
-              </div>
-            </div>
-            <div class="flex gap-8">
-              <button id="btn-saved-play"
-                class="text-[9px] uppercase tracking-widest border border-gray-100 px-6 py-2 rounded-full hover:bg-white transition-all">Dengarkan</button>
-              <button id="btn-delete-voice" class="text-[9px] uppercase tracking-widest text-gray-500 font-medium">Hapus
-                & Rekam
-                Ulang</button>
-            </div>
 
-            <!-- Volume Controls for Saved -->
-            <div class="mt-12 flex flex-col gap-6 w-full max-w-[280px]">
-              <div class="space-y-3">
-                <div
-                  class="flex justify-between items-center text-[8px] uppercase tracking-widest text-gray-400 font-bold">
-                  <span>Vol. Suara Utama</span>
-                  <span id="label-voice-vol-saved">100%</span>
+              <!-- Volume Controls for Preview -->
+              <div class="mt-12 flex flex-col gap-6 w-full max-w-[280px]">
+                <div class="space-y-3">
+                  <div
+                    class="flex justify-between items-center text-[8px] uppercase tracking-widest text-gray-400 font-bold">
+                    <span>Vol. Suara Utama</span>
+                    <span id="label-voice-vol">100%</span>
+                  </div>
+                  <input type="range" id="slider-voice-vol" min="0" max="1" step="0.05" value="1"
+                    class="volume-slider" />
                 </div>
-                <input type="range" id="slider-voice-vol-saved" min="0" max="1" step="0.05" value="1"
-                  class="volume-slider" />
-              </div>
-              <div class="space-y-3">
-                <div
-                  class="flex justify-between items-center text-[8px] uppercase tracking-widest text-gray-400 font-bold">
-                  <span>Vol. Musik Latar</span>
-                  <span id="label-ambient-vol-saved">10%</span>
+                <div class="space-y-3">
+                  <div
+                    class="flex justify-between items-center text-[8px] uppercase tracking-widest text-gray-400 font-bold">
+                    <span>Vol. Musik Latar</span>
+                    <span id="label-ambient-vol">10%</span>
+                  </div>
+                  <input type="range" id="slider-ambient-vol" min="0" max="0.5" step="0.01" value="0.1"
+                    class="volume-slider" />
                 </div>
-                <input type="range" id="slider-ambient-vol-saved" min="0" max="0.5" step="0.01" value="0.1"
-                  class="volume-slider" />
+
+                <button id="btn-combined-preview"
+                  class="mt-4 flex items-center justify-center gap-2 py-3 px-6 rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-all group">
+                  <span class="text-xs group-hover:scale-110 transition-transform">🎧</span>
+                  <span class="text-[9px] uppercase tracking-widest font-bold text-gray-600">Dengarkan dengan Musik
+                    Latar</span>
+                </button>
+
+                <p class="text-[10px] text-gray-400 mt-4 italic text-center">
+                  * Rekomendasi: Vol. Suara Utama 80% & Vol. Musik Latar 10% agar pesan Anda terdengar jernih.
+                </p>
               </div>
+            </div>
 
-              <button id="btn-combined-preview-saved"
-                class="mt-4 flex items-center justify-center gap-2 py-3 px-6 rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-all group">
-                <span class="text-xs group-hover:scale-110 transition-transform">🎧</span>
-                <span class="text-[9px] uppercase tracking-widest font-bold text-gray-600">Dengarkan dengan Musik
-                  Latar</span>
-              </button>
-
-              <p class="text-[10px] text-gray-400 mt-4 italic text-center">
-                * Rekomendasi: Vol. Suara Utama 80% & Vol. Musik Latar 10% agar pesan Anda terdengar jernih.
+            <!-- SAVED -->
+            <div id="voice-state-saved"
+              class="hidden flex flex-col items-center animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <div class="w-12 h-12 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-6">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <p class="text-[10px] uppercase tracking-widest mb-4 font-bold text-green-600">Audio Berhasil Tersimpan! ✨
               </p>
+              <div class="w-48 mb-6">
+                <div class="flex justify-between text-[8px] text-gray-300 uppercase tracking-widest mb-2">
+                  <span>Siap Digunakan</span>
+                  <span id="saved-time">0:00</span>
+                </div>
+                <div class="w-full h-0.5 bg-gray-100 rounded-full relative">
+                  <div id="saved-progress-fill" class="absolute h-full bg-[#d4a373]" style="width: 0%"></div>
+                </div>
+              </div>
+              <div class="flex gap-8">
+                <button id="btn-saved-play"
+                  class="text-[9px] uppercase tracking-widest border border-gray-100 px-6 py-2 rounded-full hover:bg-white transition-all">Dengarkan</button>
+                <button id="btn-delete-voice"
+                  class="text-[9px] uppercase tracking-widest text-gray-500 font-medium">Hapus
+                  & Rekam
+                  Ulang</button>
+              </div>
+
+              <!-- Volume Controls for Saved -->
+              <div class="mt-12 flex flex-col gap-6 w-full max-w-[280px]">
+                <div class="space-y-3">
+                  <div
+                    class="flex justify-between items-center text-[8px] uppercase tracking-widest text-gray-400 font-bold">
+                    <span>Vol. Suara Utama</span>
+                    <span id="label-voice-vol-saved">100%</span>
+                  </div>
+                  <input type="range" id="slider-voice-vol-saved" min="0" max="1" step="0.05" value="1"
+                    class="volume-slider" />
+                </div>
+                <div class="space-y-3">
+                  <div
+                    class="flex justify-between items-center text-[8px] uppercase tracking-widest text-gray-400 font-bold">
+                    <span>Vol. Musik Latar</span>
+                    <span id="label-ambient-vol-saved">10%</span>
+                  </div>
+                  <input type="range" id="slider-ambient-vol-saved" min="0" max="0.5" step="0.01" value="0.1"
+                    class="volume-slider" />
+                </div>
+
+                <button id="btn-combined-preview-saved"
+                  class="mt-4 flex items-center justify-center gap-2 py-3 px-6 rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-all group">
+                  <span class="text-xs group-hover:scale-110 transition-transform">🎧</span>
+                  <span class="text-[9px] uppercase tracking-widest font-bold text-gray-600">Dengarkan dengan Musik
+                    Latar</span>
+                </button>
+
+                <p class="text-[10px] text-gray-400 mt-4 italic text-center">
+                  * Rekomendasi: Vol. Suara Utama 80% & Vol. Musik Latar 10% agar pesan Anda terdengar jernih.
+                </p>
+              </div>
             </div>
           </div>
-
         </div>
       </section>
 

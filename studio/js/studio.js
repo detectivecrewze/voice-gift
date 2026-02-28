@@ -155,26 +155,35 @@ const Studio = (() => {
       if (_isPlaying) { stop(); return; }
 
       const voiceUrl = VoiceRecorder.getActiveAudioUrl();
+      let ambientUrl = AMBIENT_SOUNDS[_state.ambient];
+      if (_state.ambient === 'custom') ambientUrl = _state.customAmbientUrl;
+
+      // Skenario 1: Gak ada suara
       if (!voiceUrl) {
         showToast('Rekam suara dulu ya! 🎙️');
         return;
       }
 
-      let ambientUrl = AMBIENT_SOUNDS[_state.ambient];
-      if (_state.ambient === 'custom') ambientUrl = _state.customAmbientUrl;
+      // Skenario 2: Gak ada suara & gak ada musik sama sekali
+      if (!voiceUrl && !ambientUrl) {
+        showToast('Pilih musik atau rekam suara dulu ya! 🎙️');
+        return;
+      }
 
       // Init AudioContext
       if (!_ctx) _ctx = new (window.AudioContext || window.webkitAudioContext)();
       if (_ctx.state === 'suspended') await _ctx.resume();
 
       // Setup Voice
-      _voiceAudio = new Audio(voiceUrl);
-      _voiceAudio.crossOrigin = 'anonymous';
-      const voiceSource = _ctx.createMediaElementSource(_voiceAudio);
-      _voiceGain = _ctx.createGain();
-      _voiceGain.gain.setValueAtTime(0, _ctx.currentTime);
-      voiceSource.connect(_voiceGain);
-      _voiceGain.connect(_ctx.destination);
+      if (voiceUrl) {
+        _voiceAudio = new Audio(voiceUrl);
+        _voiceAudio.crossOrigin = 'anonymous';
+        const voiceSource = _ctx.createMediaElementSource(_voiceAudio);
+        _voiceGain = _ctx.createGain();
+        _voiceGain.gain.setValueAtTime(0, _ctx.currentTime);
+        voiceSource.connect(_voiceGain);
+        _voiceGain.connect(_ctx.destination);
+      }
 
       // Setup Ambient
       if (ambientUrl) {
@@ -207,27 +216,37 @@ const Studio = (() => {
         }
       });
 
-      if (_ambientAudio) _ambientAudio.play().catch(e => console.warn(e));
-      _voiceAudio.play().then(() => {
-        const now = _ctx.currentTime;
-        _voiceGain.gain.setTargetAtTime(_state.voiceVolume, now, 0.1);
-        if (_ambientGain) _ambientGain.gain.setTargetAtTime(_state.ambientVolume, now, 0.5);
-      }).catch(e => {
-        console.error(e);
-        _isPlaying = false;
+      if (_ambientAudio) {
+        _ambientAudio.play().then(() => {
+          const now = _ctx.currentTime;
+          if (_ambientGain) _ambientGain.gain.setTargetAtTime(_state.ambientVolume, now, 0.5);
+        }).catch(e => console.warn('[CombinedMixer] Ambient play failed:', e));
+      }
 
-        const buttons = [
-          { id: 'btn-combined-preview', html: '<span class="text-xs group-hover:scale-110 transition-transform">🎧</span> <span class="text-[9px] uppercase tracking-widest font-bold text-gray-600">Dengarkan dengan Musik Latar</span>' },
-          { id: 'btn-combined-preview-saved', html: '<span class="text-xs group-hover:scale-110 transition-transform">🎧</span> <span class="text-[9px] uppercase tracking-widest font-bold text-gray-600">Dengarkan dengan Musik Latar</span>' }
-        ];
-
-        buttons.forEach(b => {
-          const el = document.getElementById(b.id);
-          if (el) {
-            el.classList.remove('btn-combined-active');
-            el.innerHTML = b.html;
-          }
+      if (_voiceAudio) {
+        _voiceAudio.play().then(() => {
+          const now = _ctx.currentTime;
+          _voiceGain.gain.setTargetAtTime(_state.voiceVolume, now, 0.1);
+        }).catch(e => {
+          console.error('[CombinedMixer] Voice play failed:', e);
+          if (!_ambientAudio) _handlePlayError();
         });
+      }
+    };
+
+    const _handlePlayError = () => {
+      _isPlaying = false;
+      const buttons = [
+        { id: 'btn-combined-preview', html: '<span class="text-xs group-hover:scale-110 transition-transform">🎧</span> <span class="text-[9px] uppercase tracking-widest font-bold text-gray-600">Dengarkan dengan Musik Latar</span>' },
+        { id: 'btn-combined-preview-saved', html: '<span class="text-xs group-hover:scale-110 transition-transform">🎧</span> <span class="text-[9px] uppercase tracking-widest font-bold text-gray-600">Dengarkan dengan Musik Latar</span>' }
+      ];
+
+      buttons.forEach(b => {
+        const el = document.getElementById(b.id);
+        if (el) {
+          el.classList.remove('btn-combined-active');
+          el.innerHTML = b.html;
+        }
       });
     };
 
@@ -423,7 +442,6 @@ const Studio = (() => {
       });
     });
 
-    // Bind combined preview buttons
     document.getElementById('btn-combined-preview')?.addEventListener('click', CombinedMixer.play);
     document.getElementById('btn-combined-preview-saved')?.addEventListener('click', CombinedMixer.play);
   };
