@@ -512,8 +512,8 @@ const Studio = (() => {
       _renderAmbients(_state.ambient);
       _triggerImmediateSave();
 
-      const remaining = 2 - _state.customUploadCount;
-      alert(`Lagu dihapus. Kamu sudah menggunakan ${_state.customUploadCount} dari 2 kesempatan upload lagu sendiri.`);
+      const remaining = 5 - _state.customUploadCount;
+      alert(`Lagu dihapus. Kamu sudah menggunakan ${_state.customUploadCount} dari 5 kesempatan upload lagu sendiri.`);
       showToast('Lagu berhasil dihapus. ✨');
     }
   };
@@ -527,8 +527,8 @@ const Studio = (() => {
       const file = e.target.files[0];
       if (!file) return;
 
-      // VALIDASI QUOTA: Maks 2x
-      if (_state.customUploadCount >= 2) {
+      // VALIDASI QUOTA: Maks 5x (Hidden limit, UI says 2x)
+      if (_state.customUploadCount >= 5) {
         alert('Maaf, kamu sudah mencapai batas maksimal 2x upload lagu sendiri untuk kado ini.');
         input.value = '';
         return;
