@@ -194,31 +194,8 @@ const VoicePlayer = (() => {
     const doublePhotos = [...displayPhotos, displayPhotos[0]];
 
     const photosMarkup = doublePhotos.map((p, idx) => `
-      <div class="printer-photo" style="position: relative;">
+      <div class="printer-photo">
         <img src="${p.url}" alt="Memory">
-        ${p.caption ? `
-          <div class="printer-photo-caption" style="
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 12px;
-            z-index: 22;
-            padding: 28px 14px 12px;
-            background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.3) 60%, transparent 100%);
-            font-family: inherit;
-            font-size: 9.5px;
-            font-style: italic;
-            letter-spacing: 0.12em;
-            line-height: 1.65;
-            white-space: pre-wrap;
-            word-break: break-word;
-            text-align: center;
-            color: rgba(255,255,255,0.82);
-            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
-            box-sizing: border-box;
-            border-radius: 0 0 32px 32px;
-          ">"${p.caption}"</div>
-        ` : ''}
       </div>
     `).join('');
 
@@ -246,6 +223,30 @@ const VoicePlayer = (() => {
           </div>
           <div class="printer-slot"></div>
 
+          <!-- Caption overlay — melayang di bawah foto, di dalam viewport -->
+          <div id="photo-caption" style="
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 12px;
+            z-index: 22;
+            padding: 28px 14px 12px;
+            background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.3) 60%, transparent 100%);
+            font-family: inherit;
+            font-size: 9.5px;
+            font-style: italic;
+            letter-spacing: 0.12em;
+            line-height: 1.65;
+            text-align: center;
+            color: rgba(255,255,255,0.82);
+            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.6s cubic-bezier(0.4,0,0.2,1), transform 0.6s cubic-bezier(0.4,0,0.2,1);
+            pointer-events: none;
+            box-sizing: border-box;
+            border-radius: 0 0 32px 32px;
+          "></div>
         </div>
 
         <div class="music-box-info">
@@ -283,6 +284,34 @@ const VoicePlayer = (() => {
     const bars = containerEl.querySelectorAll('.waveform-bar');
     const currentEl = containerEl.querySelector('#v-current');
     const totalEl = containerEl.querySelector('#v-total');
+    const captionEl = containerEl.querySelector('#photo-caption');
+
+    // ── Caption Updater ───────────────────────────────────────
+    let captionTimeout = null;
+    let currentCaptionText = '';
+    const updateCaption = (newCaption) => {
+      if (!captionEl) return;
+      const text = (newCaption || '').trim();
+
+      // Jangan animasi kalau teksnya sama
+      if (text === currentCaptionText) return;
+      currentCaptionText = text;
+
+      // Slide down + fade out dulu
+      captionEl.style.opacity = '0';
+      captionEl.style.transform = 'translateY(6px)';
+      clearTimeout(captionTimeout);
+
+      captionTimeout = setTimeout(() => {
+        captionEl.textContent = text ? `"${text}"` : '';
+        // Slide up + fade in jika ada teks
+        requestAnimationFrame(() => {
+          captionEl.style.opacity = text ? '1' : '0';
+          captionEl.style.transform = text ? 'translateY(0px)' : 'translateY(6px)';
+        });
+      }, 200);
+    };
+
     // ── Performance: Cache DOM elements ──────────────────────────
     const photoEls = tray.querySelectorAll('.printer-photo');
     let lastActivePhotoIndex = -1;
@@ -489,6 +518,9 @@ const VoicePlayer = (() => {
         }
         photoEls[activeIndex].classList.add('is-active');
         lastActivePhotoIndex = activeIndex;
+        // Update caption
+        const currentCaption = displayPhotos[activeIndex % displayPhotos.length]?.caption;
+        updateCaption(currentCaption);
       }
 
       // 5. Trigger clicks & audio
@@ -724,6 +756,9 @@ const VoicePlayer = (() => {
             }
             photoEls[activeIndex].classList.add('is-active');
             lastActivePhotoIndex = activeIndex;
+            // Update caption saat foto berganti
+            const currentCaption = displayPhotos[activeIndex % displayPhotos.length]?.caption;
+            updateCaption(currentCaption);
           }
 
           // Trigger Click Sound & Haptic every 15 degrees (Fix 6: with 50ms cooldown)
@@ -837,6 +872,10 @@ const VoicePlayer = (() => {
     handle.addEventListener('touchstart', startDrag, { passive: false });
     window.addEventListener('touchmove', handleMove, { passive: false });
     window.addEventListener('touchend', stopDrag);
+
+    // Initial caption state
+    const firstCaption = displayPhotos[0]?.caption;
+    updateCaption(firstCaption);
 
     // FIX 5: iOS Tab Background Recovery
     // Saat customer buka WhatsApp lalu balik ke halaman gift,
