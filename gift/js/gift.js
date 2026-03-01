@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // gift.js — Gift Page Main Controller
 // ============================================================
 // Bertanggung jawab untuk:
@@ -31,7 +31,7 @@ const _getMockData = (id) => {
         theme: 'rose',
         ambient: 'rain',
         voiceNote: {
-          url: 'https://valentine-upload.aldoramadhan16.workers.dev/1772227226601-vibhce.mp3',
+          url: 'https://cdn.for-you-always.my.id/1772227226601-vibhce.mp3',
           duration: 300
         },
         photos: [

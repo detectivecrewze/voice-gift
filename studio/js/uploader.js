@@ -121,10 +121,12 @@ const Uploader = (() => {
 
   // ── Handle File Selection ─────────────────────────────────
   const _handleFiles = async (files) => {
+    const uploadQueue = [];
+
     for (const file of files) {
       // Cek batas maksimum
       const successCount = _photos.filter(p => p.status === 'success' || p.status === 'uploading').length;
-      if (successCount >= MAX_PHOTOS) {
+      if (successCount + uploadQueue.length >= MAX_PHOTOS) {
         Studio.showToast(`Batas maksimal foto tercapai. Silakan hapus foto untuk menambah yang baru.`);
         break;
       }
@@ -137,16 +139,17 @@ const Uploader = (() => {
         continue;
       }
 
-      // Buat ID sementara
+      // Buat ID sementara & langsung tambahin ke state semua sekaligus
       const tempId = `photo_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-
-      // Tambahkan ke state dengan status uploading
       _photos.push({ id: tempId, url: null, order: _photos.length, status: 'uploading', localPreview: null, caption: '' });
-      _render();
-
-      // Proses dan upload file
-      await _processAndUpload(file, tempId);
+      uploadQueue.push({ file, tempId });
     }
+
+    // Render sekali saja — tampilkan semua placeholder "uploading" dulu
+    _render();
+
+    // Upload SEMUA foto secara paralel (serentak), bukan satu-satu
+    await Promise.all(uploadQueue.map(({ file, tempId }) => _processAndUpload(file, tempId)));
   };
 
   // ── Process & Upload Single File ─────────────────────────

@@ -1,7 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// worker-telegram.js
+// CDN domain untuk akses file R2 langsung (foto & audio)
+const CDN_URL = "https://cdn.for-you-always.my.id";
+
 var index_default = {
   async fetch(request, env) {
     const corsHeaders = {
@@ -10,42 +12,47 @@ var index_default = {
       "Access-Control-Allow-Headers": "Content-Type, Authorization, Cache-Control, Pragma, Range",
       "Access-Control-Expose-Headers": "Content-Length, Content-Range, Accept-Ranges"
     };
+
     if (request.method === "OPTIONS") {
-      return new Response(null, {
-        headers: corsHeaders
-      });
+      return new Response(null, { headers: corsHeaders });
     }
+
     const url = new URL(request.url);
+
+    // ── POST /upload ────────────────────────────────────────
     if (request.method === "POST" && url.pathname === "/upload") {
       try {
         const formData = await request.formData();
         const file = formData.get("file");
+
         if (!file) {
-          return new Response(JSON.stringify({
-            error: "No file provided"
-          }), {
+          return new Response(JSON.stringify({ error: "No file provided" }), {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
         }
+
         if (file.size > 100 * 1024 * 1024) {
-          return new Response(JSON.stringify({
-            error: "File too large. Maximum 100MB."
-          }), {
+          return new Response(JSON.stringify({ error: "File too large. Maximum 100MB." }), {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
         }
+
         const timestamp = Date.now();
         const randomStr = Math.random().toString(36).substring(7);
         const ext = file.name.split(".").pop().toLowerCase();
         const filename = `${timestamp}-${randomStr}.${ext}`;
+
         await env.BUCKET.put(filename, file.stream(), {
           httpMetadata: {
             contentType: file.type || "application/octet-stream"
           }
         });
-        const publicUrl = `${url.origin}/${filename}`;
+
+        // Gunakan CDN URL — bukan domain Worker
+        const publicUrl = `${CDN_URL}/${filename}`;
+
         return new Response(JSON.stringify({
           success: true,
           url: publicUrl,
@@ -54,19 +61,17 @@ var index_default = {
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
+
       } catch (error) {
         console.error("Upload error:", error);
-        return new Response(JSON.stringify({
-          error: error.message || "Upload failed"
-        }), {
+        return new Response(JSON.stringify({ error: error.message || "Upload failed" }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       }
     }
-    if (request.method === "POST" && url.pathname === "/telegram") {
-      return await handleTelegramSubmit(request, env, corsHeaders);
-    }
+
+    // ── GET /get-config ─────────────────────────────────────
     if (request.method === "GET" && url.pathname === "/get-config") {
       const id = url.searchParams.get("id");
       if (!id) {
@@ -76,7 +81,6 @@ var index_default = {
         });
       }
       try {
-        // Optimized: Only GET without PUT to save KV write operations
         const { value: data } = await env.VALENTINE_DATA.getWithMetadata(id);
         if (!data) {
           return new Response(JSON.stringify({ error: "Config not found", id }), {
@@ -84,7 +88,6 @@ var index_default = {
             headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
         }
-
         return new Response(data, {
           headers: {
             ...corsHeaders,
@@ -100,6 +103,8 @@ var index_default = {
         });
       }
     }
+
+    // ── POST /save-config ───────────────────────────────────
     if (request.method === "POST" && url.pathname === "/save-config") {
       const id = url.searchParams.get("id");
       if (!id) {
@@ -115,17 +120,7 @@ var index_default = {
           ip: request.headers.get("cf-connecting-ip") || "unknown"
         };
         await env.VALENTINE_DATA.put(id, JSON.stringify(body));
-        const customer = body.metadata?.customerName || id;
-        const photoCount = (body.gallery?.memories?.length || 0) + (body.map?.locations?.length || 0);
-        const notification = `🚀 *Project Published!*
 
-👤 *Customer:* ${customer}
-🆔 *ID:* \`${id}\` 
-📸 *Photos:* ${photoCount}
-🎵 *Music:* ${body.music?.length || 0} songs
-
-🔗 [View Project](https://voice.for-you-always.my.id/gift/${id})`;
-        await sendSimpleTelegram(notification, env);
         return new Response(JSON.stringify({
           success: true,
           message: "Configuration saved!",
@@ -141,9 +136,11 @@ var index_default = {
         });
       }
     }
+
+    // ── POST /login ─────────────────────────────────────────
     if (request.method === "POST" && url.pathname === "/login") {
       try {
-        const { password, userAgent } = await request.json();
+        const { password } = await request.json();
         const expected = env.ADMIN_SECRET;
         if (!expected) {
           return new Response(JSON.stringify({ success: false, error: "Server Error: ADMIN_SECRET not configured" }), {
@@ -157,18 +154,9 @@ var index_default = {
             headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
         }
-        const country = request.cf?.country || "Unknown";
-        const city = request.cf?.city || "Unknown";
-        const loginMsg = `🚨 *Admin Access Detected*
- 
- 📍 *Location:* ${city}, ${country}
- 📱 *Device:* ${userAgent || "Unknown"}
- ⏰ *Time:* ${(new Date()).toLocaleString()}`;
-        await sendSimpleTelegram(loginMsg, env);
         return new Response(JSON.stringify({
           success: true,
           token: btoa(password + Date.now())
-          // Simple session token
         }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
@@ -179,6 +167,8 @@ var index_default = {
         });
       }
     }
+
+    // ── POST /generator-login ───────────────────────────────
     if (request.method === "POST" && url.pathname === "/generator-login") {
       try {
         const { password } = await request.json();
@@ -206,12 +196,18 @@ var index_default = {
         });
       }
     }
+
+    // ── GET /admin/list-gifts ───────────────────────────────
     if (request.method === "GET" && url.pathname === "/admin/list-gifts") {
       return await handleAdminListGifts(request, env, corsHeaders);
     }
+
+    // ── POST /admin/delete-gifts ────────────────────────────
     if (request.method === "POST" && url.pathname === "/admin/delete-gifts") {
       return await handleAdminDeleteGifts(request, env, corsHeaders);
     }
+
+    // ── GET /list-configs ───────────────────────────────────
     if (request.method === "GET" && url.pathname === "/list-configs") {
       try {
         const list = await env.VALENTINE_DATA.list();
@@ -226,12 +222,13 @@ var index_default = {
         });
       }
     }
+
+    // ── GET /debug ──────────────────────────────────────────
     if (url.pathname === "/debug") {
       const debug = {
         hasBucket: !!env.BUCKET,
         hasKV: !!env.VALENTINE_DATA,
-        hasChatId: !!env.TELEGRAM_CHAT_ID,
-        hasBotToken: !!env.TELEGRAM_BOT_TOKEN,
+        cdnUrl: CDN_URL,
         url: request.url,
         method: request.method
       };
@@ -239,61 +236,25 @@ var index_default = {
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
+
+    // ── GET /{filename} — Redirect file lama ke CDN ─────────
+    // Semua URL foto/audio customer lama yang masih pakai domain workers.dev
+    // akan otomatis di-redirect ke CDN — tidak perlu update data customer satu per satu
     if (request.method === "GET" && url.pathname !== "/") {
       const filename = url.pathname.substring(1);
-      try {
-        const rangeHeader = request.headers.get("Range");
-        let r2Options = {};
-        let parsedRange = null;
-
-        if (rangeHeader) {
-          const match = rangeHeader.match(/bytes=(\d+)-(\d*)/);
-          if (match) {
-            const start = parseInt(match[1]);
-            parsedRange = { start, end: match[2] ? parseInt(match[2]) : undefined };
-            r2Options = {
-              range: {
-                offset: parsedRange.start,
-                length: parsedRange.end !== undefined
-                  ? parsedRange.end - parsedRange.start + 1
-                  : undefined
-              }
-            };
+      if (filename && !filename.includes("/") && !filename.includes("..")) {
+        return new Response(null, {
+          status: 301,
+          headers: {
+            ...corsHeaders,
+            "Location": `${CDN_URL}/${filename}`
           }
-        }
-
-        const object = await env.BUCKET.get(filename, r2Options);
-
-        if (!object) {
-          return new Response("File not found", { status: 404, headers: corsHeaders });
-        }
-
-        const headers = new Headers();
-        object.writeHttpMetadata(headers);
-        headers.set("etag", object.httpEtag);
-        headers.set("Cache-Control", "public, max-age=31536000, immutable");
-        headers.set("Accept-Ranges", "bytes");
-
-        // Set Content-Range jika ini partial response
-        if (parsedRange) {
-          const totalSize = object.size || '*';
-          const end = parsedRange.end ?? (object.size - 1);
-          headers.set("Content-Range", `bytes ${parsedRange.start}-${end}/${totalSize}`);
-          headers.set("Content-Length", String(end - parsedRange.start + 1));
-        }
-
-        for (const [key, value] of Object.entries(corsHeaders)) {
-          headers.set(key, value);
-        }
-
-        const status = parsedRange ? 206 : 200;
-        return new Response(object.body, { headers, status });
-
-      } catch (error) {
-        console.error("Download error:", error);
-        return new Response("Error fetching file", { status: 500, headers: corsHeaders });
+        });
       }
+      return new Response("File not found", { status: 404, headers: corsHeaders });
     }
+
+    // ── Default: API Info Page ──────────────────────────────
     return new Response(`
       <html>
         <head>
@@ -309,96 +270,45 @@ var index_default = {
         <body>
           <h1>💖 Valentine Backend API</h1>
           <div class="status">✅ API is running!</div>
-          
           <h2>Endpoints:</h2>
           <ul>
-            <li><code>POST /upload</code> - Upload file (R2)</li>
-            <li><code>POST /telegram</code> - Secure Telegram Forwarder</li>
-            <li><code>GET /{filename}</code> - Download file</li>
-            <li><code>GET /get-config?id=xxx</code> <span class="badge">NEW</span> - Get customer config</li>
-            <li><code>POST /save-config?id=xxx</code> <span class="badge">NEW</span> - Save customer config</li>
-            <li><code>GET /list-configs</code> <span class="badge">NEW</span> - List all customers</li>
+            <li><code>POST /upload</code> - Upload file (R2 via CDN)</li>
+            <li><code>GET /{filename}</code> - Redirect ke CDN</li>
+            <li><code>GET /get-config?id=xxx</code> - Get customer config</li>
+            <li><code>POST /save-config?id=xxx</code> - Save customer config</li>
+            <li><code>GET /list-configs</code> - List all customers</li>
           </ul>
         </body>
       </html>
     `, {
-      headers: {
-        "Content-Type": "text/html",
-        ...corsHeaders
-      }
+      headers: { "Content-Type": "text/html", ...corsHeaders }
     });
   }
 };
-async function handleTelegramSubmit(request, env, corsHeaders) {
-  try {
-    const formData = await request.formData();
-    const file = formData.get("document");
-    const caption = formData.get("caption");
-    const chatId = env.TELEGRAM_CHAT_ID;
-    const botToken = env.TELEGRAM_BOT_TOKEN;
-    if (!chatId || !botToken) {
-      throw new Error("Server Misconfiguration: Missing TELEGRAM_CHAT_ID or TELEGRAM_BOT_TOKEN");
-    }
-    const telegramFormData = new FormData();
-    telegramFormData.append("chat_id", chatId);
-    telegramFormData.append("document", file);
-    if (caption) telegramFormData.append("caption", caption);
-    const response = await fetch(`https://api.telegram.org/bot${botToken}/sendDocument`, {
-      method: "POST",
-      body: telegramFormData
-    });
-    const result = await response.json();
-    if (!response.ok) {
-      throw new Error(result.description || "Telegram API Error");
-    }
-    return new Response(JSON.stringify({ success: true, result }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
-    });
-  } catch (err) {
-    return new Response(JSON.stringify({ success: false, error: err.message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
-    });
-  }
-}
-__name(handleTelegramSubmit, "handleTelegramSubmit");
-async function sendSimpleTelegram(message, env) {
-  const chatId = env.TELEGRAM_CHAT_ID;
-  const botToken = env.TELEGRAM_BOT_TOKEN;
-  if (!chatId || !botToken) return;
-  try {
-    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: message,
-        parse_mode: "Markdown"
-      })
-    });
-  } catch (e) {
-    console.error("Telegram notify failed:", e);
-  }
-}
-__name(sendSimpleTelegram, "sendSimpleTelegram");
 
+// ── Admin: List Gifts ───────────────────────────────────────
 async function handleAdminListGifts(request, env, corsHeaders) {
   const authHeader = request.headers.get("Authorization");
   const secret = env.ADMIN_SECRET;
-  if (!secret) return new Response(JSON.stringify({ error: "ADMIN_SECRET not set" }), { status: 500, headers: corsHeaders });
 
+  if (!secret) {
+    return new Response(JSON.stringify({ error: "ADMIN_SECRET not set" }), {
+      status: 500,
+      headers: corsHeaders
+    });
+  }
   if (!authHeader || authHeader !== `Bearer ${secret}`) {
     return new Response(JSON.stringify({ success: false, error: "Akses ditolak." }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }
+
   try {
     const list = await env.VALENTINE_DATA.list();
-    const keys = list.keys;
-    const detailPromises = keys.map(async (keyObj) => {
+    const detailPromises = list.keys.map(async (keyObj) => {
       try {
-        const { value: data, metadata } = await env.VALENTINE_DATA.getWithMetadata(keyObj.name);
+        const { value: data } = await env.VALENTINE_DATA.getWithMetadata(keyObj.name);
         if (data) {
           const config = JSON.parse(data);
           return {
@@ -411,7 +321,6 @@ async function handleAdminListGifts(request, env, corsHeaders) {
             hasVoice: !!(config.voiceNote?.url),
             theme: config.theme || "rose",
             ambient: config.ambient || "none",
-            lastOpened: metadata?.lastOpened || null
           };
         }
       } catch (e) {
@@ -419,9 +328,9 @@ async function handleAdminListGifts(request, env, corsHeaders) {
       }
       return null;
     });
-    const results = await Promise.all(detailPromises);
-    const filteredResults = results.filter((r) => r !== null);
-    return new Response(JSON.stringify({ success: true, gifts: filteredResults }), {
+
+    const results = (await Promise.all(detailPromises)).filter((r) => r !== null);
+    return new Response(JSON.stringify({ success: true, gifts: results }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   } catch (err) {
@@ -431,17 +340,26 @@ async function handleAdminListGifts(request, env, corsHeaders) {
     });
   }
 }
+__name(handleAdminListGifts, "handleAdminListGifts");
+
+// ── Admin: Delete Gifts ─────────────────────────────────────
 async function handleAdminDeleteGifts(request, env, corsHeaders) {
   const authHeader = request.headers.get("Authorization");
   const secret = env.ADMIN_SECRET;
-  if (!secret) return new Response(JSON.stringify({ error: "ADMIN_SECRET not set" }), { status: 500, headers: corsHeaders });
 
+  if (!secret) {
+    return new Response(JSON.stringify({ error: "ADMIN_SECRET not set" }), {
+      status: 500,
+      headers: corsHeaders
+    });
+  }
   if (!authHeader || authHeader !== `Bearer ${secret}`) {
     return new Response(JSON.stringify({ success: false, error: "Akses ditolak." }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }
+
   try {
     const { ids } = await request.json();
     if (!ids || !Array.isArray(ids)) {
@@ -450,8 +368,7 @@ async function handleAdminDeleteGifts(request, env, corsHeaders) {
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
-    const deletePromises = ids.map((id) => env.VALENTINE_DATA.delete(id));
-    await Promise.all(deletePromises);
+    await Promise.all(ids.map((id) => env.VALENTINE_DATA.delete(id)));
     return new Response(JSON.stringify({ success: true, message: `${ids.length} kado berhasil dihapus.` }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
@@ -464,6 +381,4 @@ async function handleAdminDeleteGifts(request, env, corsHeaders) {
 }
 __name(handleAdminDeleteGifts, "handleAdminDeleteGifts");
 
-export {
-  index_default as default
-};
+export { index_default as default };
