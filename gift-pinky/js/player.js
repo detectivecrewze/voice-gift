@@ -21,9 +21,13 @@ const VoicePlayer = (() => {
   // agar buffer yang sudah terkumpul tidak terbuang sia-sia saat membuat Audio() baru
   const init = (voiceNote, containerEl, allPhotos, ambientId = 'none', customAmbientUrl = null, voiceVol = 1.0, ambientVol = 0.085, preloadedAudio = null) => {
     const audio = preloadedAudio || ((voiceNote && voiceNote.url) ? new Audio(voiceNote.url) : new Audio());
-    // crossOrigin WAJIB di-set untuk semua kasus — termasuk preloadedAudio
-    // Tanpa ini, createMediaElementSource() gagal → voiceGain null → suara tidak keluar
-    if (voiceNote?.url) audio.crossOrigin = 'anonymous';
+    // crossOrigin HARUS diset *sebelum* src diisi (di fungsi preload).
+    // Jika kita me-reset crossOrigin di sini padahal audio sudah di-preload,
+    // browser akan membuang buffer lama dan mendownload ulang (double fetch bug).
+    // Jadi, kita hanya set crossOrigin jika audio dibuat baru di sini.
+    if (!preloadedAudio && voiceNote?.url) {
+      audio.crossOrigin = 'anonymous';
+    }
     let isPlaying = false;
     let lastRotationTime = 0;
     let lastAngle = null;
