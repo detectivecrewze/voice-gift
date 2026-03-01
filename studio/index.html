@@ -110,10 +110,15 @@
           <p class="text-[9px] uppercase tracking-[0.3em] text-gray-500 font-medium">Letakkan foto anda di sini</p>
         </div>
 
-        <!-- Reorder Hint -->
-        <p id="reorder-hint" class="hidden text-[10px] text-gray-400 mt-4 italic">
-          * Tekan dan geser Tombol Garis 2 Di Foto untuk mengatur urutan mana yang muncul duluan di kado nanti.
-        </p>
+        <!-- Reorder & Caption Hints -->
+        <div id="hints-container" class="mt-4 flex flex-col gap-2">
+          <p id="reorder-hint" class="hidden text-[10px] text-gray-400 italic">
+            * Tekan dan geser Tombol Garis 2 di foto untuk mengatur urutan.
+          </p>
+          <p id="caption-hint" class="hidden text-[10px] text-[#d4a373] italic font-medium">
+            * Menambahkan teks (caption) di setiap foto bersifat opsional. Boleh dikosongkan.
+          </p>
+        </div>
 
         <div id="photo-grid" class="mt-8">
           <!-- Photos rendered by uploader.js -->
@@ -462,11 +467,22 @@
         Kado akan dipublish dengan nama link berikut:</p>
       <p class="text-[9px] text-gray-500 mb-12 text-center hidden">(Ditetapkan otomatis)</p>
 
-      <div class="mb-12">
+      <div class="mb-10">
         <input id="input-gift-name" type="text" readonly
           class="input-minimal text-center lowercase pointer-events-none opacity-50" autocomplete="off" />
         <p id="name-error" class="text-[9px] text-rose-500 mt-2 text-center hidden">Gunakan huruf, angka, dan tanda
           hubung saja.</p>
+      </div>
+
+      <!-- Helper Hint for Recipient -->
+      <div class="border border-[#d4a373]/20 bg-[#fcfaf7] rounded-xl p-5 mb-6 text-center shadow-sm">
+        <h3 class="font-bold text-[#b58756] text-[9px] mb-2 uppercase tracking-[0.2em]">
+          Catatan Untuk Si Dia
+        </h3>
+        <p class="text-[9.5px] text-gray-500 leading-relaxed italic">
+          Untuk pengalaman terbaik, sangat disarankan membuka kado ini via <strong>Komputer / Laptop</strong>. Jika
+          menggunakan iPhone, usahakan akses via browser <strong>Google Chrome</strong>.
+        </p>
       </div>
 
       <div class="flex flex-col gap-4">
