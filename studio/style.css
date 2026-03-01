@@ -341,7 +341,8 @@ section {
 
 /* ── Modals & Overlay ── */
 #modal-success,
-#modal-name {
+#modal-name,
+#modal-hint {
   animation: modal-bg-fade 0.4s ease forwards;
 }
 
@@ -356,7 +357,8 @@ section {
 }
 
 #modal-success>div:last-child,
-#modal-name>div:last-child {
+#modal-name>div:last-child,
+#modal-hint>div:last-child {
   animation: modal-slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 

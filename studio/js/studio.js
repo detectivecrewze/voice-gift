@@ -598,6 +598,21 @@ const Studio = (() => {
     });
   };
 
+  // ── Hint Modal Logic ────────────────────────────────────────
+  const openHintModal = () => {
+    const modal = document.getElementById('modal-hint');
+    if (modal) {
+      modal.classList.remove('hidden');
+    }
+  };
+
+  const closeHintModal = () => {
+    const modal = document.getElementById('modal-hint');
+    if (modal) {
+      modal.classList.add('hidden');
+    }
+  };
+
   // ── Render UI ──────────────────────────────────────────────
   const _renderThemes = (activeThemeId) => {
     const container = document.getElementById('theme-selector');
@@ -700,6 +715,8 @@ const Studio = (() => {
     onAmbientSelected,
     onRemoveCustomMusic,
     toggleAmbientPreview,
+    openHintModal,
+    closeHintModal,
     getThemeConfig: (themeId) => {
       // Robust lookup: try direct ID match, then handle legacy IDs
       const legacyMap = {
