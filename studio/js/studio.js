@@ -99,7 +99,7 @@ const Studio = (() => {
 
   // ── Ambient Preview Functions ───────────────────────────────
   const stopAmbientPreview = () => {
-    if (_previewGain) {
+    if (_previewGain && _previewCtx) {
       _previewGain.gain.setTargetAtTime(0, _previewCtx.currentTime, 0.2);
     }
     setTimeout(() => {
@@ -299,8 +299,9 @@ const Studio = (() => {
     }
 
     // Create audio element
-    _previewAudio = new Audio(soundUrl);
+    _previewAudio = new Audio();
     _previewAudio.crossOrigin = 'anonymous';
+    _previewAudio.src = soundUrl;
 
     // Check if it's a song (should not loop)
     const isSong = ['nadin-ah', 'daniel', 'mitski', 'feast-nina', 'feast-tarot', 'custom'].includes(ambientId);
