@@ -493,7 +493,7 @@
     // ── Auto-Play Logic ──
     let isAutoPlaying = false;
     let autoPlayRafId = null;
-    let AUTO_SPEED = 3.3; // Narrative speed for photo transitions
+    let AUTO_SPEED = 3.0; // Narrative speed for photo transitions (slower)
     const toggleBtn = containerEl.querySelector('#auto-play-toggle');
 
     // Add tutorial pulse on load
@@ -518,6 +518,22 @@
       const loopSlide = ((rawSlide % fullSetWidth) + fullSetWidth) % fullSetWidth;
 
       tray.style.transform = `translate3d(-${loopSlide}px, 0, 0)`;
+
+      // Optimization: Fade out caption during transitions to prevent lingering
+      const slideProgress = (loopSlide % VIEW_WIDTH) / VIEW_WIDTH;
+      // Fade out only when the photo is > 40% out of bounds
+      if (slideProgress > 0.40 && slideProgress < 0.60) {
+        if (captionEl && captionEl.style.opacity !== '0') {
+          captionEl.style.opacity = '0';
+          captionEl.style.transform = 'translateY(6px)';
+        }
+      } else if (captionEl && captionEl.textContent) {
+        // Ensure opacity is restored when the photo is mostly centered
+        if (captionEl.style.opacity === '0') {
+          captionEl.style.opacity = '1';
+          captionEl.style.transform = 'translateY(0px)';
+        }
+      }
 
       // 4. Update active photo index
       const activeIndex = Math.round(loopSlide / VIEW_WIDTH);
@@ -756,6 +772,22 @@
           const fullSetWidth = totalPhotos * VIEW_WIDTH;
           const loopSlide = ((rawSlide % fullSetWidth) + fullSetWidth) % fullSetWidth;
           tray.style.transform = `translate3d(-${loopSlide}px, 0, 0)`;
+
+          // Optimization: Fade out caption during transitions to prevent lingering
+          const slideProgress = (loopSlide % VIEW_WIDTH) / VIEW_WIDTH;
+          // Fade out only when the photo is > 40% out of bounds
+          if (slideProgress > 0.40 && slideProgress < 0.60) {
+            if (captionEl && captionEl.style.opacity !== '0') {
+              captionEl.style.opacity = '0';
+              captionEl.style.transform = 'translateY(6px)';
+            }
+          } else if (captionEl && captionEl.textContent) {
+            // Ensure opacity is restored when the photo is mostly centered
+            if (captionEl.style.opacity === '0') {
+              captionEl.style.opacity = '1';
+              captionEl.style.transform = 'translateY(0px)';
+            }
+          }
 
           // Optimize: Only update active photo when index changes
           const activeIndex = Math.round(loopSlide / VIEW_WIDTH);
