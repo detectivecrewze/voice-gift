@@ -480,7 +480,10 @@ const VoicePlayer = (() => {
 
     audio.addEventListener('ended', () => {
       audio.currentTime = 0;
-      // Removed stopPlaying() to keep ambient looping even after voice ends
+      // Loop voice note: restart playback if audio is still active
+      if (isPlaying) {
+        audio.play().catch(() => { });
+      }
     });
 
     // ── Interaction Logic (Infinite) ──────────────────────────
