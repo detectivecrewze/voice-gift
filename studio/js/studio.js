@@ -176,8 +176,9 @@ const Studio = (() => {
 
       // Setup Voice
       if (voiceUrl) {
-        _voiceAudio = new Audio(voiceUrl);
+        _voiceAudio = new Audio();
         _voiceAudio.crossOrigin = 'anonymous';
+        _voiceAudio.src = voiceUrl;
         const voiceSource = _ctx.createMediaElementSource(_voiceAudio);
         _voiceGain = _ctx.createGain();
         _voiceGain.gain.setValueAtTime(0, _ctx.currentTime);
@@ -187,8 +188,9 @@ const Studio = (() => {
 
       // Setup Ambient
       if (ambientUrl) {
-        _ambientAudio = new Audio(ambientUrl);
+        _ambientAudio = new Audio();
         _ambientAudio.crossOrigin = 'anonymous';
+        _ambientAudio.src = ambientUrl;
         const isSong = ['nadin-ah', 'daniel', 'mitski', 'feast-nina', 'feast-tarot', 'custom'].includes(_state.ambient);
         _ambientAudio.loop = !isSong;
         const ambientSource = _ctx.createMediaElementSource(_ambientAudio);
