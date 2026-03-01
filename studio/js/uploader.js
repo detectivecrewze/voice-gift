@@ -43,25 +43,47 @@ const Uploader = (() => {
     _bindEvents();
     _render();
 
-    // Init Sortable setelah render
-    if (grid()) {
-      _sortableInstance = Sortable.create(grid(), {
-        animation: 150,
-        ghostClass: 'sortable-ghost',
-        dragClass: 'sortable-drag',
-        handle: '.drag-handle',
-        delay: 250, // Increased delay to 250ms for better mobile distinction
-        delayOnTouchOnly: true,
-        touchStartThreshold: 10, // Increased threshold to avoid accidental cancellations
-        onEnd: () => {
-          // Update urutan setelah drag selesai
-          _syncOrderFromDOM();
-          // Render ulang untuk update nomor urut di layar
-          _render();
-          // Beri tahu studio.js bahwa foto berubah
+    // 4. Inisialisasi Sortable.js & Static Event Listeners
+    const g = grid();
+    if (g) {
+      // Pasang listener caption sekali saja (Bug #5 Fix: jangan dipasang ulang tiap _render)
+      let _captionSaveTimer = null;
+
+      g.addEventListener('input', (e) => {
+        if (!e.target.classList.contains('caption-input')) return;
+        _updatePhoto(e.target.dataset.id, { caption: e.target.value });
+        clearTimeout(_captionSaveTimer);
+        _captionSaveTimer = setTimeout(() => {
           Studio.onPhotosChanged(_photos.filter(p => p.status === 'success'));
-        },
+        }, 800);
       });
+
+      g.addEventListener('mousedown', (e) => {
+        if (e.target.classList.contains('caption-input')) e.stopPropagation();
+      });
+
+      g.addEventListener('touchstart', (e) => {
+        if (e.target.classList.contains('caption-input')) e.stopPropagation();
+      }, { passive: true });
+
+      // Init Sortable list
+      if (typeof Sortable !== 'undefined') {
+        _sortableInstance = new Sortable(g, { // Assign to _sortableInstance
+          animation: 150,
+          handle: '.photo-item',
+          ghostClass: 'opacity-50',
+          onEnd: (evt) => {
+            if (evt.oldIndex === evt.newIndex) return;
+            // Pindahkan elemen di array
+            const item = _photos.splice(evt.oldIndex, 1)[0];
+            _photos.splice(evt.newIndex, 0, item);
+            // Update UI & callback
+            _render();
+            // Beri tahu studio.js bahwa foto berubah
+            Studio.onPhotosChanged(_photos.filter(p => p.status === 'success'));
+          },
+        });
+      }
     }
   };
 
@@ -325,7 +347,7 @@ const Uploader = (() => {
     // Render thumbnail grid
     g.innerHTML = _photos.map(photo => _renderThumbnail(photo)).join('');
 
-    // Re-bind events (using delegation is better but we keep it simple for now)
+    // Re-bind events for dynamic buttons (delete & retry)
     g.querySelectorAll('.btn-delete-photo').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -338,27 +360,6 @@ const Uploader = (() => {
         retryUpload(btn.dataset.id);
       });
     });
-
-    // Bind caption input via event delegation on the grid container
-    // (prevents listener accumulation on each re-render)
-    let _captionSaveTimer = null;
-    g.addEventListener('input', (e) => {
-      if (!e.target.classList.contains('caption-input')) return;
-      _updatePhoto(e.target.dataset.id, { caption: e.target.value });
-      // Debounce: only trigger autosave 800ms after user stops typing
-      clearTimeout(_captionSaveTimer);
-      _captionSaveTimer = setTimeout(() => {
-        Studio.onPhotosChanged(_photos.filter(p => p.status === 'success'));
-      }, 800);
-    });
-
-    // Prevent sortable drag when user is typing in a caption field
-    g.addEventListener('mousedown', (e) => {
-      if (e.target.classList.contains('caption-input')) e.stopPropagation();
-    });
-    g.addEventListener('touchstart', (e) => {
-      if (e.target.classList.contains('caption-input')) e.stopPropagation();
-    }, { passive: true });
   };
 
   const _renderThumbnail = (photo) => {

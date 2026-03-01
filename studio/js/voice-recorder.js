@@ -473,6 +473,15 @@ const VoiceRecorder = (() => {
     _stopWaveform();
     if (_mediaRecorder?.state !== 'inactive') _mediaRecorder?.stop();
     _stream?.getTracks().forEach(t => t.stop());
+
+    // Tutup AudioContext lama agar tidak bocor (max ~6 per tab browser)
+    if (_audioContext) {
+      _audioContext.close().catch(() => { });
+      _audioContext = null;
+    }
+    // Bersihkan analyser juga
+    _analyserNode = null;
+
     if (_audioUrl) { URL.revokeObjectURL(_audioUrl); _audioUrl = null; }
     _audioBlob = null;
     _audioChunks = [];
