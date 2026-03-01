@@ -10,8 +10,8 @@
 
 const Autosave = (() => {
 
-  const DEBOUNCE_MS = 3000;      // Naikkan dari 1500 → 3000
-  const MIN_SAVE_INTERVAL = 30000; // Maksimal save sekali per 30 detik
+  const DEBOUNCE_MS = 3000;
+  const MIN_SAVE_INTERVAL = 120000; // Maksimal save sekali per 2 menit (120 detik)
   let _lastSaveTime = 0;
   let _debounceTimer = null;
   let _saveController = null; // Cancel in-flight saves to prevent race conditions
