@@ -10,9 +10,11 @@
 
 const Autosave = (() => {
 
+  const DEBOUNCE_MS = 3000;      // Naikkan dari 1500 → 3000
+  const MIN_SAVE_INTERVAL = 30000; // Maksimal save sekali per 30 detik
+  let _lastSaveTime = 0;
   let _debounceTimer = null;
   let _saveController = null; // Cancel in-flight saves to prevent race conditions
-  const DEBOUNCE_MS = 1500;
 
   const _setIndicator = (text, color = 'text-gray-400') => {
     const el = document.getElementById('autosave-status');
@@ -29,11 +31,20 @@ const Autosave = (() => {
     }
   };
 
-  // Dipanggil oleh studio.js setiap kali ada perubahan
+  // ── Debounce Wrapper ──────────────────────────────────────
   const trigger = (getStateCallback) => {
-    _setIndicator('Menyimpan...');
+    _setIndicator('Menyimpan...', true);
     clearTimeout(_debounceTimer);
     _debounceTimer = setTimeout(async () => {
+
+      // Jeda paksa: kalau baru saja save, skip dan ulangi tunggu
+      const now = Date.now();
+      if (now - _lastSaveTime < MIN_SAVE_INTERVAL) {
+        _setIndicator('');
+        return;
+      }
+
+      _lastSaveTime = now;
       await _save(getStateCallback());
     }, DEBOUNCE_MS);
   };
