@@ -127,9 +127,8 @@
       ambientAudio = new Audio(soundUrl);
       ambientAudio.crossOrigin = 'anonymous';
 
-      // Only loop nature SFX, not songs
-      const isSong = ['nadin-ah', 'daniel', 'mitski', 'feast-nina', 'feast-tarot', 'custom'].includes(ambientId);
-      ambientAudio.loop = !isSong;
+      // All ambient sounds loop forever (nature SFX and songs alike)
+      ambientAudio.loop = true;
 
       ambientSource = ctx.createMediaElementSource(ambientAudio);
       ambientGain = ctx.createGain();
@@ -498,11 +497,7 @@
     });
 
     audio.addEventListener('ended', () => {
-      audio.currentTime = 0;
-      // Loop voice note: restart playback if audio is still active
-      if (isPlaying) {
-        audio.play().catch(() => { });
-      }
+      // Voice note plays once — do nothing when it ends.
     });
 
     // ── Interaction Logic (Infinite) ──────────────────────────
@@ -884,14 +879,16 @@
         }
 
         if (ambientAudio) ambientAudio.muted = false;
-        if (audio.ended) audio.currentTime = 0;
+        // Voice note plays once — do NOT reset currentTime when ended.
 
-        audio.play().catch((e) => {
-          // AbortError bisa di-retry, NotAllowedError tidak bisa tanpa gesture baru
-          if (e.name === 'AbortError') {
-            setTimeout(() => audio.play().catch(() => { }), 300);
-          }
-        });
+        if (!audio.ended) {
+          audio.play().catch((e) => {
+            // AbortError bisa di-retry, NotAllowedError tidak bisa tanpa gesture baru
+            if (e.name === 'AbortError') {
+              setTimeout(() => { if (!audio.ended) audio.play().catch(() => { }); }, 300);
+            }
+          });
+        }
 
         isPlaying = true;
         box.classList.add('is-cranking');
@@ -973,7 +970,8 @@
         audioCtx.resume().catch(() => { });
       }
       // iOS bug: audio bisa di-pause paksa saat tab background
-      if (isPlaying && audio.paused) {
+      // Guard: do not revive voice note if it has already ended.
+      if (isPlaying && audio.paused && !audio.ended) {
         audio.play().catch(() => { });
       }
     });
