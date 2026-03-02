@@ -8,7 +8,7 @@ var index_default = {
   async fetch(request, env) {
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization, Cache-Control, Pragma, Range",
       "Access-Control-Expose-Headers": "Content-Length, Content-Range, Accept-Ranges"
     };
@@ -67,6 +67,64 @@ var index_default = {
         return new Response(JSON.stringify({ error: error.message || "Upload failed" }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+    }
+
+    // ── POST /presign — Generate nama file unik ───────────
+    // Worker hanya buat key — browser upload langsung ke R2
+    if (request.method === 'POST' && url.pathname === '/presign') {
+      try {
+        const { filename, contentType } = await request.json();
+        if (!filename || !contentType) {
+          return new Response(JSON.stringify({ error: 'Missing filename or contentType' }), {
+            status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+        const timestamp = Date.now();
+        const randomStr = Math.random().toString(36).substring(7);
+        const ext = filename.split('.').pop().toLowerCase();
+        const key = `${timestamp}-${randomStr}.${ext}`;
+        return new Response(JSON.stringify({
+          success: true, key, publicUrl: `${CDN_URL}/${key}`
+        }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      } catch (error) {
+        return new Response(JSON.stringify({ error: error.message || 'Presign failed' }), {
+          status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    // ── PUT /upload-direct/:key — Browser upload langsung ke R2 ──
+    if (request.method === 'PUT' && url.pathname.startsWith('/upload-direct/')) {
+      try {
+        const key = url.pathname.replace('/upload-direct/', '');
+        if (!key || key.includes('..') || key.includes('/')) {
+          return new Response(JSON.stringify({ error: 'Invalid key' }), {
+            status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+
+        // Gembok: cek ukuran file maksimal 10MB
+        const contentLength = parseInt(request.headers.get('Content-Length') || '0');
+        if (contentLength > 10 * 1024 * 1024) {
+          return new Response(JSON.stringify({ error: 'File terlalu besar. Maksimal 10MB.' }), {
+            status: 413, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+
+        const contentType = request.headers.get('Content-Type') || 'application/octet-stream';
+        await env.BUCKET.put(key, request.body, {
+          httpMetadata: { contentType }
+        });
+
+        return new Response(JSON.stringify({
+          success: true, url: `${CDN_URL}/${key}`
+        }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      } catch (error) {
+        console.error('Direct upload error:', error);
+        return new Response(JSON.stringify({ error: error.message || 'Upload failed' }), {
+          status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
     }
@@ -237,19 +295,29 @@ var index_default = {
       });
     }
 
-    // ── GET /{filename} — Redirect file lama ke CDN ─────────
+    // ── GET /{filename} — Proxy file lama dari R2 ───────────
     // Semua URL foto/audio customer lama yang masih pakai domain workers.dev
-    // akan otomatis di-redirect ke CDN — tidak perlu update data customer satu per satu
+    // akan disajikan langsung oleh Worker untuk menghindari isu CORS/Cache saat redirect.
     if (request.method === "GET" && url.pathname !== "/") {
       const filename = url.pathname.substring(1);
       if (filename && !filename.includes("/") && !filename.includes("..")) {
-        return new Response(null, {
-          status: 301,
-          headers: {
-            ...corsHeaders,
-            "Location": `${CDN_URL}/${filename}`
+        try {
+          const object = await env.BUCKET.get(filename);
+
+          if (object === null) {
+            return new Response("File not found", { status: 404, headers: corsHeaders });
           }
-        });
+
+          const headers = new Headers(corsHeaders);
+          object.writeHttpMetadata(headers);
+          headers.set("etag", object.httpEtag);
+          // Paksa cache browser selama 1 jam untuk performa
+          headers.set("Cache-Control", "public, max-age=3600");
+
+          return new Response(object.body, { headers });
+        } catch (e) {
+          return new Response("Error fetching file", { status: 500, headers: corsHeaders });
+        }
       }
       return new Response("File not found", { status: 404, headers: corsHeaders });
     }
