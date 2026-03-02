@@ -738,7 +738,36 @@
         ctx.resume();
       }
 
-      warmUpAudio();
+      // --- SILENT UNLOCK HACK UNTUK iOS/MOBILE SAFARI ---
+      // Karena iOS melarang audio.play() di dalam event touchmove (saat user menggeser tuas),
+      // kita harus memancing izin audio di sini (di dalam event mousedown/touchstart).
+      if (!audioWarmed) {
+        warmUpAudio();
+      } else {
+        // Pancing Voice Note
+        if (audio && audio.paused && audio.readyState >= 2) {
+          const originalVol = audio.volume;
+          audio.volume = 0;
+          audio.play().then(() => {
+            audio.pause();
+            audio.volume = originalVol;
+          }).catch(() => {
+            audio.volume = originalVol;
+          });
+        }
+        // Pancing Ambient/Latar Suara
+        if (ambientAudio && ambientAudio.paused && ambientAudio.readyState >= 2) {
+          const ambOriginalVol = ambientAudio.volume;
+          ambientAudio.volume = 0;
+          ambientAudio.play().then(() => {
+            ambientAudio.pause();
+            ambientAudio.volume = ambOriginalVol;
+          }).catch(() => {
+            ambientAudio.volume = ambOriginalVol;
+          });
+        }
+      }
+
       e.preventDefault();
     };
 
