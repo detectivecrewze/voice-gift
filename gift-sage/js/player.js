@@ -493,7 +493,7 @@
     // ── Auto-Play Logic ──
     let isAutoPlaying = false;
     let autoPlayRafId = null;
-    let AUTO_SPEED = 3.0; // Narrative speed for photo transitions (slower)
+    let AUTO_SPEED = isMobile ? 3.6 : 3.0; // Narrative speed for photo transitions (slower)
     const toggleBtn = containerEl.querySelector('#auto-play-toggle');
 
     // Add tutorial pulse on load
