@@ -388,12 +388,31 @@
       const now = Date.now();
       const nowSec = now / 1000;
 
+      // --- DETEKSI FALLBACK UNTUK BUG iOS/WebM ---
+      // Jika lagu sedang dimainkan tetapi frekuensi selalu 0 (karena browser menolak mengekstrak data)
+      let isFallbackNeeded = false;
+      if (isPlaying && !audio.paused && audio.currentTime > 0) {
+        let totalValue = 0;
+        for (let j = 0; j < dataArray.length; j++) {
+          totalValue += dataArray[j];
+          if (totalValue > 0) break; // Ada suara asli, batalkan fallback
+        }
+        isFallbackNeeded = (totalValue === 0);
+      }
+
       for (let i = 0; i < bars.length; i++) {
         const distanceToCenter = Math.abs(i - 12);
         const binIndex = Math.floor(distanceToCenter * 0.8) + 2;
-        const val = dataArray[binIndex] || 0;
+        let val = dataArray[binIndex] || 0;
 
-        const scaleFactor = (val / 255);
+        // --- MENGGUNAKAN GELOMBANG PALSU ---
+        if (isFallbackNeeded) {
+          // Buat animasi bergelombang (Math.sin) dicampur dengan Math.random() agar terlihat organik
+          const wave = Math.sin(nowSec * 5 + i * 0.4) * 0.5 + 0.5; // Hasil 0 s.d 1
+          val = (wave * 120) + (Math.random() * 60) + 20; // Menghasilkan amplitudo logis antara ~20 s.d ~200
+        }
+
+        const scaleFactor = Math.min(val / 255, 1);
         bars[i].style.transform = `scaleY(${0.125 + scaleFactor * 0.875})`;
         bars[i].style.opacity = scaleFactor > 0.3 ? (0.5 + scaleFactor * 0.5) : (0.1 + scaleFactor * 0.2);
       }

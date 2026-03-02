@@ -148,8 +148,22 @@ const Uploader = (() => {
     // Render sekali saja — tampilkan semua placeholder "uploading" dulu
     _render();
 
-    // Upload SEMUA foto secara paralel (serentak), bukan satu-satu
-    await Promise.all(uploadQueue.map(({ file, tempId }) => _processAndUpload(file, tempId)));
+    // Upload maksimal 2 foto bersamaan — mencegah Worker kewalahan
+    const MAX_CONCURRENT = 2;
+    let active = 0;
+    let index = 0;
+
+    await new Promise((resolve) => {
+      const next = () => {
+        if (index >= uploadQueue.length && active === 0) { resolve(); return; }
+        while (active < MAX_CONCURRENT && index < uploadQueue.length) {
+          const { file, tempId } = uploadQueue[index++];
+          active++;
+          _processAndUpload(file, tempId).finally(() => { active--; next(); });
+        }
+      };
+      next();
+    });
   };
 
   // ── Process & Upload Single File ─────────────────────────
@@ -185,30 +199,30 @@ const Uploader = (() => {
       _updatePhoto(tempId, { localPreview: localPreviewUrl });
       _render();
 
-      // 5. Upload ke API
-      const formData = new FormData();
-      formData.append('file', processedFile);
-      formData.append('type', 'photo');
-
-      // HARDCODED FIX: Bypass APP_CONFIG cache issues
+      // 5. Minta tiket upload ke Worker (ringan — tidak transfer file)
       const API_BASE_URL = 'https://valentine-upload.aldoramadhan16.workers.dev';
 
-      const response = await fetch(`${API_BASE_URL}/upload`, {
+      const presignRes = await fetch(`${API_BASE_URL}/presign`, {
         method: 'POST',
-        body: formData,
-      }).catch(err => {
-        console.error('[Uploader] Network error:', err);
-        throw new Error('Koneksi ke server gagal. Pastikan API menyala.');
-      });
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename: processedFile.name,
+          contentType: processedFile.type || 'image/jpeg'
+        })
+      }).catch(() => { throw new Error('Koneksi ke server gagal.'); });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('[Uploader] Server error:', response.status, errorText);
-        throw new Error(`Server error (${response.status})`);
-      }
+      if (!presignRes.ok) throw new Error(`Presign error (${presignRes.status})`);
+      const { key, publicUrl } = await presignRes.json();
 
-      const result = await response.json();
-      if (!result.success) throw new Error(result.error || 'Upload gagal');
+      // 6. Upload langsung ke R2 — Worker tidak ikut transfer file sama sekali
+      const uploadRes = await fetch(`${API_BASE_URL}/upload-direct/${key}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': processedFile.type || 'image/jpeg' },
+        body: processedFile
+      }).catch(() => { throw new Error('Upload ke R2 gagal.'); });
+
+      if (!uploadRes.ok) throw new Error(`Upload error (${uploadRes.status})`);
+      const result = { success: true, url: publicUrl };
 
       // 6. Update state dengan URL dari R2
       const photo = _photos.find(p => p.id === tempId);
