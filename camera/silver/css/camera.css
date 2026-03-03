@@ -1121,70 +1121,71 @@ body::after {
     transform: scale(0.75);
 }
 
-/* ── Mobile ── */
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE: Keep EXACT horizontal layout as desktop.
+   Strategy: scale the whole camera down uniformly so it fits
+   the phone screen without changing any structure or proportions.
+   ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
     #state-gift {
-        padding: 20px 10px;
+        padding: 28px 0;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
     }
 
+    /* voice-section fills viewport width so scale has room */
+    .voice-section {
+        max-width: 100vw;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: visible;
+    }
+
+    /*
+     * Camera is ~460px wide at desktop.
+     * Scale down uniformly to fit phone — NO layout change.
+     * margin trick collapses the whitespace transform leaves behind.
+     */
     .digicam-container {
-        border-radius: 40px;
-        padding: 26px 18px 85px;
-        transform-origin: center top;
-        margin-left: auto;
-        margin-right: auto;
+        transform-origin: top center;
+        transform: scale(0.78);
+        margin-top: calc((0.78 - 1) * 50%);
+        margin-bottom: calc((0.78 - 1) * 50%);
+        flex-shrink: 0;
     }
+}
 
-    /* Scaling for narrow screens to prevent overflow */
-    @media (max-width: 450px) {
-        .digicam-container {
-            transform: scale(0.98);
-        }
+@media (max-width: 430px) {
+    .digicam-container {
+        transform: scale(0.74);
+        margin-top: calc((0.74 - 1) * 50%);
+        margin-bottom: calc((0.74 - 1) * 50%);
     }
+}
 
-    @media (max-width: 400px) {
-        .digicam-container {
-            transform: scale(0.92);
-        }
+@media (max-width: 390px) {
+    .digicam-container {
+        transform: scale(0.70);
+        margin-top: calc((0.70 - 1) * 50%);
+        margin-bottom: calc((0.70 - 1) * 50%);
     }
+}
 
-    @media (max-width: 360px) {
-        .digicam-container {
-            transform: scale(0.86);
-        }
+@media (max-width: 360px) {
+    .digicam-container {
+        transform: scale(0.65);
+        margin-top: calc((0.65 - 1) * 50%);
+        margin-bottom: calc((0.65 - 1) * 50%);
     }
+}
 
-    .camera-body {
-        gap: 14px;
-    }
-
-    .lens-outer {
-        width: 120px;
-        height: 120px;
-    }
-
-    .lens-mid {
-        width: 100px;
-        height: 100px;
-    }
-
-    .lens-inner {
-        width: 80px;
-        height: 80px;
-    }
-
-    .lens-deep {
-        width: 62px;
-        height: 62px;
-    }
-
-    .lens-core {
-        width: 47px;
-        height: 47px;
-    }
-
+@media (max-width: 640px) {
     .watermark-badge {
-        display: none !important;
+        top: 12px;
+        right: 12px;
+        padding: 5px 12px 5px 10px;
     }
 
     .bokeh-particle {
