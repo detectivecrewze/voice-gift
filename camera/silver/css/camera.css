@@ -1122,205 +1122,91 @@ body::after {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   MOBILE: Fluid scaling — horizontal layout IDENTICAL to desktop.
-   Uses --s (scale factor) so every size shrinks proportionally.
-   Desktop base width ≈ 460px. At 390px phone: 390/460 ≈ 0.847
-   All px values = desktop_value * var(--s)
+   MOBILE — Same horizontal layout as desktop, just tighter.
+   Strategy: shrink lens, give LCD more room, bigger padding.
+   Reference: gift pages project (style.css) — no transform scale.
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
 
+    #state-gift {
+        padding: 20px 10px;
+    }
+
     .voice-section {
-        /* allow camera to fill available width */
-        max-width: 100%;
+        max-width: 360px;
         width: 100%;
-        display: flex;
-        justify-content: center;
     }
 
+    /* Camera shell — tighter but breathing room top/bottom */
     .digicam-container {
-        /* --s scales everything: clamp keeps it from being too small or too large */
-        --s: clamp(0.62, calc(93vw / 460px), 0.98);
-
-        /* Container pads shrink with scale */
-        border-radius: calc(50px * var(--s));
-        padding: calc(52px * var(--s)) calc(26px * var(--s)) calc(120px * var(--s));
-
-        /* Prevent horizontal overflow */
-        width: calc(460px * var(--s));
-        max-width: 93vw;
-        box-sizing: content-box;
+        border-radius: 44px;
+        padding: 44px 20px 110px;
     }
 
-    /* Corner screws */
-    .console-screw {
-        width: calc(11px * var(--s));
-        height: calc(11px * var(--s));
-    }
-
-    .console-screw::before {
-        width: calc(7px * var(--s));
-    }
-
-    .top-left {
-        top: calc(20px * var(--s));
-        left: calc(20px * var(--s));
-    }
-
-    .top-right {
-        top: calc(20px * var(--s));
-        right: calc(20px * var(--s));
-    }
-
-    .bottom-left {
-        bottom: calc(20px * var(--s));
-        left: calc(20px * var(--s));
-    }
-
-    .bottom-right {
-        bottom: calc(20px * var(--s));
-        right: calc(20px * var(--s));
-    }
-
-    /* Camera body gap */
+    /* Tighter gap between lens and LCD */
     .camera-body {
-        gap: calc(22px * var(--s));
+        gap: 14px;
     }
 
-    /* Left column gap */
-    .camera-left {
-        gap: calc(8px * var(--s));
-    }
-
-    /* Flash */
-    .flash-unit {
-        width: calc(48px * var(--s));
-        height: calc(13px * var(--s));
-    }
-
-    /* Viewfinder dot */
-    .viewfinder-dot {
-        width: calc(8px * var(--s));
-        height: calc(8px * var(--s));
-    }
-
-    /* ── Lens layers — all 5 rings shrink uniformly ── */
+    /* ── Lens: smaller so LCD gets more room ── */
     .lens-outer {
-        width: calc(148px * var(--s));
-        height: calc(148px * var(--s));
+        width: 110px;
+        height: 110px;
     }
 
     .lens-mid {
-        width: calc(124px * var(--s));
-        height: calc(124px * var(--s));
+        width: 92px;
+        height: 92px;
     }
 
     .lens-inner {
-        width: calc(98px * var(--s));
-        height: calc(98px * var(--s));
+        width: 74px;
+        height: 74px;
     }
 
     .lens-deep {
-        width: calc(76px * var(--s));
-        height: calc(76px * var(--s));
+        width: 58px;
+        height: 58px;
     }
 
     .lens-core {
-        width: calc(58px * var(--s));
-        height: calc(58px * var(--s));
-    }
-
-    .lens-glare-main {
-        width: calc(26px * var(--s));
-        height: calc(26px * var(--s));
-    }
-
-    .lens-glare-blue {
-        width: calc(18px * var(--s));
-        height: calc(18px * var(--s));
-    }
-
-    .lens-specular {
-        width: calc(5px * var(--s));
-        height: calc(5px * var(--s));
+        width: 44px;
+        height: 44px;
     }
 
     .lens-ring-label {
-        font-size: calc(6px * var(--s));
-        bottom: calc(-17px * var(--s));
-        letter-spacing: 0.15em;
+        font-size: 5.5px;
+        bottom: -14px;
     }
 
-    /* Right column */
-    .camera-right {
-        gap: calc(24px * var(--s));
-    }
-
-    /* LCD bezel */
+    /* ── LCD: taller so photos feel bigger ── */
     .lcd-bezel {
-        padding: calc(7px * var(--s));
-        border-radius: calc(9px * var(--s));
-        max-width: calc(220px * var(--s));
+        max-width: 190px;
+        width: 190px;
     }
 
-    /* Film frame — height matches bezel */
     .film-frame {
-        width: calc(165px * var(--s));
-        height: calc(165px * var(--s));
-        padding: calc(10px * var(--s));
+        width: 190px;
+        height: 190px;
     }
 
-    /* Slide counter */
-    .slide-counter {
-        font-size: calc(7px * var(--s));
-        top: calc(6px * var(--s));
-        right: calc(6px * var(--s));
-    }
-
-    /* Auto-play button */
+    /* Auto-play button matches LCD width */
     .auto-play-btn {
-        max-width: calc(240px * var(--s));
-        padding: calc(8px * var(--s)) calc(16px * var(--s));
-        border-radius: calc(6px * var(--s));
-        gap: calc(7px * var(--s));
-    }
-
-    .auto-play-text {
-        font-size: calc(8px * var(--s));
-    }
-
-    /* Bottom panel */
-    .bottom-panel {
-        height: calc(95px * var(--s));
-        padding: 0 calc(26px * var(--s)) calc(18px * var(--s));
-        gap: calc(6px * var(--s));
+        max-width: 190px;
+        width: 190px;
     }
 
     /* Waveform */
     .music-box-waveform {
-        height: calc(36px * var(--s));
-        max-width: calc(220px * var(--s));
-        padding: 0 calc(18px * var(--s));
-        gap: calc(2.5px * var(--s));
+        max-width: 200px;
     }
 
-    .waveform-bar {
-        width: calc(2.5px * var(--s));
-        height: calc(28px * var(--s));
-    }
-
-    /* Timer */
-    .timer-display {
-        font-size: calc(8px * var(--s));
-    }
-
-    /* Watermark: keep but smaller */
+    /* Watermark: hidden on mobile to save space */
     .watermark-badge {
-        top: 12px;
-        right: 12px;
-        padding: 5px 12px 5px 10px;
+        display: none !important;
     }
 
-    /* Bokeh: simplify for perf */
+    /* Bokeh: simplify for performance */
     .bokeh-particle {
         filter: none !important;
         opacity: 0.06 !important;
