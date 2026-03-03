@@ -1143,7 +1143,7 @@ body::after {
 
         /* Container pads shrink with scale */
         border-radius: calc(50px * var(--s));
-        padding: calc(32px * var(--s)) calc(26px * var(--s)) calc(100px * var(--s));
+        padding: calc(52px * var(--s)) calc(26px * var(--s)) calc(120px * var(--s));
 
         /* Prevent horizontal overflow */
         width: calc(460px * var(--s));
