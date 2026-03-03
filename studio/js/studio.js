@@ -48,35 +48,8 @@ const CAMERA_THEMES = [
   { id: 'cam-rosewood', folder: 'camera/rosewood', name: '🪵 Rosewood', color: '#b07860', preview: 'camera/rosewood/index.html' },
 ];
 
-// ── Data: Ambients ──────────────────────────────────────────
-const AMBIENTS = [
-  { id: 'none', label: 'Tanpa Suasana', emoji: '🔇' },
-  { id: 'custom', label: 'Upload Musik Sendiri', emoji: '🎵' },
-  { id: 'rain', label: 'Rintik Hujan', emoji: '🌧️' },
-  { id: 'cafe', label: 'Cozy Cafe', emoji: '☕' },
-  { id: 'waves', label: 'Deburan Ombak', emoji: '🌊' },
-  { id: 'fireplace', label: 'Api Unggun', emoji: '🔥' },
-  { id: 'forest', label: 'Hutan Pagi', emoji: '🌲' },
-  { id: 'nadin-ah', label: 'Nadin Amizah - Ah', emoji: '☁️' },
-  { id: 'daniel', label: 'Daniel Caesar - Who Knows', emoji: '🕊️' },
-  { id: 'mitski', label: 'Mitski - My Love Mine All Mine', emoji: '🌕' },
-  { id: 'feast-nina', label: 'Feast - Nina', emoji: '🕰️' },
-  { id: 'feast-tarot', label: 'Feast - Tarot', emoji: '🃏' },
-];
+// ── Data: Ambients & Sounds are now provided by shared/ambient-data.js ──
 
-// ── Ambient Sound URLs (same as gift page) ──────────────────
-const AMBIENT_SOUNDS = {
-  rain: 'https://cdn.for-you-always.my.id/1772227486439-blw2aj.mp3',
-  cafe: 'https://cdn.for-you-always.my.id/1772227483969-rc084e.mp3',
-  waves: 'https://cdn.for-you-always.my.id/1772227486868-kl95f6.mp3',
-  fireplace: 'https://cdn.for-you-always.my.id/1772227484891-mv1lcl.mp3',
-  forest: 'https://cdn.for-you-always.my.id/1772227485518-wlidq.mp3',
-  'nadin-ah': 'https://cdn.for-you-always.my.id/1772227383860-qvi027.mp3',
-  daniel: 'https://cdn.for-you-always.my.id/1772227226601-vibhce.mp3',
-  mitski: 'https://cdn.for-you-always.my.id/1772227092846-paa3bd.mp3',
-  'feast-nina': 'https://cdn.for-you-always.my.id/1772227124627-yaxp9g.mp3',
-  'feast-tarot': 'https://cdn.for-you-always.my.id/1772227035785-lvjl94.mp3'
-};
 
 // ── Global State ─────────────────────────────────────────────
 // State ini adalah single source of truth untuk seluruh studio
@@ -684,15 +657,21 @@ const Studio = (() => {
       `;
     };
 
-    if (mbContainer) mbContainer.innerHTML = THEMES.map(renderThemeBtn).join('');
-    if (camContainer) camContainer.innerHTML = CAMERA_THEMES.map(renderThemeBtn).join('');
+    if (mbContainer) mbContainer.innerHTML = (THEMES || []).map(renderThemeBtn).join('');
+    if (camContainer) camContainer.innerHTML = (CAMERA_THEMES || []).map(renderThemeBtn).join('');
   };
 
   const _renderAmbients = (activeAmbientId) => {
     const container = document.getElementById('ambient-selector');
     if (!container) return;
 
-    container.innerHTML = AMBIENTS.map(a => {
+    const data = (typeof AMBIENTS !== 'undefined' ? AMBIENTS : []);
+    if (data.length === 0) {
+      container.innerHTML = '<p class="text-[9px] text-gray-400">Memuat data...</p>';
+      return;
+    }
+
+    container.innerHTML = data.map(a => {
       const isActive = a.id === activeAmbientId;
       const isPlaying = _currentPreviewId === a.id;
       const hasSound = (a.id !== 'none' && AMBIENT_SOUNDS[a.id]) || (a.id === 'custom' && _state.customAmbientUrl);
