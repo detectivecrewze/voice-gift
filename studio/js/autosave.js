@@ -33,7 +33,7 @@ const Autosave = (() => {
 
   // ── Debounce Wrapper ──────────────────────────────────────
   const trigger = (getStateCallback) => {
-    _setIndicator('Menyimpan...', true);
+    _setIndicator('Menyimpan...', 'text-gray-400');
     clearTimeout(_debounceTimer);
     _debounceTimer = setTimeout(async () => {
 

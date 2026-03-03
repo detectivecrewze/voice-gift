@@ -23,6 +23,26 @@
         {
             "source": "/gift-sage/(.*)",
             "destination": "/gift-sage/index.html"
+        },
+        {
+            "source": "/camera/midnight/(.*)",
+            "destination": "/camera/midnight/index.html"
+        },
+        {
+            "source": "/camera/mossy/(.*)",
+            "destination": "/camera/mossy/index.html"
+        },
+        {
+            "source": "/camera/rosewood/(.*)",
+            "destination": "/camera/rosewood/index.html"
+        },
+        {
+            "source": "/camera/silver/(.*)",
+            "destination": "/camera/silver/index.html"
+        },
+        {
+            "source": "/camera/(.*)",
+            "destination": "/camera/index.html"
         }
     ]
 }

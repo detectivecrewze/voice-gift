@@ -27,8 +27,8 @@ const Preview = (() => {
     const themeConfig = Studio.getThemeConfig(state.theme);
     const folder = themeConfig ? themeConfig.folder : 'gift';
 
-    // Buka tanpa parameter ?to= agar lari ke demo/mock data (tanpa password gate)
-    window.open(`../${folder}/index.html`, '_blank');
+    // Buka dengan ?to=for-preview agar lari ke demo/mock data (tanpa password gate)
+    window.open(`../${folder}/index.html?to=for-preview`, '_blank');
   };
 
   // Expose public API

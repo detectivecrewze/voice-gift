@@ -290,9 +290,10 @@ const VoiceRecorder = (() => {
     }
 
     audio.ontimeupdate = () => {
+      const knownDur = (audio.duration && isFinite(audio.duration)) ? audio.duration : _savedDuration;
       if (timeEl) timeEl.textContent = _formatTime(Math.floor(audio.currentTime));
-      if (progressFill && audio.duration && isFinite(audio.duration)) {
-        progressFill.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
+      if (progressFill && knownDur && knownDur > 0) {
+        progressFill.style.width = `${(audio.currentTime / knownDur) * 100}%`;
       }
     };
 
@@ -323,9 +324,10 @@ const VoiceRecorder = (() => {
     }
 
     audio.ontimeupdate = () => {
+      const knownDur = (audio.duration && isFinite(audio.duration)) ? audio.duration : _savedDuration;
       if (timeEl) timeEl.textContent = _formatTime(Math.floor(audio.currentTime));
-      if (progressFill && audio.duration && isFinite(audio.duration)) {
-        progressFill.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
+      if (progressFill && knownDur && knownDur > 0) {
+        progressFill.style.width = `${(audio.currentTime / knownDur) * 100}%`;
       }
     };
 

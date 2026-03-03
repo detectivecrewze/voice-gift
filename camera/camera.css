@@ -1,0 +1,1194 @@
+/* ============================================================
+   camera.css — Gift Camera Theme v3
+   Aesthetic: Bold Silver + Charcoal Digicam, Cool Feminine
+   High-contrast, Pinterest-able, Clearly visible on all bg.
+   ============================================================ */
+
+:root {
+    --font-display: 'Cormorant Garamond', serif;
+    --font-sans: 'DM Sans', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+
+    /* ── Background palette: cooler, dimmer, not white ── */
+    --bg: #c8c4c0;
+    --mesh:
+        radial-gradient(at 0% 0%, #ddd9d5 0px, transparent 55%),
+        radial-gradient(at 100% 0%, #cdc8c3 0px, transparent 55%),
+        radial-gradient(at 80% 80%, #bfbbb6 0px, transparent 55%),
+        radial-gradient(at 20% 100%, #d4d0cb 0px, transparent 55%);
+
+    /* ── Camera accent ── */
+    --cam-bezel: #e8e6e3;
+    /* outer rim, silver-white */
+    --cam-body: #dddbd8;
+    /* main body slab, light warm silver */
+    --cam-dark: #2c2c2c;
+    /* dark hardware & LCD area */
+    --cam-mid: #8f8d8a;
+    /* mid-tone ring / detail */
+
+    /* ── UI accents ── */
+    --primary: #7a7673;
+    --accent: #4a4744;
+    --text: #2a2724;
+    --text-muted: #7a7673;
+    --border: rgba(100, 95, 90, 0.3);
+
+    --noise-opacity: 0.04;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.hidden {
+    display: none !important;
+}
+
+html,
+body {
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── Dimmer, medium-grey gradient background ── */
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: var(--mesh);
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: var(--noise-opacity);
+    pointer-events: none;
+}
+
+/* ── State Layouts ── */
+.fullscreen-center {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.loading-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(100, 95, 90, 0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ── Password Card ── */
+/* ── Password Card ── */
+.password-card {
+    background: rgba(240, 238, 235, 0.95);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    padding: 70px 48px;
+    border-radius: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    text-align: center;
+    max-width: 440px;
+    width: 90%;
+    box-shadow: 0 40px 100px -20px rgba(40, 38, 35, 0.15);
+    animation: fade-in-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.password-title {
+    font-family: var(--font-display);
+    font-size: 38px;
+    font-weight: 400;
+    margin-bottom: 40px;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+}
+
+.hint-text {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    font-weight: 500;
+}
+
+.password-field {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(160, 155, 150, 0.3);
+    border-radius: 12px;
+    padding: 18px 20px;
+    color: var(--text);
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 30px;
+    outline: none;
+    transition: all 0.3s ease;
+    letter-spacing: 0.1em;
+}
+
+.password-field::placeholder {
+    color: var(--text-muted);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    opacity: 0.7;
+}
+
+.password-field:focus {
+    border-color: var(--accent);
+    background: #fff;
+}
+
+.unlock-btn {
+    width: 100%;
+    background: var(--text);
+    color: #fff;
+    border: none;
+    padding: 22px;
+    border-radius: 14px;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.unlock-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+}
+
+.password-hint {
+    margin-top: 40px;
+    font-size: 9px;
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+.password-error {
+    color: #d9534f;
+    font-size: 10px;
+    margin-top: -15px;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.9;
+}
+
+.error-container {
+    text-align: center;
+    background: rgba(240, 238, 235, 0.95);
+    padding: 60px 48px;
+    border-radius: 40px;
+    max-width: 440px;
+    width: 90%;
+    box-shadow: 0 40px 100px -20px rgba(40, 38, 35, 0.15);
+}
+
+.error-icon {
+    font-size: 48px;
+    margin-bottom: 24px;
+    display: inline-block;
+}
+
+.error-container h2 {
+    font-family: var(--font-display);
+    font-size: 32px;
+    color: var(--text);
+    margin-bottom: 12px;
+    font-weight: 400;
+}
+
+.error-container p {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* ── Gift State ── */
+#state-gift {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.bokeh-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.bokeh-particle {
+    position: absolute;
+    border-radius: 50%;
+    background: #fff;
+    filter: blur(60px);
+    opacity: 0.08;
+    will-change: transform;
+}
+
+.voice-section {
+    width: 100%;
+    max-width: 460px;
+    position: relative;
+    z-index: 5;
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   THE DIGICAM — Bold, High-Contrast, Clearly Defined
+   ============================================================ */
+.digicam-container {
+    /* Layered background for a premium plastic camera body */
+    background:
+        repeating-linear-gradient(-45deg,
+            rgba(80, 75, 70, 0.025), rgba(80, 75, 70, 0.025) 1px,
+            transparent 1px, transparent 8px),
+        linear-gradient(165deg,
+            #f0eeec 0%,
+            #e4e2df 30%,
+            #d8d5d2 60%,
+            #cfccc9 100%);
+
+    /* Clear border to separate from background */
+    border: 1.5px solid rgba(160, 155, 150, 0.7);
+    border-top-color: rgba(240, 238, 235, 0.9);
+    border-left-color: rgba(240, 238, 235, 0.8);
+
+    border-radius: 50px;
+    padding: 32px 26px 100px;
+
+    /* Dramatic, rich shadow */
+    box-shadow:
+        0 2px 0 rgba(255, 255, 255, 0.9),
+        /* top highlight */
+        0 70px 140px -30px rgba(20, 18, 16, 0.55),
+        /* deep bottom shadow */
+        0 20px 40px rgba(60, 55, 50, 0.18),
+        inset 0 1.5px 3px rgba(255, 255, 255, 0.95),
+        inset 0 -8px 20px rgba(80, 75, 70, 0.1);
+
+    position: relative;
+    overflow: hidden;
+}
+
+/* ── Corner Screws ── */
+.console-screw {
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    background: radial-gradient(circle at 35% 35%, #e0dedd, #a5a2a0);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.7);
+    z-index: 5;
+}
+
+.console-screw::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 7px;
+    height: 1.5px;
+    background: #555;
+    border-radius: 1px;
+}
+
+.top-left {
+    top: 20px;
+    left: 20px;
+    transform: rotate(45deg);
+}
+
+.top-right {
+    top: 20px;
+    right: 20px;
+    transform: rotate(-45deg);
+}
+
+.bottom-left {
+    bottom: 20px;
+    left: 20px;
+    transform: rotate(-15deg);
+}
+
+.bottom-right {
+    bottom: 20px;
+    right: 20px;
+    transform: rotate(30deg);
+}
+
+/* ── Camera Body Layout ── */
+.camera-body {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+/* ── LEFT: Lens Area ── */
+.camera-left {
+    flex-shrink: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Flash */
+.flash-unit {
+    width: 48px;
+    height: 13px;
+    background: linear-gradient(90deg, #c0bcb8 0%, #d8d5d1 40%, #c0bcb8 100%);
+    border-radius: 3px;
+    border: 1px solid #aaa;
+    overflow: hidden;
+    box-shadow:
+        inset 0 1px 3px rgba(255, 255, 255, 0.9),
+        0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.flash-grid {
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(90deg,
+            rgba(255, 255, 255, 0.5) 0px, rgba(255, 255, 255, 0.5) 2px,
+            transparent 2px, transparent 4px);
+}
+
+.viewfinder-dot {
+    width: 8px;
+    height: 8px;
+    background: #1c1c1c;
+    border-radius: 50%;
+    border: 1.5px solid #444;
+    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.8);
+    align-self: flex-end;
+    margin-right: 6px;
+}
+
+/* ── LENS — 5-layer deep optical system ── */
+/* Outermost: Polished chrome ring */
+.lens-outer {
+    position: relative;
+    width: 148px;
+    height: 148px;
+    /* Chrome-like gradient */
+    background: conic-gradient(from 0deg,
+            #d8d5d2 0deg, #fff 40deg, #c8c5c2 80deg, #e8e5e2 120deg,
+            #b8b5b2 160deg, #e0ddda 200deg, #d0cdca 240deg, #f0edea 280deg,
+            #c0bdb9 320deg, #d8d5d2 360deg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        0 12px 28px rgba(0, 0, 0, 0.30),
+        0 4px 8px rgba(0, 0, 0, 0.15),
+        -4px -4px 12px rgba(255, 255, 255, 0.8),
+        inset 0 1px 4px rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(180, 178, 175, 0.6);
+}
+
+.lens-ring-label {
+    position: absolute;
+    bottom: -17px;
+    font-size: 6px;
+    letter-spacing: 0.18em;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Ring 1: Brushed dark silver bezel */
+.lens-mid {
+    width: 124px;
+    height: 124px;
+    background: linear-gradient(245deg,
+            #555250 0%, #3d3b39 30%, #4a4846 60%, #302e2c 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        inset 0 4px 10px rgba(0, 0, 0, 0.6),
+        inset 0 -2px 4px rgba(255, 255, 255, 0.08);
+    border: 1px solid #666;
+}
+
+/* Ring 2: Dark barrel */
+.lens-inner {
+    width: 98px;
+    height: 98px;
+    background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 5px 15px rgba(0, 0, 0, 1);
+    border: 1.5px solid #2d2d2d;
+}
+
+/* Ring 3: Recessed inner ring */
+.lens-deep {
+    width: 76px;
+    height: 76px;
+    background: radial-gradient(circle at center, #111 0%, #050505 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        inset 0 3px 12px rgba(0, 0, 0, 1),
+        0 0 6px rgba(0, 0, 0, 0.8);
+    border: 1px solid #1a1a1a;
+}
+
+/* Core glass element */
+.lens-core {
+    width: 58px;
+    height: 58px;
+    background:
+        radial-gradient(circle at 30% 28%,
+            #1c3350 0%, #0c1e38 25%, #05101e 55%, #010508 80%, #000 100%);
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        inset 0 0 12px rgba(60, 100, 180, 0.15),
+        inset 0 3px 8px rgba(255, 255, 255, 0.05);
+}
+
+.lens-glare-main {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 26px;
+    height: 26px;
+    background: radial-gradient(circle at center,
+            rgba(255, 255, 255, 0.42) 0%,
+            rgba(255, 255, 255, 0.1) 40%,
+            transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.lens-glare-blue {
+    position: absolute;
+    bottom: 7px;
+    right: 7px;
+    width: 18px;
+    height: 18px;
+    background: radial-gradient(circle,
+            rgba(80, 140, 255, 0.35) 0%,
+            rgba(60, 110, 220, 0.1) 50%,
+            transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.lens-specular {
+    position: absolute;
+    top: 12px;
+    left: 13px;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.75);
+    border-radius: 50%;
+    filter: blur(0.5px);
+    pointer-events: none;
+}
+
+/* ── RIGHT: LCD + Play ── */
+.camera-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+/* Bezel — real digicam dark plastic bezel */
+.lcd-bezel {
+    background: var(--cam-dark);
+    border-radius: 9px;
+    padding: 7px;
+    box-shadow:
+        inset 0 4px 10px rgba(0, 0, 0, 0.9),
+        inset 0 -1px 2px rgba(255, 255, 255, 0.06),
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        0 1px 0 rgba(255, 255, 255, 0.4);
+    width: 95%;
+    max-width: 220px;
+    position: relative;
+}
+
+.lcd-screen {
+    width: 100%;
+    height: 100%;
+    background: #060606;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.lcd-screen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0) 38%);
+    pointer-events: none;
+    z-index: 30;
+}
+
+.lcd-idle {
+    text-align: center;
+    padding: 12px;
+}
+
+.lcd-intro-text p:first-child {
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.lcd-intro-text p:last-child {
+    font-size: 7.5px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-family: var(--font-mono);
+}
+
+/* ── Film Tray (scrolls horizontally) ── */
+.film-tray {
+    display: flex;
+    height: 100%;
+    will-change: transform;
+    transition: none;
+    /* Player.js controls movement via RAF, no CSS transition needed */
+}
+
+.film-frame {
+    flex: 0 0 165px;
+    width: 165px;
+    height: 165px;
+    position: relative;
+    overflow: hidden;
+    /* Frame padding to match main gift pages aesthetic */
+    padding: 10px;
+    background: #000;
+    box-sizing: border-box;
+}
+
+.film-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Fill frame — portrait bias means slight crop on sides */
+    display: block;
+    border-radius: 1px;
+    /* Analog film look: slight sepia + contrast boost */
+    filter: sepia(0.1) contrast(1.06);
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Active frame zoom — matches .printer-photo.is-active img */
+.film-frame.is-active img {
+    transform: scale(1.05) rotate(0.4deg);
+}
+
+/* Film grain texture overlay */
+.film-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0.6;
+    mix-blend-mode: overlay;
+}
+
+/* ── Dynamic Light Leaks (Analog Flicker) ── */
+.light-leak-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 70% 30%,
+            rgba(255, 120, 30, 0.15) 0%,
+            rgba(255, 60, 0, 0.05) 50%,
+            transparent 100%);
+    mix-blend-mode: color-dodge;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 15;
+    transition: opacity 0.3s ease;
+}
+
+/* ── Glass Lens Reflection ── */
+.glass-lens-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 25;
+    background:
+        linear-gradient(135deg,
+            rgba(255, 255, 255, 0.14) 0%,
+            rgba(255, 255, 255, 0.04) 15%,
+            transparent 40%,
+            transparent 100%),
+        radial-gradient(circle at 30% 25%,
+            rgba(255, 255, 255, 0.07) 0%,
+            transparent 30%),
+        radial-gradient(circle at 70% 80%,
+            rgba(100, 100, 255, 0.03) 0%,
+            transparent 50%);
+    opacity: 0.8;
+    mix-blend-mode: screen;
+}
+
+/* ── Idle Overlay (over film tray until play) ── */
+.lcd-idle-overlay {
+    position: absolute;
+    inset: 0;
+    background: #060606;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: opacity 0.8s ease;
+}
+
+.lcd-idle-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Minimal idle screen: just a thin horizontal line + mono label */
+.lcd-idle-line {
+    width: 32px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.lcd-idle-label {
+    font-family: var(--font-mono);
+    font-size: 6px;
+    letter-spacing: 0.28em;
+    color: rgba(255, 255, 255, 0.22);
+    text-transform: uppercase;
+}
+
+/* ── LCD Glass Effects ── */
+.lcd-glass-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, transparent 38%);
+    pointer-events: none;
+    z-index: 15;
+}
+
+.lcd-scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg,
+            rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0.03) 1px, transparent 2px);
+    background-size: 100% 3px;
+    pointer-events: none;
+    z-index: 12;
+    opacity: 0.4;
+}
+
+.slide-counter {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-family: var(--font-mono);
+    font-size: 7px;
+    color: rgba(255, 255, 255, 0.55);
+    background: rgba(0, 0, 0, 0.5);
+    padding: 2px 5px;
+    border-radius: 3px;
+    z-index: 20;
+    letter-spacing: 0.1em;
+}
+
+/* ── Lens Active Animation (pulses when playing) ── */
+@keyframes lens-pulse {
+
+    0%,
+    100% {
+        box-shadow: inset 0 0 12px rgba(60, 100, 180, 0.15), inset 0 3px 8px rgba(255, 255, 255, 0.05);
+    }
+
+    50% {
+        box-shadow: inset 0 0 24px rgba(100, 160, 255, 0.4), inset 0 3px 12px rgba(255, 255, 255, 0.12);
+    }
+}
+
+.lens-core.lens-active {
+    animation: lens-pulse 2s ease-in-out infinite;
+}
+
+/* ── Light Leak Flicker (analog film) ── */
+@keyframes light-leak-flicker {
+
+    0%,
+    100% {
+        background-position: 0% 0%;
+        filter: hue-rotate(0deg) brightness(1);
+        opacity: 0.2;
+    }
+
+    25% {
+        background-position: 10% 20%;
+        filter: hue-rotate(15deg) brightness(1.2);
+        opacity: 0.6;
+    }
+
+    50% {
+        background-position: -5% 10%;
+        filter: hue-rotate(-10deg) brightness(1.1);
+        opacity: 1;
+    }
+
+    75% {
+        background-position: 20% -10%;
+        filter: hue-rotate(5deg) brightness(1.3);
+        opacity: 0.8;
+    }
+}
+
+.is-playing .light-leak-overlay {
+    opacity: 1;
+    animation: light-leak-flicker 0.4s steps(4) infinite;
+}
+
+/* ── Scanline Flicker ── */
+@keyframes scanline-flicker {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(1px);
+    }
+}
+
+.is-playing .lcd-scanlines {
+    animation: scanline-flicker 0.1s infinite;
+}
+
+/* ── Mechanical Camera Jitter (whole body vibrates slightly when playing) ── */
+@keyframes mechanical-jitter {
+    0% {
+        transform: translate3d(0, 0, 0) rotate(0);
+    }
+
+    25% {
+        transform: translate3d(0.5px, -0.5px, 0) rotate(0.1deg);
+    }
+
+    50% {
+        transform: translate3d(-0.5px, 0.5px, 0) rotate(-0.1deg);
+    }
+
+    75% {
+        transform: translate3d(0.5px, 0.5px, 0) rotate(0.05deg);
+    }
+
+    100% {
+        transform: translate3d(0, 0, 0) rotate(0);
+    }
+}
+
+.digicam-container.is-playing .lcd-bezel {
+    animation: mechanical-jitter 0.12s linear infinite;
+}
+
+/* Vignette on the lcd-screen when playing */
+.lcd-screen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.45) 100%);
+    pointer-events: none;
+    z-index: 10;
+}
+
+
+
+/* ── Auto-Play Button ── */
+.auto-play-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    max-width: 240px;
+    background: var(--cam-dark);
+    color: #e8e6e3;
+    border: 1px solid #444;
+    border-bottom-color: #111;
+    border-radius: 6px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow:
+        0 3px 8px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.auto-play-btn:hover {
+    background: #1e1e1e;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.4);
+}
+
+.auto-play-btn.is-active {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.auto-play-icon {
+    font-size: 9px;
+    opacity: 0.85;
+}
+
+.auto-play-text {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    font-weight: 700;
+    opacity: 0.9;
+}
+
+/* ── Digicam playing state ── */
+.digicam-container.is-playing .console-screw {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.7),
+        0 0 6px rgba(100, 160, 255, 0.15);
+}
+
+
+
+/* ── Message ── */
+.message-slot {
+    margin-top: 22px;
+    padding: 0 4px;
+    min-height: 20px;
+}
+
+.message-strip {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-style: italic;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.6;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: all 1s ease;
+}
+
+.message-strip.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ── BOTTOM PANEL ── */
+.bottom-panel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 95px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 26px 18px;
+}
+
+/* Waveform — dark edged with warm glow bars */
+.music-box-waveform {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5px;
+    height: 36px;
+    background: rgba(20, 18, 16, 0.12);
+    border-radius: 100px;
+    padding: 0 18px;
+    border: 1px solid rgba(80, 75, 70, 0.22);
+    box-shadow:
+        inset 0 2px 6px rgba(0, 0, 0, 0.08),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.4),
+        0 1px 0 rgba(255, 255, 255, 0.5);
+    max-width: 220px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.waveform-bar {
+    width: 2.5px;
+    height: 28px;
+    background: var(--cam-mid);
+    border-radius: 4px;
+    opacity: 0.15;
+    transform-origin: center;
+    transform: scaleY(0.12);
+    transition: transform 0.08s ease, opacity 0.08s ease;
+    will-change: transform, opacity;
+}
+
+.waveform-bar.active {
+    opacity: 1;
+    background: linear-gradient(to top,
+            #6a6765 0%, #4a4846 40%, #2e2c2a 100%);
+    box-shadow: 0 0 6px rgba(80, 75, 70, 0.35);
+}
+
+.timer-display {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    color: var(--text-muted);
+    letter-spacing: 0.2em;
+}
+
+/* ── Brand Badge ── */
+.watermark-badge {
+    position: fixed;
+    top: 28px;
+    right: 28px;
+    background: rgba(240, 238, 236, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(160, 155, 150, 0.3);
+    border-radius: 100px;
+    padding: 7px 18px 7px 13px;
+    color: var(--primary);
+    text-decoration: none;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 8px 32px -8px rgba(40, 38, 35, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+.watermark-badge .flex {
+    gap: 14px !important;
+}
+
+.watermark-badge .material-symbols-outlined {
+    font-size: 17px !important;
+    transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.watermark-badge span:last-child {
+    font-family: var(--font-sans);
+    font-size: 8.5px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.32em !important;
+    text-transform: uppercase;
+    color: var(--text);
+    opacity: 0.65;
+    padding-left: 14px;
+    border-left: 1px solid rgba(0, 0, 0, 0.08);
+    line-height: 1;
+}
+
+.watermark-badge:hover {
+    background: rgba(25, 22, 20, 0.75);
+    transform: translateY(-4px);
+}
+
+.watermark-badge:hover .material-symbols-outlined {
+    transform: rotate(15deg) scale(1.1);
+    color: var(--primary);
+}
+
+/* ── Utility ── */
+.flex {
+    display: flex;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.uppercase {
+    text-transform: uppercase;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.text-xs {
+    font-size: 0.65rem;
+}
+
+.opacity-90 {
+    opacity: 0.9;
+}
+
+.tracking-widest {
+    letter-spacing: 0.25em;
+}
+
+.scale-75 {
+    transform: scale(0.75);
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+    #state-gift {
+        padding: 20px 10px;
+    }
+
+    .digicam-container {
+        border-radius: 40px;
+        padding: 26px 18px 85px;
+        transform-origin: center top;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Scaling for narrow screens to prevent overflow */
+    @media (max-width: 450px) {
+        .digicam-container {
+            transform: scale(0.98);
+        }
+    }
+
+    @media (max-width: 400px) {
+        .digicam-container {
+            transform: scale(0.92);
+        }
+    }
+
+    @media (max-width: 360px) {
+        .digicam-container {
+            transform: scale(0.86);
+        }
+    }
+
+    .camera-body {
+        gap: 14px;
+    }
+
+    .lens-outer {
+        width: 120px;
+        height: 120px;
+    }
+
+    .lens-mid {
+        width: 100px;
+        height: 100px;
+    }
+
+    .lens-inner {
+        width: 80px;
+        height: 80px;
+    }
+
+    .lens-deep {
+        width: 62px;
+        height: 62px;
+    }
+
+    .lens-core {
+        width: 47px;
+        height: 47px;
+    }
+
+    .watermark-badge {
+        display: none !important;
+    }
+
+    .bokeh-particle {
+        filter: none !important;
+        opacity: 0.06 !important;
+    }
+}

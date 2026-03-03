@@ -131,23 +131,63 @@
         </div>
       </section>
 
-      <!-- 2. Theme Selection in a Box -->
-      <section class="section-card mb-12">
-        <div class="flex items-center justify-between mb-8">
-          <div>
-            <h2 class="text-xs uppercase tracking-[0.3em] text-gray-600 font-bold mb-1">Pilih Tema</h2>
-            <p class="text-[8px] text-[#d4a373] uppercase tracking-[0.2em] font-bold">✨ Nuansa Halaman Kado</p>
+      <!-- 2. Format & Theme Selection -->
+      <section class="section-card mb-12 overflow-hidden">
+        <div class="mb-5">
+          <h2 class="text-[10px] uppercase tracking-[0.4em] text-gray-400 font-bold mb-1">Format Kado</h2>
+        </div>
+
+        <!-- Premium Segmented Control (Apple-style) -->
+        <div class="relative flex p-1 bg-gray-100 rounded-xl mb-8 w-full max-w-sm mx-auto sm:mx-0">
+          <!-- Active Background Indicator -->
+          <div id="tab-active-indicator"
+            class="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-in-out transform translate-x-0">
+          </div>
+
+          <button id="tab-btn-musicbox" onclick="Studio.switchThemeTab('musicbox')"
+            class="relative z-10 flex-1 py-3 text-[10px] uppercase tracking-widest font-extrabold transition-all duration-300 text-black">
+            Music Box
+          </button>
+          <button id="tab-btn-camera" onclick="Studio.switchThemeTab('camera')"
+            class="relative z-10 flex-1 py-3 text-[10px] uppercase tracking-widest font-extrabold transition-all duration-300 text-gray-400">
+            Film Camera
+          </button>
+        </div>
+
+        <!-- Panel: Music Box Themes -->
+        <div id="tab-panel-musicbox" class="transition-all duration-300">
+          <div class="flex items-center gap-3 mb-5">
+            <span class="text-[8px] uppercase tracking-[0.3em] text-gray-400 font-bold whitespace-nowrap">Pilihan Tema
+              Warna</span>
+            <div class="h-px flex-1 bg-gray-100"></div>
+          </div>
+          <div id="theme-selector-musicbox" class="flex flex-wrap gap-3 mb-6">
+            <!-- Rendered by JS -->
           </div>
         </div>
 
-        <div id="theme-selector" class="flex flex-wrap gap-4 mb-8">
-          <!-- Themes will be rendered here by studio.js -->
+        <!-- Panel: Camera Themes -->
+        <div id="tab-panel-camera" class="hidden transition-all duration-300">
+          <div class="flex items-center gap-3 mb-5">
+            <span class="text-[8px] uppercase tracking-[0.3em] text-gray-400 font-bold whitespace-nowrap">Model Lensa &
+              Frame</span>
+            <div class="h-px flex-1 bg-gray-100"></div>
+          </div>
+          <div id="theme-selector-camera" class="flex flex-wrap gap-3 mb-6">
+            <!-- Rendered by JS -->
+          </div>
         </div>
 
-        <div>
+        <div class="pt-6 border-t border-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p class="text-[9px] text-gray-400 italic">Klik tombol di bawah untuk melihat hasil visual kado kamu secara
+            utuh.</p>
           <button onclick="Preview.openPreview()"
-            class="text-[9px] uppercase tracking-widest px-6 py-3 border border-gray-200 rounded-full hover:border-black transition-all font-bold flex items-center gap-2">
-            👁️ Lihat Preview Tema Ini
+            class="group w-full sm:w-auto text-[9px] uppercase tracking-widest px-8 py-4 bg-gray-900 text-white rounded-full hover:bg-black transition-all font-bold flex items-center justify-center gap-3 shadow-xl shadow-black/10">
+            <span>Lihat Preview Tema</span>
+            <svg class="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
           </button>
         </div>
       </section>

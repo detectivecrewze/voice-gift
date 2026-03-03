@@ -40,6 +40,14 @@ const THEMES = [
   { id: 'pinky', folder: 'gift-pinky', name: '🌸 Magenta', color: '#f9a8d4' },
 ];
 
+// ── Data: Camera Themes ───────────────────────────────────────
+const CAMERA_THEMES = [
+  { id: 'cam-silver', folder: 'camera/silver', name: '🪙 Silver', color: '#8a9aaa', preview: 'camera/silver/index.html' },
+  { id: 'cam-midnight', folder: 'camera/midnight', name: '🌃 Midnight', color: '#1a1e2e', preview: 'camera/midnight/index.html' },
+  { id: 'cam-mossy', folder: 'camera/mossy', name: '🌿 Mossy', color: '#2a3a22', preview: 'camera/mossy/index.html' },
+  { id: 'cam-rosewood', folder: 'camera/rosewood', name: '🪵 Rosewood', color: '#b07860', preview: 'camera/rosewood/index.html' },
+];
+
 // ── Data: Ambients ──────────────────────────────────────────
 const AMBIENTS = [
   { id: 'none', label: 'Tanpa Suasana', emoji: '🔇' },
@@ -191,8 +199,8 @@ const Studio = (() => {
         _ambientAudio = new Audio();
         _ambientAudio.crossOrigin = 'anonymous';
         _ambientAudio.src = ambientUrl;
-        const isSong = ['nadin-ah', 'daniel', 'mitski', 'feast-nina', 'feast-tarot', 'custom'].includes(_state.ambient);
-        _ambientAudio.loop = !isSong;
+        const ambientEntry = (typeof AMBIENTS !== 'undefined' ? AMBIENTS : []).find(a => a.id === _state.ambient);
+        _ambientAudio.loop = ambientEntry ? !!ambientEntry.loop : !['nadin-ah', 'daniel', 'mitski', 'feast-nina', 'feast-tarot', 'custom'].includes(_state.ambient);
         const ambientSource = _ctx.createMediaElementSource(_ambientAudio);
         _ambientGain = _ctx.createGain();
         _ambientGain.gain.setValueAtTime(0, _ctx.currentTime);
@@ -362,6 +370,10 @@ const Studio = (() => {
       Publisher.init();
       _renderThemes(state.theme || 'rose');
       _renderAmbients(state.ambient || 'none');
+      // If the saved theme is a camera theme, auto-switch to camera tab
+      if (state.theme && CAMERA_THEMES.some(t => t.id === state.theme)) {
+        switchThemeTab('camera');
+      }
       _updateRequirementsUI();
       _initInputs();
 
@@ -613,15 +625,56 @@ const Studio = (() => {
     }
   };
 
+  // ── Tab Switching ──────────────────────────────────────────
+  const _activeTab = { current: 'musicbox' };
+
+  const switchThemeTab = (tabId) => {
+    _activeTab.current = tabId;
+    const panels = ['musicbox', 'camera'];
+    const indicator = document.getElementById('tab-active-indicator');
+
+    panels.forEach(id => {
+      const panel = document.getElementById(`tab-panel-${id}`);
+      const btn = document.getElementById(`tab-btn-${id}`);
+      if (!panel || !btn) return;
+      const isActive = id === tabId;
+      panel.classList.toggle('hidden', !isActive);
+
+      if (isActive) {
+        btn.classList.add('text-black');
+        btn.classList.remove('text-gray-400');
+      } else {
+        btn.classList.remove('text-black');
+        btn.classList.add('text-gray-400');
+      }
+    });
+
+    if (indicator) {
+      if (tabId === 'camera') {
+        indicator.style.transform = 'translateX(100%)';
+      } else {
+        indicator.style.transform = 'translateX(0)';
+      }
+    }
+
+    // Auto-select silver when switching to camera if no camera theme is active
+    if (tabId === 'camera') {
+      const isCameraTheme = CAMERA_THEMES.some(t => t.id === _state.theme);
+      if (!isCameraTheme) {
+        onThemeSelected('cam-silver');
+      }
+    }
+  };
+
   // ── Render UI ──────────────────────────────────────────────
   const _renderThemes = (activeThemeId) => {
-    const container = document.getElementById('theme-selector');
-    if (!container) return;
+    const mbContainer = document.getElementById('theme-selector-musicbox');
+    const camContainer = document.getElementById('theme-selector-camera');
 
-    container.innerHTML = THEMES.map(t => {
+    const renderThemeBtn = (t) => {
       const isActive = t.id === activeThemeId;
       return `
-        <button 
+        <button
           onclick="Studio.onThemeSelected('${t.id}')"
           class="flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${isActive ? 'border-black bg-black text-white' : 'border-gray-200 hover:border-black text-gray-500 hover:text-black'}"
         >
@@ -629,7 +682,10 @@ const Studio = (() => {
           <span class="text-[9px] uppercase tracking-widest font-bold">${t.name}</span>
         </button>
       `;
-    }).join('');
+    };
+
+    if (mbContainer) mbContainer.innerHTML = THEMES.map(renderThemeBtn).join('');
+    if (camContainer) camContainer.innerHTML = CAMERA_THEMES.map(renderThemeBtn).join('');
   };
 
   const _renderAmbients = (activeAmbientId) => {
@@ -717,6 +773,7 @@ const Studio = (() => {
     toggleAmbientPreview,
     openHintModal,
     closeHintModal,
+    switchThemeTab,
     getThemeConfig: (themeId) => {
       // Robust lookup: try direct ID match, then handle legacy IDs
       const legacyMap = {
@@ -725,7 +782,10 @@ const Studio = (() => {
         'original': 'rose'
       };
       const actualId = legacyMap[themeId] || themeId;
-      return THEMES.find(t => t.id === actualId) || THEMES[0];
+      // Search music box themes first, then camera themes
+      return THEMES.find(t => t.id === actualId)
+        || CAMERA_THEMES.find(t => t.id === actualId)
+        || THEMES[0];
     },
     showToast,
   };

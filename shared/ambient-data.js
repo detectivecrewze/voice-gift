@@ -18,15 +18,15 @@ const AMBIENT_SOUNDS = {
 };
 
 const AMBIENTS = [
-    { id: 'none', label: 'Tanpa Suasana', emoji: '🔇' },
-    { id: 'rain', label: 'Rintik Hujan', emoji: '🌧️' },
-    { id: 'cafe', label: 'Cozy Cafe', emoji: '☕' },
-    { id: 'waves', label: 'Deburan Ombak', emoji: '🌊' },
-    { id: 'fireplace', label: 'Api Unggun', emoji: '🔥' },
-    { id: 'forest', label: 'Hutan Pagi', emoji: '🌲' },
-    { id: 'nadin-ah', label: 'Nadin Amizah - Ah', emoji: '☁️' },
-    { id: 'daniel', label: 'Daniel Caesar - Who Knows', emoji: '🕊️' },
-    { id: 'mitski', label: 'Mitski - My Love Mine All Mine', emoji: '🌕' },
-    { id: 'feast-nina', label: 'Feast - Nina', emoji: '🕰️' },
-    { id: 'feast-tarot', label: 'Feast - Tarot', emoji: '🃏' },
+    { id: 'none', label: 'Tanpa Suasana', emoji: '🔇', loop: true },
+    { id: 'rain', label: 'Rintik Hujan', emoji: '🌧️', loop: true },
+    { id: 'cafe', label: 'Cozy Cafe', emoji: '☕', loop: true },
+    { id: 'waves', label: 'Deburan Ombak', emoji: '🌊', loop: true },
+    { id: 'fireplace', label: 'Api Unggun', emoji: '🔥', loop: true },
+    { id: 'forest', label: 'Hutan Pagi', emoji: '🌲', loop: true },
+    { id: 'nadin-ah', label: 'Nadin Amizah - Ah', emoji: '☁️', loop: false },
+    { id: 'daniel', label: 'Daniel Caesar - Who Knows', emoji: '🕊️', loop: false },
+    { id: 'mitski', label: 'Mitski - My Love Mine All Mine', emoji: '🌕', loop: false },
+    { id: 'feast-nina', label: 'Feast - Nina', emoji: '🕰️', loop: false },
+    { id: 'feast-tarot', label: 'Feast - Tarot', emoji: '🃏', loop: false },
 ];
