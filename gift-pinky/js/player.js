@@ -507,7 +507,8 @@
     // ── Auto-Play Logic ──
     let isAutoPlaying = false;
     let autoPlayRafId = null;
-    let AUTO_SPEED = isMobile ? 3.6 : 3.0; // Narrative speed for photo transitions (slower)
+    let AUTO_SPEED = isMobile ? 3.6 : 3.0; // Narrative speed in degrees per frame @ 60fps
+    let _autoLastTime = 0; // Delta-time tracking for consistent speed across framerates
     const toggleBtn = containerEl.querySelector('#auto-play-toggle');
 
     // Add tutorial pulse on load
@@ -515,12 +516,22 @@
       toggleBtn.classList.add('tutorial-pulse');
     }
 
-    function autoPlayLoop() {
+    function autoPlayLoop(timestamp) {
       if (!isAutoPlaying) return;
 
+      // Delta-time: ensure consistent speed regardless of device frame rate.
+      // Use performance.now() as fallback when called directly (not via rAF).
+      const now = (typeof timestamp === 'number') ? timestamp : performance.now();
+      if (_autoLastTime === 0) _autoLastTime = now;
+      const elapsed = now - _autoLastTime;
+      _autoLastTime = now;
+      // Clamp delta to max 100ms to avoid huge jumps after tab-switch or long pauses
+      const delta = Math.min(elapsed, 100) / (1000 / 60); // normalise to 60fps units
+      const step = AUTO_SPEED * delta;
+
       // 1. Increment rotations (1:1 sync)
-      visualCrankAngle += AUTO_SPEED;
-      totalCrankAngle += AUTO_SPEED;
+      visualCrankAngle += step;
+      totalCrankAngle += step;
 
       // 2. Visually rotate crank
       arm.style.transform = `rotate(${visualCrankAngle}deg) translateZ(0)`;
@@ -696,6 +707,10 @@
         isAutoPlaying = !isAutoPlaying;
         toggleBtn.classList.toggle('is-active', isAutoPlaying);
 
+        // Reset delta-time tracker so a stale timestamp from a previous session
+        // doesn't cause a huge jump on the first frame of the new session.
+        _autoLastTime = 0;
+
         warmUpAudio(); // Fix: Initialize AudioContext and Visualizer for Auto-Play
         getAudioContext();
 
@@ -737,8 +752,8 @@
       if (!audioWarmed) {
         warmUpAudio();
       } else {
-        // Pancing Voice Note
-        if (audio && audio.paused && audio.readyState >= 2) {
+        // Pancing Voice Note (silent unlock) — only if NOT ended, to prevent reviving finished audio
+        if (audio && audio.paused && !audio.ended && audio.readyState >= 2) {
           const originalVol = audio.volume;
           audio.volume = 0;
           audio.play().then(() => {
