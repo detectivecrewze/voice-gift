@@ -27,6 +27,13 @@ const Preview = (() => {
     const themeConfig = Studio.getThemeConfig(state.theme);
     const folder = themeConfig ? themeConfig.folder : 'gift';
 
+    // Simpan state saat ini ke sessionStorage agar preview bisa membacanya
+    try {
+      sessionStorage.setItem('studio_preview_config', JSON.stringify(state));
+    } catch (e) {
+      console.warn('[Preview] Could not save preview config to sessionStorage:', e);
+    }
+
     // Buka dengan ?to=for-preview agar lari ke demo/mock data (tanpa password gate)
     window.open(`../${folder}/index.html?to=for-preview`, '_blank');
   };

@@ -667,6 +667,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     if (giftIdParam) {
+        // Cek apakah ini mode preview dari studio
+        if (giftIdParam === 'for-preview') {
+            try {
+                const previewStr = sessionStorage.getItem('studio_preview_config');
+                if (previewStr) {
+                    const previewConfig = JSON.parse(previewStr);
+                    if (previewConfig && previewConfig.photos && previewConfig.photos.length > 0) {
+                        giftConfig = previewConfig;
+                        handleAfterLoad();
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.warn('[Camera] Could not read preview config from sessionStorage:', e);
+            }
+            // Fallback ke default config jika tidak ada sessionStorage
+            handleAfterLoad();
+            return;
+        }
+
         showState('loading');
         const fetched = await loadGift(giftIdParam);
         if (fetched) {
