@@ -647,7 +647,16 @@ const handleAfterLoad = () => {
 // ── Entry Point ────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
-    const giftIdParam = params.get('to');
+    let giftIdParam = params.get('to');
+
+    // Fallback: baca gift ID dari path jika tidak ada ?to= (e.g., /camera/silver/GIFT_ID)
+    if (!giftIdParam) {
+        const parts = window.location.pathname.split('/').filter(Boolean);
+        const lastPart = parts[parts.length - 1];
+        if (lastPart && lastPart !== 'index.html') {
+            giftIdParam = lastPart;
+        }
+    }
 
     // Default test config
     giftConfig = {
