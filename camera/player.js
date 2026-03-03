@@ -138,7 +138,7 @@ const initPlayer = (config) => {
 
                     <!-- Auto-play button -->
                     <button class="auto-play-btn" id="auto-play-toggle">
-                        <span class="auto-play-icon">▶</span>
+                        <span class="material-symbols-outlined auto-play-icon">play_arrow</span>
                         <span class="auto-play-text">AUTO PLAY</span>
                     </button>
                 </div>
@@ -595,7 +595,7 @@ const initPlayer = (config) => {
 
             isAutoPlaying = !isAutoPlaying;
             toggleBtn.classList.toggle('is-active', isAutoPlaying);
-            toggleBtn.querySelector('.auto-play-icon').textContent = isAutoPlaying ? '⏸' : '▶';
+            toggleBtn.querySelector('.auto-play-icon').textContent = isAutoPlaying ? 'pause' : 'play_arrow';
             toggleBtn.querySelector('.auto-play-text').textContent = isAutoPlaying ? 'PAUSE' : 'AUTO PLAY';
 
             if (isAutoPlaying) {

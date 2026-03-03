@@ -926,8 +926,9 @@ body::after {
 }
 
 .auto-play-icon {
-    font-size: 9px;
-    opacity: 0.85;
+    font-size: 16px;
+    opacity: 0.9;
+    font-weight: 300;
 }
 
 .auto-play-text {
