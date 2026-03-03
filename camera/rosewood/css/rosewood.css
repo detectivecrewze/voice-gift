@@ -1114,71 +1114,206 @@ body::after {
     transform: scale(0.75);
 }
 
-/* ── Mobile ── */
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE: Fluid scaling — horizontal layout IDENTICAL to desktop.
+   Uses --s (scale factor) so every size shrinks proportionally.
+   Desktop base width ≈ 460px. At 390px phone: 390/460 ≈ 0.847
+   All px values = desktop_value * var(--s)
+   ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
-    #state-gift {
-        padding: 20px 10px;
+
+    .voice-section {
+        /* allow camera to fill available width */
+        max-width: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
     }
 
     .digicam-container {
-        border-radius: 40px;
-        padding: 26px 18px 85px;
-        transform-origin: center top;
-        margin-left: auto;
-        margin-right: auto;
+        /* --s scales everything: clamp keeps it from being too small or too large */
+        --s: clamp(0.62, calc(93vw / 460px), 0.98);
+
+        /* Container pads shrink with scale */
+        border-radius: calc(50px * var(--s));
+        padding: calc(32px * var(--s)) calc(26px * var(--s)) calc(100px * var(--s));
+
+        /* Prevent horizontal overflow */
+        width: calc(460px * var(--s));
+        max-width: 93vw;
+        box-sizing: content-box;
     }
 
-    @media (max-width: 450px) {
-        .digicam-container {
-            transform: scale(0.98);
-        }
+    /* Corner screws */
+    .console-screw {
+        width: calc(11px * var(--s));
+        height: calc(11px * var(--s));
     }
 
-    @media (max-width: 400px) {
-        .digicam-container {
-            transform: scale(0.92);
-        }
+    .console-screw::before {
+        width: calc(7px * var(--s));
     }
 
-    @media (max-width: 360px) {
-        .digicam-container {
-            transform: scale(0.86);
-        }
+    .top-left {
+        top: calc(20px * var(--s));
+        left: calc(20px * var(--s));
     }
 
+    .top-right {
+        top: calc(20px * var(--s));
+        right: calc(20px * var(--s));
+    }
+
+    .bottom-left {
+        bottom: calc(20px * var(--s));
+        left: calc(20px * var(--s));
+    }
+
+    .bottom-right {
+        bottom: calc(20px * var(--s));
+        right: calc(20px * var(--s));
+    }
+
+    /* Camera body gap */
     .camera-body {
-        gap: 14px;
+        gap: calc(22px * var(--s));
     }
 
+    /* Left column gap */
+    .camera-left {
+        gap: calc(8px * var(--s));
+    }
+
+    /* Flash */
+    .flash-unit {
+        width: calc(48px * var(--s));
+        height: calc(13px * var(--s));
+    }
+
+    /* Viewfinder dot */
+    .viewfinder-dot {
+        width: calc(8px * var(--s));
+        height: calc(8px * var(--s));
+    }
+
+    /* ── Lens layers — all 5 rings shrink uniformly ── */
     .lens-outer {
-        width: 120px;
-        height: 120px;
+        width: calc(148px * var(--s));
+        height: calc(148px * var(--s));
     }
 
     .lens-mid {
-        width: 100px;
-        height: 100px;
+        width: calc(124px * var(--s));
+        height: calc(124px * var(--s));
     }
 
     .lens-inner {
-        width: 80px;
-        height: 80px;
+        width: calc(98px * var(--s));
+        height: calc(98px * var(--s));
     }
 
     .lens-deep {
-        width: 62px;
-        height: 62px;
+        width: calc(76px * var(--s));
+        height: calc(76px * var(--s));
     }
 
     .lens-core {
-        width: 47px;
-        height: 47px;
+        width: calc(58px * var(--s));
+        height: calc(58px * var(--s));
     }
 
+    .lens-glare-main {
+        width: calc(26px * var(--s));
+        height: calc(26px * var(--s));
+    }
+
+    .lens-glare-blue {
+        width: calc(18px * var(--s));
+        height: calc(18px * var(--s));
+    }
+
+    .lens-specular {
+        width: calc(5px * var(--s));
+        height: calc(5px * var(--s));
+    }
+
+    .lens-ring-label {
+        font-size: calc(6px * var(--s));
+        bottom: calc(-17px * var(--s));
+        letter-spacing: 0.15em;
+    }
+
+    /* Right column */
+    .camera-right {
+        gap: calc(24px * var(--s));
+    }
+
+    /* LCD bezel */
+    .lcd-bezel {
+        padding: calc(7px * var(--s));
+        border-radius: calc(9px * var(--s));
+        max-width: calc(220px * var(--s));
+    }
+
+    /* Film frame — height matches bezel */
+    .film-frame {
+        width: calc(165px * var(--s));
+        height: calc(165px * var(--s));
+        padding: calc(10px * var(--s));
+    }
+
+    /* Slide counter */
+    .slide-counter {
+        font-size: calc(7px * var(--s));
+        top: calc(6px * var(--s));
+        right: calc(6px * var(--s));
+    }
+
+    /* Auto-play button */
+    .auto-play-btn {
+        max-width: calc(240px * var(--s));
+        padding: calc(8px * var(--s)) calc(16px * var(--s));
+        border-radius: calc(6px * var(--s));
+        gap: calc(7px * var(--s));
+    }
+
+    .auto-play-text {
+        font-size: calc(8px * var(--s));
+    }
+
+    /* Bottom panel */
+    .bottom-panel {
+        height: calc(95px * var(--s));
+        padding: 0 calc(26px * var(--s)) calc(18px * var(--s));
+        gap: calc(6px * var(--s));
+    }
+
+    /* Waveform */
+    .music-box-waveform {
+        height: calc(36px * var(--s));
+        max-width: calc(220px * var(--s));
+        padding: 0 calc(18px * var(--s));
+        gap: calc(2.5px * var(--s));
+    }
+
+    .waveform-bar {
+        width: calc(2.5px * var(--s));
+        height: calc(28px * var(--s));
+    }
+
+    /* Timer */
+    .timer-display {
+        font-size: calc(8px * var(--s));
+    }
+
+    /* Watermark: keep but smaller */
     .watermark-badge {
-        display: none !important;
+        top: 12px;
+        right: 12px;
+        padding: 5px 12px 5px 10px;
     }
 
+    /* Bokeh: simplify for perf */
     .bokeh-particle {
         filter: none !important;
         opacity: 0.06 !important;
