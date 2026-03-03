@@ -99,7 +99,9 @@ const Auth = (() => {
     }
 
     try {
-      if (isMock || _studioToken === 'mock') {
+      const PREVIEW_TOKENS = ['mock', 'for-preview'];
+
+      if (isMock || PREVIEW_TOKENS.includes(_studioToken)) {
         const data = _getMockState();
         _initialConfig = data.studio;
         showState('state-studio');
