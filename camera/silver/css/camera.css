@@ -1140,7 +1140,7 @@ body::after {
     /* Camera shell — tighter but breathing room top/bottom */
     .digicam-container {
         border-radius: 44px;
-        padding: 44px 20px 110px;
+        padding: 44px 20px 72px;
     }
 
     /* Tighter gap between lens and LCD */
