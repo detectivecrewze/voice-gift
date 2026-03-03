@@ -14,10 +14,7 @@
 // ============================================================
 
 // Config global — deteksi otomatis localhost vs produksi
-const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-
-window.APP_CONFIG = {
-  // HARDCODED FIX: Bypass local caching/config issues
+window.APP_CONFIG = window.APP_CONFIG || {
   apiBaseUrl: 'https://valentine-upload.aldoramadhan16.workers.dev',
 };
 

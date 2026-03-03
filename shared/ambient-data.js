@@ -29,4 +29,5 @@ const AMBIENTS = [
     { id: 'mitski', label: 'Mitski - My Love Mine All Mine', emoji: '🌕', loop: false },
     { id: 'feast-nina', label: 'Feast - Nina', emoji: '🕰️', loop: false },
     { id: 'feast-tarot', label: 'Feast - Tarot', emoji: '🃏', loop: false },
+    { id: 'custom', label: 'Upload Musik Sendiri', emoji: '🎵', loop: false },
 ];
