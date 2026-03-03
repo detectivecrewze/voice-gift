@@ -294,6 +294,7 @@ const initPlayer = (config) => {
         if (!sourceNode) {
             sourceNode = ctx.createMediaElementSource(src);
             voiceGain = ctx.createGain();
+            voiceGain.gain.setValueAtTime(0, ctx.currentTime); // start silent — prevents warmup audio leaking at gain=1 default
             sourceNode.connect(voiceGain);
             voiceGain.connect(analyser);
             analyser.connect(ctx.destination);
