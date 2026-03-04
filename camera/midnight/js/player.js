@@ -713,7 +713,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const fetched = await loadGift(giftIdParam);
         if (fetched) {
             giftConfig = fetched;
-            if (giftConfig.password) {
+            const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
+            if (giftConfig.password && !isPreview) {
                 showState('password');
             } else {
                 handleAfterLoad();

@@ -155,7 +155,9 @@ const _fetchAndRender = async (giftId) => {
     }
 
     // CEK PASSWORD: Pastikan property password ada dan tidak kosong
-    const isProtected = gift.password && String(gift.password).trim().length > 0;
+    const urlParamsForPwd = new URLSearchParams(window.location.search);
+    const isPreview = urlParamsForPwd.get('preview') === 'true';
+    const isProtected = !isPreview && gift.password && String(gift.password).trim().length > 0;
 
     if (isProtected) {
       _setupPasswordGate(giftId, gift);
