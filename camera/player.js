@@ -311,7 +311,7 @@ const initPlayer = (config) => {
         if (!isPlaying) { cancelAnimationFrame(animationId); return; }
         animationId = requestAnimationFrame(updateVisuals);
         frameCounter++;
-        const skipRate = isMobile ? 3 : 2;
+        const skipRate = isMobile ? 6 : 4;
         if (frameCounter % skipRate !== 0) return;
 
         const bars = document.querySelectorAll('#waveform-bars .waveform-bar');
@@ -349,17 +349,6 @@ const initPlayer = (config) => {
             bar.style.opacity = scale > 0.3 ? (0.5 + scale * 0.5) : (0.1 + scale * 0.2);
         });
 
-        if (frameCounter % 4 === 0) {
-            const avgVolume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-            if (!particleCache) particleCache = document.querySelectorAll('.bokeh-particle');
-            const nowSecB = nowSec;
-            particleCache.forEach((p, idx) => {
-                const move = (avgVolume / 255) * (30 + idx * 5);
-                const sc = 1 + (avgVolume / 255) * 0.5;
-                p.style.transform = `translate3d(${Math.sin(nowSecB + idx) * move}px, ${Math.cos(nowSecB + idx) * move}px, 0) scale(${sc})`;
-                p.style.opacity = 0.03 + (avgVolume / 255) * 0.07;
-            });
-        }
 
         if (audio) updateDuration();
     };

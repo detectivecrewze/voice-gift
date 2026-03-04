@@ -372,13 +372,31 @@ body::after {
     position: absolute;
     border-radius: 50%;
     /* Warm amber dust — like afternoon light through linen curtains */
-    background: radial-gradient(circle,
-            rgba(220, 180, 100, 1) 0%,
-            rgba(190, 148, 72, 0.5) 45%,
-            transparent 100%);
-    filter: blur(65px);
-    opacity: 0.12;
+    background: radial-gradient(circle at 40% 40%,
+            rgba(220, 180, 100, 0.65) 0%,
+            rgba(190, 148, 72, 0.22) 50%,
+            transparent 75%);
+    opacity: 0.28;
     will-change: transform;
+    animation: bokeh-drift var(--bokeh-duration, 28s) ease-in-out infinite alternate;
+}
+
+@keyframes bokeh-drift {
+    0% {
+        transform: translate(0px, 0px) scale(1);
+    }
+
+    33% {
+        transform: translate(12px, -18px) scale(1.06);
+    }
+
+    66% {
+        transform: translate(-10px, 14px) scale(0.96);
+    }
+
+    100% {
+        transform: translate(8px, -8px) scale(1.03);
+    }
 }
 
 .voice-section {
