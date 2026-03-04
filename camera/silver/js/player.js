@@ -53,6 +53,7 @@ const initPlayer = (config) => {
     const totalPhotos = normalizedPhotos.length;
     const voiceNote = config.voiceNote;
     const ambientId = config.ambient || 'none';
+    const customAmbientUrl = config.customAmbientUrl || null;
     const message = config.message || '';
 
     // ── Build infinite photo tray inside the LCD ──────────────
@@ -192,9 +193,12 @@ const initPlayer = (config) => {
     };
 
     const initAmbient = () => {
-        if (!ambientId || ambientId === 'none' || !AMBIENT_SOUNDS[ambientId]) return;
+        let soundUrl = AMBIENT_SOUNDS[ambientId];
+        if (ambientId === 'custom') soundUrl = customAmbientUrl;
+
+        if (!ambientId || ambientId === 'none' || !soundUrl) return;
         const ctx = getAudioContext();
-        ambientAudio = new Audio(AMBIENT_SOUNDS[ambientId]);
+        ambientAudio = new Audio(soundUrl);
         ambientAudio.crossOrigin = 'anonymous';
         ambientAudio.loop = true;
         const src = ctx.createMediaElementSource(ambientAudio);
