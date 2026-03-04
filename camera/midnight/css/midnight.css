@@ -1,36 +1,53 @@
 /* ============================================================
-   midnight.css — Gift Camera Theme: Midnight
-   Aesthetic: Dark Navy Gunmetal, Ice-Blue Accents, Night Sky
-   Premium night-photography feel, deep and moody.
+   midnight.css — Gift Camera Theme: Midnight (Redesigned)
+   Aesthetic: Velvet Noir — deep navy meets rose-dust & moonlit silver
+   Feminine, intimate, analog-romantic. Not sci-fi, not boyish.
+   Market: Women who love aesthetic gifts, film photography vibes.
    ============================================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap');
+
 :root {
-    --font-display: 'Cormorant Garamond', serif;
-    --font-sans: 'DM Sans', sans-serif;
+    /* ── Typography — more feminine & editorial ── */
+    --font-display: 'Playfair Display', serif;
+    /* replaces Cormorant — richer, warmer */
+    --font-sans: 'Jost', sans-serif;
+    /* replaces DM Sans — softer, rounder */
     --font-mono: 'Space Mono', monospace;
 
-    /* ── Background palette: deep dark navy ── */
-    --bg: #0c0e18;
+    /* ── Background palette: velvet midnight ── */
+    --bg: #090b14;
     --mesh:
-        radial-gradient(at 0% 0%, #161a2a 0px, transparent 55%),
-        radial-gradient(at 100% 0%, #0e1220 0px, transparent 55%),
-        radial-gradient(at 80% 80%, #0a0d18 0px, transparent 55%),
-        radial-gradient(at 20% 100%, #141828 0px, transparent 55%);
+        radial-gradient(at 15% 10%, #16142a 0px, transparent 52%),
+        radial-gradient(at 85% 5%, #0d0f1e 0px, transparent 50%),
+        radial-gradient(at 90% 85%, #0a0c1a 0px, transparent 48%),
+        radial-gradient(at 10% 90%, #13112a 0px, transparent 52%),
+        radial-gradient(at 50% 50%, #0f0e1e 0px, transparent 60%);
 
-    /* ── Camera accent: gunmetal & dark chrome ── */
-    --cam-bezel: #2a2e3a;
-    --cam-body: #1e222e;
-    --cam-dark: #0a0c14;
-    --cam-mid: #4a5068;
+    /* ── Camera accents: dark navy gunmetal ── */
+    --cam-bezel: #252838;
+    --cam-body: #1b1d2c;
+    --cam-dark: #09091a;
+    --cam-mid: #424862;
 
-    /* ── UI accents: ice blue ── */
-    --primary: #7a8fb8;
-    --accent: #4a5a80;
-    --text: #c5cdd8;
-    --text-muted: #5a6a84;
-    --border: rgba(80, 100, 140, 0.25);
+    /* ── UI accents: moonlit silver + dusty rose ── */
+    --primary: #8c96b8;
+    /* cool silver-blue */
+    --accent: #9b8aaa;
+    /* muted mauve — feminine midnight */
+    --accent-soft: #c8b8d4;
+    /* lighter lavender for glows */
+    --rose-dust: #c4a8b0;
+    /* for warm pops */
+    --text: #d0d4e0;
+    --text-muted: #5e6885;
+    --border: rgba(140, 150, 200, 0.18);
 
-    --noise-opacity: 0.03;
+    --noise-opacity: 0.028;
+
+    /* ── Spacing rhythm ── */
+    --radius-card: 44px;
+    --radius-inner: 14px;
 }
 
 *,
@@ -51,31 +68,46 @@ body {
     overflow-x: hidden;
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Dimmer, medium-grey gradient background ── */
+/* ── Deep Velvet Background ── */
 body {
     background-color: var(--bg);
     color: var(--text);
     position: relative;
+    cursor: default;
 }
 
+/* Primary mesh — deep navy purples */
 body::before {
     content: '';
     position: fixed;
     inset: 0;
-    z-index: -1;
+    z-index: -2;
     background: var(--mesh);
 }
 
+/* Noise texture — organic film grain feel */
 body::after {
     content: '';
     position: fixed;
     inset: 0;
     z-index: -1;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     opacity: var(--noise-opacity);
     pointer-events: none;
+}
+
+/* ── Floating star-dust particles (CSS only) ── */
+body::before {
+    background:
+        var(--mesh),
+        radial-gradient(1px 1px at 20% 15%, rgba(200, 184, 212, 0.25) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 30%, rgba(140, 150, 184, 0.18) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 55% 70%, rgba(196, 168, 176, 0.15) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 80%, rgba(200, 184, 212, 0.12) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 85%, rgba(140, 150, 184, 0.1) 0%, transparent 100%);
 }
 
 /* ── State Layouts ── */
@@ -87,13 +119,14 @@ body::after {
     padding: 20px;
 }
 
+/* ── Loading Spinner — refined ── */
 .loading-spinner {
-    width: 36px;
-    height: 36px;
-    border: 3px solid rgba(100, 95, 90, 0.2);
+    width: 32px;
+    height: 32px;
+    border: 2px solid rgba(155, 138, 170, 0.12);
     border-top-color: var(--accent);
     border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+    animation: spin 1s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 
 @keyframes spin {
@@ -102,169 +135,256 @@ body::after {
     }
 }
 
-/* ── Password Card ── */
+/* ============================================================
+   PASSWORD / ACCESS CARD — Frosted Velvet Glass
+   Concept: like looking through a dark mirror fogged with breath
+   ============================================================ */
 .password-card {
-    --text: #1a1e2e;
-    --text-muted: #5a6a84;
+    --text-local: #1a1a2e;
+    --muted-local: #6a5a7a;
 
-    background: rgba(240, 238, 235, 0.95);
-    backdrop-filter: blur(40px) saturate(180%);
-    -webkit-backdrop-filter: blur(40px) saturate(180%);
-    padding: 70px 48px;
-    border-radius: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    position: relative;
+    background: rgba(248, 245, 252, 0.93);
+    backdrop-filter: blur(48px) saturate(160%) brightness(1.02);
+    -webkit-backdrop-filter: blur(48px) saturate(160%) brightness(1.02);
+    padding: 64px 48px 56px;
+    border-radius: var(--radius-card);
+    border: 1px solid rgba(200, 184, 212, 0.35);
+    border-bottom-color: rgba(200, 184, 212, 0.12);
     text-align: center;
-    max-width: 440px;
+    max-width: 420px;
     width: 90%;
-    box-shadow: 0 40px 100px -20px rgba(40, 38, 35, 0.15);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.6) inset,
+        0 48px 120px -24px rgba(20, 15, 35, 0.18),
+        0 8px 32px -8px rgba(155, 138, 170, 0.12);
     animation: fade-in-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+    overflow: hidden;
+}
+
+/* Subtle rose shimmer at top of card */
+.password-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(196, 168, 176, 0.5) 30%,
+            rgba(155, 138, 170, 0.7) 50%,
+            rgba(196, 168, 176, 0.5) 70%,
+            transparent 100%);
+}
+
+/* Subtle glow behind card */
+.password-card::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(135deg,
+            rgba(200, 184, 212, 0.08) 0%,
+            transparent 40%,
+            rgba(196, 168, 176, 0.04) 100%);
+    pointer-events: none;
 }
 
 @keyframes fade-in-up {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(22px) scale(0.98);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 
 .password-title {
     font-family: var(--font-display);
-    font-size: 38px;
+    font-size: 34px;
     font-weight: 400;
-    margin-bottom: 40px;
-    color: var(--text);
+    font-style: italic;
+    margin-bottom: 36px;
+    color: var(--text-local);
     letter-spacing: -0.01em;
-    line-height: 1.2;
+    line-height: 1.25;
 }
 
 .hint-text {
     font-family: var(--font-sans);
-    font-size: 10px;
+    font-size: 9px;
     text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--text-muted);
-    margin-bottom: 40px;
-    font-weight: 500;
+    letter-spacing: 0.18em;
+    color: var(--muted-local);
+    margin-bottom: 36px;
+    font-weight: 400;
 }
 
 .password-field {
     width: 100%;
-    background: rgba(255, 255, 255, 0.85);
-    border: 1px solid rgba(160, 155, 150, 0.3);
-    border-radius: 12px;
-    padding: 18px 20px;
-    color: var(--text);
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(155, 138, 170, 0.22);
+    border-radius: var(--radius-inner);
+    padding: 17px 22px;
+    color: var(--text-local);
     text-align: center;
-    font-size: 16px;
-    margin-bottom: 30px;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 300;
+    margin-bottom: 16px;
     outline: none;
-    transition: all 0.3s ease;
-    letter-spacing: 0.1em;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    letter-spacing: 0.08em;
 }
 
 .password-field::placeholder {
-    color: var(--text-muted);
-    font-size: 12px;
-    letter-spacing: 0.1em;
-    opacity: 0.7;
+    color: var(--muted-local);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    font-weight: 300;
+    opacity: 0.6;
 }
 
 .password-field:focus {
-    border-color: var(--accent);
-    background: #fff;
+    border-color: rgba(155, 138, 170, 0.55);
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 0 0 3px rgba(155, 138, 170, 0.1), 0 2px 12px rgba(155, 138, 170, 0.08);
 }
 
 .unlock-btn {
     width: 100%;
-    background: var(--text);
-    color: #fff;
+    background: linear-gradient(145deg, #1e1a2e 0%, #2a2240 100%);
+    color: rgba(220, 212, 232, 0.92);
     border: none;
-    padding: 22px;
-    border-radius: 14px;
+    padding: 20px;
+    border-radius: var(--radius-inner);
     font-family: var(--font-sans);
-    font-size: 11px;
+    font-size: 9.5px;
     text-transform: uppercase;
-    letter-spacing: 0.3em;
-    font-weight: 700;
+    letter-spacing: 0.32em;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     overflow: hidden;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    box-shadow:
+        0 8px 24px rgba(30, 20, 50, 0.25),
+        inset 0 1px 0 rgba(200, 184, 212, 0.12);
+    margin-top: 8px;
+}
+
+.unlock-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,
+            transparent 0%, rgba(200, 184, 212, 0.08) 50%, transparent 100%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.unlock-btn:hover::before {
+    transform: translateX(100%);
 }
 
 .unlock-btn:hover {
-    opacity: 0.9;
     transform: translateY(-2px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 14px 36px rgba(30, 20, 50, 0.35), inset 0 1px 0 rgba(200, 184, 212, 0.18);
+}
+
+.unlock-btn:active {
+    transform: translateY(0);
 }
 
 .password-hint {
-    margin-top: 40px;
+    margin-top: 32px;
     font-size: 9px;
-    color: var(--text-muted);
-    opacity: 0.8;
+    color: var(--muted-local);
+    letter-spacing: 0.06em;
+    opacity: 0.65;
+    font-weight: 300;
 }
 
 .password-error {
-    color: #d9534f;
-    font-size: 10px;
-    margin-top: -15px;
-    margin-bottom: 25px;
+    color: #b06070;
+    font-size: 9px;
+    margin-bottom: 14px;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    opacity: 0.9;
+    letter-spacing: 0.12em;
+    opacity: 0.85;
+    font-weight: 400;
 }
 
+/* ── Error State ── */
 .error-container {
-    --text: #1a1e2e;
-    --text-muted: #5a6a84;
+    --text-local: #1a1a2e;
+    --muted-local: #6a5a7a;
 
     text-align: center;
-    background: rgba(240, 238, 235, 0.95);
+    background: rgba(248, 245, 252, 0.93);
+    backdrop-filter: blur(40px);
     padding: 60px 48px;
-    border-radius: 40px;
-    max-width: 440px;
+    border-radius: var(--radius-card);
+    border: 1px solid rgba(200, 184, 212, 0.3);
+    max-width: 420px;
     width: 90%;
-    box-shadow: 0 40px 100px -20px rgba(40, 38, 35, 0.15);
+    box-shadow: 0 40px 100px -20px rgba(20, 15, 35, 0.18);
+    position: relative;
+    overflow: hidden;
+}
+
+.error-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(180, 100, 120, 0.4), transparent);
 }
 
 .error-icon {
-    font-size: 48px;
-    margin-bottom: 24px;
+    font-size: 36px;
+    margin-bottom: 20px;
     display: inline-block;
+    color: var(--muted-local);
+    opacity: 0.5;
 }
 
 .error-container h2 {
     font-family: var(--font-display);
-    font-size: 32px;
-    color: var(--text);
-    margin-bottom: 12px;
+    font-size: 28px;
+    color: var(--text-local);
+    margin-bottom: 10px;
     font-weight: 400;
+    font-style: italic;
 }
 
 .error-container p {
-    color: var(--text-muted);
-    font-size: 14px;
-    line-height: 1.5;
+    color: var(--muted-local);
+    font-size: 13px;
+    line-height: 1.6;
+    font-weight: 300;
 }
 
-/* ── Gift State ── */
+/* ============================================================
+   GIFT STATE — Cinematic full-page
+   ============================================================ */
 #state-gift {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px;
+    padding: 40px 20px 60px;
     position: relative;
     overflow: hidden;
 }
 
+/* ── Bokeh — purple & rose wisps ── */
 .bokeh-container {
     position: absolute;
     inset: 0;
@@ -276,27 +396,27 @@ body::after {
 .bokeh-particle {
     position: absolute;
     border-radius: 50%;
-    background: #4a6ab0;
-    filter: blur(60px);
-    opacity: 0.06;
+    background: radial-gradient(circle, #7a6aa0 0%, #9b6a88 100%);
+    filter: blur(80px);
+    opacity: 0.05;
     will-change: transform;
 }
 
 .voice-section {
     width: 100%;
-    max-width: 460px;
+    max-width: 470px;
     position: relative;
     z-index: 5;
 }
 
 .fade-in-up {
-    animation: fadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(24px);
+        transform: translateY(28px);
     }
 
     to {
@@ -306,92 +426,134 @@ body::after {
 }
 
 /* ============================================================
-   THE DIGICAM — Bold, High-Contrast, Clearly Defined
+   THE DIGICAM — Redesigned: Velvet Noir Camera
+   Feminine, midnight, premium analog feel.
+   Softer rounded form, rose+mauve accent details.
    ============================================================ */
 .digicam-container {
-    /* Layered background for a dark gunmetal camera body */
     background:
-        repeating-linear-gradient(-45deg,
-            rgba(60, 80, 120, 0.03), rgba(60, 80, 120, 0.03) 1px,
-            transparent 1px, transparent 8px),
-        linear-gradient(165deg,
-            #22263a 0%,
-            #1a1e2e 30%,
-            #14182a 60%,
-            #101424 100%);
+        /* Subtle crosshatch — like fabric texture */
+        repeating-linear-gradient(-55deg,
+            rgba(155, 138, 170, 0.025), rgba(155, 138, 170, 0.025) 1px,
+            transparent 1px, transparent 9px),
+        repeating-linear-gradient(35deg,
+            rgba(155, 138, 170, 0.015), rgba(155, 138, 170, 0.015) 1px,
+            transparent 1px, transparent 9px),
+        /* Main body gradient — deep navy with warm undertone */
+        linear-gradient(158deg,
+            #21202e 0%,
+            #191826 25%,
+            #141320 55%,
+            #100f1e 80%,
+            #0c0b1a 100%);
 
-    /* Subtle border */
-    border: 1.5px solid rgba(80, 100, 140, 0.35);
-    border-top-color: rgba(60, 70, 100, 0.6);
-    border-left-color: rgba(60, 70, 100, 0.5);
+    border: 1.5px solid rgba(155, 138, 170, 0.22);
+    border-top-color: rgba(200, 184, 212, 0.35);
+    border-left-color: rgba(180, 165, 200, 0.28);
+    border-bottom-color: rgba(100, 90, 130, 0.12);
 
-    border-radius: 50px;
-    padding: 32px 26px 100px;
+    border-radius: 52px;
+    padding: 34px 28px 104px;
 
-    /* Deep moody shadow */
     box-shadow:
-        0 2px 0 rgba(40, 50, 70, 0.5),
-        0 70px 140px -30px rgba(0, 0, 0, 0.8),
-        0 20px 40px rgba(0, 0, 10, 0.4),
-        inset 0 1.5px 3px rgba(60, 70, 100, 0.4),
-        inset 0 -8px 20px rgba(0, 0, 0, 0.3);
+        /* Top highlight edge — pearl shimmer */
+        0 1px 0 rgba(220, 210, 232, 0.22),
+        /* Main ambient shadow */
+        0 64px 140px -28px rgba(8, 6, 18, 0.9),
+        0 24px 48px -12px rgba(0, 0, 0, 0.55),
+        /* Inner cavity depth */
+        inset 0 2px 4px rgba(200, 184, 212, 0.18),
+        inset 0 -12px 28px rgba(0, 0, 0, 0.4),
+        /* Rose bloom shadow — soft warm undertone */
+        0 0 80px -20px rgba(155, 100, 130, 0.12);
 
     position: relative;
     overflow: hidden;
 }
 
-/* ── Corner Screws ── */
+/* Velvet sheen — diagonal light catch */
+.digicam-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(130deg,
+            rgba(220, 210, 232, 0.06) 0%,
+            transparent 35%,
+            transparent 65%,
+            rgba(196, 168, 176, 0.03) 100%);
+    pointer-events: none;
+    z-index: 1;
+    border-radius: inherit;
+}
+
+/* ── Corner Details — tiny rose-gold dots ── */
 .console-screw {
     position: absolute;
-    width: 11px;
-    height: 11px;
-    background: radial-gradient(circle at 35% 35%, #3a4060, #252840);
+    width: 9px;
+    height: 9px;
+    background: radial-gradient(circle at 35% 30%,
+            #5a4868 0%, #3a3050 60%, #2a2240 100%);
     border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(80, 100, 140, 0.3);
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.6),
+        inset 0 1px 1px rgba(200, 184, 212, 0.25),
+        0 0 0 1px rgba(155, 138, 170, 0.15);
     z-index: 5;
 }
 
+/* Phillips screw slot */
 .console-screw::before {
     content: '';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 7px;
-    height: 1.5px;
-    background: #555;
+    width: 5px;
+    height: 1px;
+    background: rgba(200, 184, 212, 0.3);
+    border-radius: 1px;
+    box-shadow: 0 0 0 0.5px rgba(200, 184, 212, 0.1);
+}
+
+.console-screw::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(90deg);
+    width: 5px;
+    height: 1px;
+    background: rgba(200, 184, 212, 0.3);
     border-radius: 1px;
 }
 
 .top-left {
-    top: 20px;
-    left: 20px;
-    transform: rotate(45deg);
+    top: 22px;
+    left: 22px;
 }
 
 .top-right {
-    top: 20px;
-    right: 20px;
-    transform: rotate(-45deg);
+    top: 22px;
+    right: 22px;
 }
 
 .bottom-left {
-    bottom: 20px;
-    left: 20px;
-    transform: rotate(-15deg);
+    bottom: 22px;
+    left: 22px;
 }
 
 .bottom-right {
-    bottom: 20px;
-    right: 20px;
-    transform: rotate(30deg);
+    bottom: 22px;
+    right: 22px;
 }
 
 /* ── Camera Body Layout ── */
 .camera-body {
     display: flex;
     align-items: center;
-    gap: 22px;
+    gap: 20px;
+    position: relative;
+    z-index: 2;
 }
 
 /* ── LEFT: Lens Area ── */
@@ -401,169 +563,194 @@ body::after {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
-/* Flash */
+/* Flash — slimmer, more refined */
 .flash-unit {
-    width: 48px;
-    height: 13px;
-    background: linear-gradient(90deg, #2a3050 0%, #3a4060 40%, #2a3050 100%);
+    width: 44px;
+    height: 11px;
+    background: linear-gradient(90deg, #252338 0%, #332e48 50%, #252338 100%);
     border-radius: 3px;
-    border: 1px solid #3a4060;
+    border: 1px solid rgba(155, 138, 170, 0.2);
     overflow: hidden;
     box-shadow:
-        inset 0 1px 3px rgba(80, 100, 160, 0.3),
-        0 1px 2px rgba(0, 0, 0, 0.3);
+        inset 0 1px 3px rgba(155, 138, 170, 0.2),
+        0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .flash-grid {
     width: 100%;
     height: 100%;
     background: repeating-linear-gradient(90deg,
-            rgba(255, 255, 255, 0.5) 0px, rgba(255, 255, 255, 0.5) 2px,
-            transparent 2px, transparent 4px);
+            rgba(200, 184, 212, 0.55) 0px, rgba(200, 184, 212, 0.55) 1.5px,
+            transparent 1.5px, transparent 4px);
 }
 
 .viewfinder-dot {
-    width: 8px;
-    height: 8px;
-    background: #1c1c1c;
+    width: 7px;
+    height: 7px;
+    background: #0e0c1a;
     border-radius: 50%;
-    border: 1.5px solid #444;
-    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.8);
+    border: 1.5px solid rgba(155, 138, 170, 0.3);
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.9);
     align-self: flex-end;
-    margin-right: 6px;
+    margin-right: 5px;
 }
 
 /* ── LENS — 5-layer deep optical system ── */
-/* Outermost: Polished chrome ring */
+/* Outermost: conic chrome — mauve-indigo metallic */
 .lens-outer {
     position: relative;
-    width: 148px;
-    height: 148px;
-    /* Dark chrome gradient */
+    width: 145px;
+    height: 145px;
     background: conic-gradient(from 0deg,
-            #2a3050 0deg, #3a4568 40deg, #252840 80deg, #303555 120deg,
-            #1e2238 160deg, #343860 200deg, #2a2e4c 240deg, #383c64 280deg,
-            #222640 320deg, #2a3050 360deg);
+            #2e2840 0deg,
+            #3e3660 40deg,
+            #282440 80deg,
+            #362e58 120deg,
+            #1e1c34 160deg,
+            #3a3260 200deg,
+            #2c2848 240deg,
+            #3c3462 280deg,
+            #222040 320deg,
+            #2e2840 360deg);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow:
-        0 12px 28px rgba(0, 0, 0, 0.6),
-        0 4px 8px rgba(0, 0, 0, 0.4),
-        -4px -4px 12px rgba(40, 50, 80, 0.3),
-        inset 0 1px 4px rgba(80, 100, 160, 0.2);
-    border: 1px solid rgba(60, 70, 100, 0.5);
+        0 14px 32px rgba(0, 0, 0, 0.65),
+        0 4px 10px rgba(0, 0, 0, 0.4),
+        -4px -4px 14px rgba(155, 138, 170, 0.08),
+        inset 0 1px 5px rgba(200, 184, 212, 0.15),
+        /* Rose glint at top */
+        inset 0 -2px 0 rgba(196, 168, 176, 0.08);
+    border: 1px solid rgba(155, 138, 170, 0.3);
 }
 
 .lens-ring-label {
     position: absolute;
-    bottom: -17px;
-    font-size: 6px;
-    letter-spacing: 0.18em;
+    bottom: -18px;
+    font-size: 5.5px;
+    letter-spacing: 0.2em;
     color: var(--text-muted);
     font-family: var(--font-mono);
     text-transform: uppercase;
     white-space: nowrap;
+    opacity: 0.65;
 }
 
-/* Ring 1: Brushed dark silver bezel */
+/* Ring 1: dark velvet inner rim */
 .lens-mid {
-    width: 124px;
-    height: 124px;
-    background: linear-gradient(245deg,
-            #1a1e30 0%, #10142a 30%, #181c2e 60%, #0c1024 100%);
+    width: 121px;
+    height: 121px;
+    background: linear-gradient(240deg,
+            #1a1828 0%, #0e0d20 35%, #16152a 65%, #0a0918 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow:
-        inset 0 4px 10px rgba(0, 0, 0, 0.8),
-        inset 0 -2px 4px rgba(60, 80, 130, 0.1);
-    border: 1px solid #2a3050;
+        inset 0 5px 12px rgba(0, 0, 0, 0.9),
+        inset 0 -2px 5px rgba(155, 138, 170, 0.06);
+    border: 1px solid #2a2642;
 }
 
-/* Ring 2: Dark barrel */
+/* Ring 2: barrel black */
 .lens-inner {
-    width: 98px;
-    height: 98px;
-    background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%);
+    width: 96px;
+    height: 96px;
+    background: linear-gradient(145deg, #18161a 0%, #0a090e 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: inset 0 5px 15px rgba(0, 0, 0, 1);
-    border: 1.5px solid #2d2d2d;
+    box-shadow: inset 0 5px 18px rgba(0, 0, 0, 1);
+    border: 1.5px solid #242040;
 }
 
-/* Ring 3: Recessed inner ring */
+/* Ring 3: deep recess */
 .lens-deep {
-    width: 76px;
-    height: 76px;
-    background: radial-gradient(circle at center, #111 0%, #050505 100%);
+    width: 74px;
+    height: 74px;
+    background: radial-gradient(circle at center, #0e0c14 0%, #040306 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow:
-        inset 0 3px 12px rgba(0, 0, 0, 1),
-        0 0 6px rgba(0, 0, 0, 0.8);
-    border: 1px solid #1a1a1a;
+        inset 0 3px 14px rgba(0, 0, 0, 1),
+        0 0 8px rgba(0, 0, 0, 0.9);
+    border: 1px solid #1a1830;
 }
 
-/* Core glass element */
+/* Core glass — deep midnight blue with mauve tint */
 .lens-core {
-    width: 58px;
-    height: 58px;
+    width: 56px;
+    height: 56px;
     background:
-        radial-gradient(circle at 30% 28%,
-            #1a2a50 0%, #0c1630 25%, #060e20 55%, #020510 80%, #000 100%);
+        radial-gradient(circle at 28% 26%,
+            #22184a 0%, #130f30 28%, #080618 58%, #020108 82%, #000 100%);
     border-radius: 50%;
     position: relative;
     overflow: hidden;
     box-shadow:
-        inset 0 0 16px rgba(60, 100, 200, 0.25),
-        inset 0 3px 8px rgba(100, 140, 255, 0.08);
+        inset 0 0 18px rgba(100, 80, 160, 0.3),
+        inset 0 3px 10px rgba(180, 140, 200, 0.08);
 }
 
+/* Main glare — pearl white */
 .lens-glare-main {
     position: absolute;
-    top: 5px;
-    left: 5px;
-    width: 26px;
-    height: 26px;
+    top: 4px;
+    left: 4px;
+    width: 24px;
+    height: 24px;
     background: radial-gradient(circle at center,
-            rgba(255, 255, 255, 0.42) 0%,
-            rgba(255, 255, 255, 0.1) 40%,
+            rgba(255, 255, 255, 0.48) 0%,
+            rgba(255, 255, 255, 0.12) 40%,
             transparent 70%);
     border-radius: 50%;
     pointer-events: none;
 }
 
+/* Blue/violet glare — bottom right */
 .lens-glare-blue {
     position: absolute;
-    bottom: 7px;
-    right: 7px;
-    width: 18px;
-    height: 18px;
+    bottom: 6px;
+    right: 6px;
+    width: 16px;
+    height: 16px;
     background: radial-gradient(circle,
-            rgba(80, 140, 255, 0.35) 0%,
-            rgba(60, 110, 220, 0.1) 50%,
+            rgba(155, 100, 200, 0.4) 0%,
+            rgba(120, 80, 180, 0.12) 50%,
             transparent 70%);
     border-radius: 50%;
     pointer-events: none;
 }
 
+/* Tiny specular dot */
 .lens-specular {
     position: absolute;
-    top: 12px;
-    left: 13px;
-    width: 5px;
-    height: 5px;
-    background: rgba(255, 255, 255, 0.75);
+    top: 10px;
+    left: 11px;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.82);
+    border-radius: 50%;
+    filter: blur(0.4px);
+    pointer-events: none;
+}
+
+/* Rose-dust micro-glint */
+.lens-specular-rose {
+    position: absolute;
+    bottom: 10px;
+    left: 8px;
+    width: 3px;
+    height: 3px;
+    background: rgba(220, 180, 196, 0.55);
     border-radius: 50%;
     filter: blur(0.5px);
     pointer-events: none;
@@ -575,29 +762,44 @@ body::after {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 24px;
+    gap: 16px;
+    position: relative;
+    z-index: 2;
 }
 
-/* Bezel — real digicam dark plastic bezel */
+/* LCD Bezel — deep void with mauve inner glow */
 .lcd-bezel {
     background: var(--cam-dark);
-    border-radius: 9px;
-    padding: 7px;
+    border-radius: 11px;
+    padding: 6px;
     box-shadow:
-        inset 0 4px 10px rgba(0, 0, 0, 0.9),
-        inset 0 -1px 2px rgba(255, 255, 255, 0.06),
-        0 4px 12px rgba(0, 0, 0, 0.4),
-        0 1px 0 rgba(255, 255, 255, 0.4);
+        inset 0 5px 12px rgba(0, 0, 0, 0.95),
+        inset 0 -1px 2px rgba(200, 184, 212, 0.06),
+        0 5px 14px rgba(0, 0, 0, 0.5),
+        0 1px 0 rgba(255, 255, 255, 0.35);
     width: 95%;
     max-width: 220px;
     position: relative;
 }
 
+/* Thin mauve trim line at top of bezel */
+.lcd-bezel::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 8px;
+    right: 8px;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent, rgba(155, 138, 170, 0.35), transparent);
+    border-radius: 1px;
+}
+
 .lcd-screen {
     width: 100%;
     height: 100%;
-    background: #060606;
-    border-radius: 3px;
+    background: #050408;
+    border-radius: 6px;
     overflow: hidden;
     position: relative;
     display: flex;
@@ -605,40 +807,25 @@ body::after {
     justify-content: flex-start;
 }
 
+/* Screen glare — softer, more feminine */
 .lcd-screen::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0) 38%);
+    background: linear-gradient(138deg,
+            rgba(255, 255, 255, 0.07) 0%,
+            rgba(220, 200, 240, 0.02) 20%,
+            rgba(255, 255, 255, 0) 42%);
     pointer-events: none;
     z-index: 30;
 }
 
-.lcd-idle {
-    text-align: center;
-    padding: 12px;
-}
-
-.lcd-intro-text p:first-child {
-    font-size: 22px;
-    margin-bottom: 8px;
-}
-
-.lcd-intro-text p:last-child {
-    font-size: 7.5px;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    font-family: var(--font-mono);
-}
-
-/* ── Film Tray (scrolls horizontally) ── */
+/* ── Film Tray ── */
 .film-tray {
     display: flex;
     height: 100%;
     will-change: transform;
     transition: none;
-    /* Player.js controls movement via RAF, no CSS transition needed */
 }
 
 .film-frame {
@@ -647,9 +834,8 @@ body::after {
     height: 165px;
     position: relative;
     overflow: hidden;
-    /* Frame padding to match main gift pages aesthetic */
-    padding: 10px;
-    background: #000;
+    padding: 8px;
+    background: #010104;
     box-sizing: border-box;
 }
 
@@ -657,37 +843,36 @@ body::after {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* Fill frame — portrait bias means slight crop on sides */
     display: block;
-    border-radius: 1px;
-    filter: sepia(0.1) contrast(1.06);
-    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: 2px;
+    /* Film emulation: desaturate & add warm slight tone */
+    filter: sepia(0.12) contrast(1.05) saturate(0.95) brightness(0.98);
+    transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Active frame zoom — matches .printer-photo.is-active img */
 .film-frame.is-active img {
-    transform: scale(1.05) rotate(0.4deg);
+    transform: scale(1.04) rotate(0.3deg);
 }
 
-/* Film grain texture overlay */
+/* Film grain overlay */
 .film-frame::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
     pointer-events: none;
     z-index: 5;
-    opacity: 0.6;
+    opacity: 0.55;
     mix-blend-mode: overlay;
 }
 
-/* ── Dynamic Light Leaks (Analog Flicker) ── */
+/* ── Light Leak (warmer, rosy) ── */
 .light-leak-overlay {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 70% 30%,
-            rgba(255, 120, 30, 0.15) 0%,
-            rgba(255, 60, 0, 0.05) 50%,
+    background: radial-gradient(circle at 75% 20%,
+            rgba(230, 120, 100, 0.18) 0%,
+            rgba(200, 80, 120, 0.06) 50%,
             transparent 100%);
     mix-blend-mode: color-dodge;
     opacity: 0;
@@ -703,33 +888,32 @@ body::after {
     pointer-events: none;
     z-index: 25;
     background:
-        linear-gradient(135deg,
-            rgba(255, 255, 255, 0.14) 0%,
-            rgba(255, 255, 255, 0.04) 15%,
-            transparent 40%,
-            transparent 100%),
-        radial-gradient(circle at 30% 25%,
-            rgba(255, 255, 255, 0.07) 0%,
-            transparent 30%),
-        radial-gradient(circle at 70% 80%,
-            rgba(100, 100, 255, 0.03) 0%,
-            transparent 50%);
-    opacity: 0.8;
+        linear-gradient(140deg,
+            rgba(255, 255, 255, 0.1) 0%,
+            rgba(255, 255, 255, 0.04) 12%,
+            transparent 35%),
+        radial-gradient(circle at 28% 22%,
+            rgba(255, 255, 255, 0.06) 0%,
+            transparent 28%),
+        radial-gradient(circle at 72% 82%,
+            rgba(155, 100, 180, 0.04) 0%,
+            transparent 45%);
+    opacity: 0.85;
     mix-blend-mode: screen;
 }
 
-/* ── Idle Overlay (over film tray until play) ── */
+/* ── Idle Overlay ── */
 .lcd-idle-overlay {
     position: absolute;
     inset: 0;
-    background: #060606;
+    background: #050408;
     z-index: 30;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    transition: opacity 0.8s ease;
+    gap: 10px;
+    transition: opacity 0.9s ease;
 }
 
 .lcd-idle-overlay.hidden {
@@ -737,18 +921,18 @@ body::after {
     pointer-events: none;
 }
 
-/* Minimal idle screen: just a thin horizontal line + mono label */
 .lcd-idle-line {
-    width: 32px;
+    width: 28px;
     height: 1px;
-    background: rgba(255, 255, 255, 0.18);
+    background: linear-gradient(90deg,
+            transparent, rgba(200, 184, 212, 0.25), transparent);
 }
 
 .lcd-idle-label {
     font-family: var(--font-mono);
-    font-size: 6px;
-    letter-spacing: 0.28em;
-    color: rgba(255, 255, 255, 0.22);
+    font-size: 5.5px;
+    letter-spacing: 0.3em;
+    color: rgba(200, 184, 212, 0.2);
     text-transform: uppercase;
 }
 
@@ -756,7 +940,8 @@ body::after {
 .lcd-glass-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, transparent 38%);
+    background: linear-gradient(138deg,
+            rgba(255, 255, 255, 0.05) 0%, transparent 42%);
     pointer-events: none;
     z-index: 15;
 }
@@ -765,76 +950,80 @@ body::after {
     position: absolute;
     inset: 0;
     background: repeating-linear-gradient(0deg,
-            rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0.03) 1px, transparent 2px);
+            rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0.025) 1px, transparent 2px);
     background-size: 100% 3px;
     pointer-events: none;
     z-index: 12;
-    opacity: 0.4;
+    opacity: 0.35;
 }
 
 .slide-counter {
     position: absolute;
-    top: 6px;
-    right: 6px;
+    top: 5px;
+    right: 5px;
     font-family: var(--font-mono);
-    font-size: 7px;
-    color: rgba(255, 255, 255, 0.55);
-    background: rgba(0, 0, 0, 0.5);
+    font-size: 6.5px;
+    color: rgba(200, 184, 212, 0.45);
+    background: rgba(0, 0, 0, 0.45);
     padding: 2px 5px;
     border-radius: 3px;
     z-index: 20;
     letter-spacing: 0.1em;
 }
 
-/* ── Lens Active Animation (pulses when playing) ── */
+/* ── Lens Active Animation ── */
 @keyframes lens-pulse {
 
     0%,
     100% {
-        box-shadow: inset 0 0 12px rgba(60, 100, 180, 0.15), inset 0 3px 8px rgba(255, 255, 255, 0.05);
+        box-shadow:
+            inset 0 0 14px rgba(100, 80, 160, 0.2),
+            inset 0 3px 8px rgba(180, 140, 200, 0.06);
     }
 
     50% {
-        box-shadow: inset 0 0 24px rgba(100, 160, 255, 0.4), inset 0 3px 12px rgba(255, 255, 255, 0.12);
+        box-shadow:
+            inset 0 0 28px rgba(155, 100, 200, 0.5),
+            inset 0 3px 14px rgba(220, 180, 240, 0.14);
     }
 }
 
 .lens-core.lens-active {
-    animation: lens-pulse 2s ease-in-out infinite;
+    animation: lens-pulse 2.2s ease-in-out infinite;
 }
 
-/* ── Light Leak Flicker (analog film) ── */
+/* ── Light Leak Flicker ── */
 @keyframes light-leak-flicker {
 
     0%,
     100% {
         background-position: 0% 0%;
         filter: hue-rotate(0deg) brightness(1);
-        opacity: 0.2;
+        opacity: 0.18;
     }
 
     25% {
-        background-position: 10% 20%;
-        filter: hue-rotate(15deg) brightness(1.2);
-        opacity: 0.6;
+        background-position: 8% 18%;
+        filter: hue-rotate(-15deg) brightness(1.25);
+        opacity: 0.55;
     }
 
     50% {
-        background-position: -5% 10%;
-        filter: hue-rotate(-10deg) brightness(1.1);
-        opacity: 1;
+        background-position: -4% 8%;
+        filter: hue-rotate(10deg) brightness(1.15);
+        opacity: 0.9;
     }
 
     75% {
-        background-position: 20% -10%;
-        filter: hue-rotate(5deg) brightness(1.3);
-        opacity: 0.8;
+        background-position: 15% -8%;
+        filter: hue-rotate(-5deg) brightness(1.3);
+        opacity: 0.7;
     }
 }
 
 .is-playing .light-leak-overlay {
     opacity: 1;
-    animation: light-leak-flicker 0.4s steps(4) infinite;
+    animation: light-leak-flicker 0.45s steps(4) infinite;
 }
 
 /* ── Scanline Flicker ── */
@@ -849,25 +1038,25 @@ body::after {
 }
 
 .is-playing .lcd-scanlines {
-    animation: scanline-flicker 0.1s infinite;
+    animation: scanline-flicker 0.12s infinite;
 }
 
-/* ── Mechanical Camera Jitter (whole body vibrates slightly when playing) ── */
+/* ── Mechanical Jitter (softer, more like a film advance) ── */
 @keyframes mechanical-jitter {
     0% {
         transform: translate3d(0, 0, 0) rotate(0);
     }
 
     25% {
-        transform: translate3d(0.5px, -0.5px, 0) rotate(0.1deg);
+        transform: translate3d(0.4px, -0.4px, 0) rotate(0.08deg);
     }
 
     50% {
-        transform: translate3d(-0.5px, 0.5px, 0) rotate(-0.1deg);
+        transform: translate3d(-0.4px, 0.4px, 0) rotate(-0.08deg);
     }
 
     75% {
-        transform: translate3d(0.5px, 0.5px, 0) rotate(0.05deg);
+        transform: translate3d(0.4px, 0.4px, 0) rotate(0.04deg);
     }
 
     100% {
@@ -876,92 +1065,115 @@ body::after {
 }
 
 .digicam-container.is-playing .lcd-bezel {
-    animation: mechanical-jitter 0.12s linear infinite;
+    animation: mechanical-jitter 0.14s linear infinite;
 }
 
-/* Vignette on the lcd-screen when playing */
+/* Vignette on lcd-screen */
 .lcd-screen::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.45) 100%);
+    background: radial-gradient(circle at center, transparent 28%, rgba(0, 0, 0, 0.5) 100%);
     pointer-events: none;
     z-index: 10;
 }
 
-
-
-/* ── Auto-Play Button ── */
+/* ── Auto-Play Button — redesigned: slim pill ── */
 .auto-play-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
+    gap: 8px;
     width: 100%;
-    max-width: 240px;
-    background: var(--cam-dark);
-    color: #e8e6e3;
-    border: 1px solid #444;
-    border-bottom-color: #111;
-    border-radius: 6px;
-    padding: 8px 16px;
+    max-width: 220px;
+    background: linear-gradient(145deg, #16152a 0%, #1e1c32 100%);
+    color: rgba(200, 184, 212, 0.75);
+    border: 1px solid rgba(155, 138, 170, 0.2);
+    border-bottom-color: rgba(0, 0, 0, 0.3);
+    border-radius: 100px;
+    padding: 10px 20px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow:
-        0 3px 8px rgba(0, 0, 0, 0.35),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(200, 184, 212, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.auto-play-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,
+            transparent 0%, rgba(200, 184, 212, 0.06) 50%, transparent 100%);
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+}
+
+.auto-play-btn:hover::before {
+    transform: translateX(100%);
 }
 
 .auto-play-btn:hover {
-    background: #1e1e1e;
+    background: linear-gradient(145deg, #1e1c38 0%, #262440 100%);
+    border-color: rgba(155, 138, 170, 0.35);
+    color: rgba(220, 210, 232, 0.9);
     transform: translateY(-1px);
-    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(200, 184, 212, 0.12);
 }
 
 .auto-play-btn.is-active {
-    background: var(--accent);
-    border-color: var(--accent);
+    background: linear-gradient(145deg, #2a2248 0%, #1e1a3a 100%);
+    border-color: rgba(155, 138, 170, 0.4);
+    color: var(--accent-soft);
+    box-shadow:
+        0 4px 16px rgba(100, 80, 150, 0.3),
+        inset 0 1px 0 rgba(200, 184, 212, 0.1);
 }
 
 .auto-play-icon {
-    font-size: 16px;
-    opacity: 0.9;
+    font-size: 15px;
+    opacity: 0.85;
     font-weight: 300;
 }
 
 .auto-play-text {
     font-family: var(--font-mono);
-    font-size: 8px;
-    letter-spacing: 0.2em;
+    font-size: 7px;
+    letter-spacing: 0.25em;
     font-weight: 700;
-    opacity: 0.9;
+    opacity: 0.85;
 }
 
-/* ── Digicam playing state ── */
+/* ── Playing state — screws glow softly ── */
 .digicam-container.is-playing .console-screw {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.7),
-        0 0 6px rgba(100, 160, 255, 0.15);
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.3),
+        inset 0 1px 1px rgba(200, 184, 212, 0.6),
+        0 0 8px rgba(155, 100, 180, 0.2);
 }
 
-
-
-/* ── Message ── */
+/* ── Message Strip ── */
 .message-slot {
-    margin-top: 22px;
-    padding: 0 4px;
-    min-height: 20px;
+    margin-top: 24px;
+    padding: 0 8px;
+    min-height: 22px;
+    position: relative;
+    z-index: 2;
 }
 
 .message-strip {
     font-family: var(--font-display);
-    font-size: 16px;
+    font-size: 15px;
     font-style: italic;
+    font-weight: 400;
     color: var(--text);
     text-align: center;
-    line-height: 1.6;
+    line-height: 1.65;
     opacity: 0;
-    transform: translateY(6px);
-    transition: all 1s ease;
+    transform: translateY(8px);
+    transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .message-strip.visible {
@@ -975,44 +1187,44 @@ body::after {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 95px;
+    height: 100px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 0 26px 18px;
+    gap: 7px;
+    padding: 0 28px 20px;
 }
 
-/* Waveform — dark edged with warm glow bars */
+/* ── Waveform — redesigned: mauve-tinted bars ── */
 .music-box-waveform {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 2.5px;
-    height: 36px;
-    background: rgba(20, 18, 16, 0.12);
+    gap: 2px;
+    height: 34px;
+    background: rgba(10, 8, 20, 0.18);
     border-radius: 100px;
-    padding: 0 18px;
-    border: 1px solid rgba(80, 75, 70, 0.22);
+    padding: 0 16px;
+    border: 1px solid rgba(155, 138, 170, 0.12);
     box-shadow:
-        inset 0 2px 6px rgba(0, 0, 0, 0.08),
-        inset 0 -1px 0 rgba(255, 255, 255, 0.4),
-        0 1px 0 rgba(255, 255, 255, 0.5);
-    max-width: 220px;
+        inset 0 2px 6px rgba(0, 0, 0, 0.12),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.3),
+        0 1px 0 rgba(255, 255, 255, 0.4);
+    max-width: 210px;
     width: 100%;
     position: relative;
     overflow: hidden;
 }
 
 .waveform-bar {
-    width: 2.5px;
-    height: 28px;
+    width: 2px;
+    height: 26px;
     background: var(--cam-mid);
     border-radius: 4px;
-    opacity: 0.15;
+    opacity: 0.12;
     transform-origin: center;
-    transform: scaleY(0.12);
+    transform: scaleY(0.1);
     transition: transform 0.08s ease, opacity 0.08s ease;
     will-change: transform, opacity;
 }
@@ -1020,70 +1232,81 @@ body::after {
 .waveform-bar.active {
     opacity: 1;
     background: linear-gradient(to top,
-            #6a6765 0%, #4a4846 40%, #2e2c2a 100%);
-    box-shadow: 0 0 6px rgba(80, 75, 70, 0.35);
+            #7a6a9a 0%, #9b8aaa 40%, #c8b8d4 100%);
+    box-shadow: 0 0 5px rgba(155, 138, 170, 0.3);
 }
 
 .timer-display {
     font-family: var(--font-mono);
-    font-size: 8px;
+    font-size: 7.5px;
     color: var(--text-muted);
     letter-spacing: 0.2em;
+    opacity: 0.65;
 }
 
-/* ── Brand Badge (Dark Glass for Midnight) ── */
+/* ============================================================
+   BRAND BADGE — Midnight glass pill, dark & refined
+   ============================================================ */
 .watermark-badge {
     position: fixed;
-    top: 28px;
-    right: 28px;
-    background: rgba(14, 18, 32, 0.75);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(80, 100, 140, 0.25);
+    top: 26px;
+    right: 26px;
+    background: rgba(12, 10, 22, 0.8);
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    border: 1px solid rgba(155, 138, 170, 0.2);
+    border-top-color: rgba(200, 184, 212, 0.15);
     border-radius: 100px;
-    padding: 7px 18px 7px 13px;
+    padding: 8px 18px 8px 14px;
     color: var(--primary);
     text-decoration: none;
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 1000;
     display: flex;
     align-items: center;
-    box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(60, 80, 120, 0.15);
+    box-shadow:
+        0 8px 32px -8px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(200, 184, 212, 0.08);
 }
 
 .watermark-badge .flex {
-    gap: 14px !important;
+    gap: 12px !important;
 }
 
 .watermark-badge .material-symbols-outlined {
-    font-size: 17px !important;
+    font-size: 16px !important;
     transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+    color: var(--accent-soft);
+    opacity: 0.7;
 }
 
 .watermark-badge span:last-child {
     font-family: var(--font-sans);
-    font-size: 8.5px !important;
-    font-weight: 500 !important;
-    letter-spacing: 0.32em !important;
+    font-size: 8px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.3em !important;
     text-transform: uppercase;
-    color: rgba(200, 210, 230, 0.8);
-    opacity: 0.65;
-    padding-left: 14px;
-    border-left: 1px solid rgba(80, 100, 140, 0.2);
+    color: rgba(200, 184, 212, 0.55);
+    opacity: 0.8;
+    padding-left: 12px;
+    border-left: 1px solid rgba(155, 138, 170, 0.15);
     line-height: 1;
 }
 
 .watermark-badge:hover {
-    background: rgba(20, 25, 45, 0.9);
-    transform: translateY(-4px);
+    background: rgba(20, 16, 36, 0.92);
+    border-color: rgba(155, 138, 170, 0.35);
+    transform: translateY(-3px);
+    box-shadow: 0 14px 40px -8px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(200, 184, 212, 0.1);
 }
 
 .watermark-badge:hover .material-symbols-outlined {
-    transform: rotate(15deg) scale(1.1);
-    color: var(--primary);
+    transform: rotate(12deg) scale(1.1);
+    color: var(--rose-dust);
+    opacity: 1;
 }
 
-/* ── Utility ── */
+/* ── Utility Classes ── */
 .flex {
     display: flex;
 }
@@ -1121,14 +1344,12 @@ body::after {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   MOBILE — Same horizontal layout as desktop, just tighter.
-   Strategy: shrink lens, give LCD more room, bigger padding.
-   Reference: gift pages project (style.css) — no transform scale.
+   MOBILE — Responsive (≤640px)
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
 
     #state-gift {
-        padding: 20px 10px;
+        padding: 16px 10px 24px;
     }
 
     .voice-section {
@@ -1136,26 +1357,24 @@ body::after {
         width: 100%;
     }
 
-    /* Camera shell — tighter but breathing room top/bottom */
     .digicam-container {
-        border-radius: 44px;
-        padding: 44px 20px 72px;
+        border-radius: 46px;
+        padding: 40px 20px 76px;
     }
 
-    /* Tighter gap between lens and LCD */
     .camera-body {
         gap: 14px;
     }
 
-    /* ── Lens: smaller so LCD gets more room ── */
+    /* Lens — slightly smaller */
     .lens-outer {
-        width: 110px;
-        height: 110px;
+        width: 112px;
+        height: 112px;
     }
 
     .lens-mid {
-        width: 92px;
-        height: 92px;
+        width: 94px;
+        height: 94px;
     }
 
     .lens-inner {
@@ -1174,40 +1393,50 @@ body::after {
     }
 
     .lens-ring-label {
-        font-size: 5.5px;
-        bottom: -14px;
+        font-size: 5px;
+        bottom: -15px;
     }
 
-    /* ── LCD: taller so photos feel bigger ── */
+    /* LCD — taller on mobile */
     .lcd-bezel {
-        max-width: 190px;
-        width: 190px;
+        max-width: 188px;
+        width: 188px;
     }
 
     .film-frame {
-        width: 190px;
-        height: 190px;
+        width: 188px;
+        height: 188px;
     }
 
-    /* Auto-play button matches LCD width */
     .auto-play-btn {
-        max-width: 190px;
-        width: 190px;
+        max-width: 188px;
+        width: 188px;
     }
 
-    /* Waveform */
     .music-box-waveform {
-        max-width: 200px;
+        max-width: 196px;
     }
 
-    /* Watermark: hidden on mobile to save space */
+    /* Hide badge on mobile */
     .watermark-badge {
         display: none !important;
     }
 
-    /* Bokeh: simplify for performance */
+    /* Simplify bokeh for perf */
     .bokeh-particle {
         filter: none !important;
-        opacity: 0.06 !important;
+        opacity: 0.05 !important;
+    }
+
+    /* Card padding */
+    .password-card,
+    .error-container {
+        padding: 52px 32px 44px;
+        border-radius: 36px;
+    }
+
+    .password-title {
+        font-size: 28px;
+        margin-bottom: 28px;
     }
 }

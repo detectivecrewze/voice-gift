@@ -43,6 +43,7 @@ const CAMERA_THEMES = [
   { id: 'cam-midnight', folder: 'camera/midnight', name: '🌃 Midnight', color: '#1a1e2e', preview: 'camera/midnight/index.html' },
   { id: 'cam-mossy', folder: 'camera/mossy', name: '🌿 Mossy', color: '#2a3a22', preview: 'camera/mossy/index.html' },
   { id: 'cam-rosewood', folder: 'camera/rosewood', name: '🪵 Rosewood', color: '#b07860', preview: 'camera/rosewood/index.html' },
+  { id: 'cam-magenta', folder: 'camera/magenta', name: '🌸 Magenta', color: '#f9a8d4', preview: 'camera/magenta/index.html' },
 ];
 
 // ── Data: Ambients & Sounds are now provided by shared/ambient-data.js ──

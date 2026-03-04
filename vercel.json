@@ -41,6 +41,10 @@
             "destination": "/camera/silver/index.html"
         },
         {
+            "source": "/camera/magenta/(.*)",
+            "destination": "/camera/magenta/index.html"
+        },
+        {
             "source": "/camera/(.*)",
             "destination": "/camera/index.html"
         }

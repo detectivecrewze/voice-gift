@@ -27,15 +27,23 @@ const Preview = (() => {
     const themeConfig = Studio.getThemeConfig(state.theme);
     const folder = themeConfig ? themeConfig.folder : 'gift';
 
-    // Simpan state saat ini ke sessionStorage agar preview bisa membacanya
-    try {
-      sessionStorage.setItem('studio_preview_config', JSON.stringify(state));
-    } catch (e) {
-      console.warn('[Preview] Could not save preview config to sessionStorage:', e);
-    }
+    // Untuk Camera themes: arahkan ke halaman iklan publik yang sudah ada datanya
+    // Untuk Gift themes: gunakan sessionStorage preview seperti biasa
+    const isCameraTheme = folder.startsWith('camera/');
 
-    // Buka dengan ?to=for-preview agar lari ke demo/mock data (tanpa password gate)
-    window.open(`../${folder}/index.html?to=for-preview`, '_blank');
+    if (isCameraTheme) {
+      // Buka halaman iklan publik yang sudah disiapkan dengan data asli
+      window.open(`../${folder}/index.html?to=for-iklan2`, '_blank');
+    } else {
+      // Simpan state saat ini ke sessionStorage agar preview bisa membacanya
+      try {
+        sessionStorage.setItem('studio_preview_config', JSON.stringify(state));
+      } catch (e) {
+        console.warn('[Preview] Could not save preview config to sessionStorage:', e);
+      }
+      // Buka dengan ?to=for-preview agar lari ke demo/mock data (tanpa password gate)
+      window.open(`../${folder}/index.html?to=for-preview`, '_blank');
+    }
   };
 
   // Expose public API

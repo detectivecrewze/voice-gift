@@ -1,8 +1,7 @@
 /* ============================================================
-   camera.css — Gift Camera Theme: Silver Mist Studio
-   Aesthetic: Polished Chrome Silver, Pearl Mist, Studio Light
-   Real digicam silver — like Sony Cybershot / Canon IXUS.
-   Feminine, luminous, airy yet deeply vintage.
+   midnight.css — Gift Camera Theme: Dusty Rose Darkroom
+   Aesthetic: Deep Mauve, Dusty Rose, Warm Candlelight
+   Feminine, vintage, moody & deeply romantic.
    ============================================================ */
 
 :root {
@@ -10,30 +9,26 @@
     --font-sans: 'DM Sans', sans-serif;
     --font-mono: 'Space Mono', monospace;
 
-    /* ── Background: pearl silver mist — soft, airy, feminine ── */
-    --bg: #dfe2e6;
+    /* ── Background palette: deep warm mauve-noir ── */
+    --bg: #110b0e;
     --mesh:
-        radial-gradient(at 0% 0%, #eceef1 0px, transparent 55%),
-        radial-gradient(at 100% 0%, #e2e5e9 0px, transparent 55%),
-        radial-gradient(at 80% 80%, #d4d8dc 0px, transparent 55%),
-        radial-gradient(at 20% 100%, #e8eaed 0px, transparent 55%);
+        radial-gradient(at 0% 0%, #1e0f18 0px, transparent 55%),
+        radial-gradient(at 100% 0%, #180e16 0px, transparent 55%),
+        radial-gradient(at 80% 80%, #150c12 0px, transparent 55%),
+        radial-gradient(at 20% 100%, #1a0f16 0px, transparent 55%);
 
-    /* ── Camera hardware tones: real polished silver ── */
-    --cam-bezel: #f0f2f4;
-    /* outermost chrome rim */
-    --cam-body: #e4e7ea;
-    /* main body slab */
-    --cam-dark: #1e1e20;
-    /* LCD bezel / dark hardware */
-    --cam-mid: #9aa0a8;
-    /* mid-tone detail */
+    /* ── Camera accent: aged brass & warm ebony ── */
+    --cam-bezel: #2e2028;
+    --cam-body: #1e161c;
+    --cam-dark: #0e080c;
+    --cam-mid: #6b4a5a;
 
-    /* ── UI accents: cool silver-slate ── */
-    --primary: #6e7880;
-    --accent: #3a4248;
-    --text: #1e2428;
-    --text-muted: #7a8690;
-    --border: rgba(140, 148, 158, 0.35);
+    /* ── UI accents: dusty rose & blush ── */
+    --primary: #c49aaa;
+    --accent: #8b5a6e;
+    --text: #d8c4ca;
+    --text-muted: #7a5a66;
+    --border: rgba(160, 100, 120, 0.2);
 
     --noise-opacity: 0.035;
 }
@@ -58,7 +53,7 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* ── Pearl-silver mist background ── */
+/* ── Deep warm mauve-noir background ── */
 body {
     background-color: var(--bg);
     color: var(--text);
@@ -73,13 +68,13 @@ body::before {
     background: var(--mesh);
 }
 
-/* ── Subtle grain for texture depth ── */
+/* ── Grain texture — slightly warmer tint ── */
 body::after {
     content: '';
     position: fixed;
     inset: 0;
     z-index: -1;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     opacity: var(--noise-opacity);
     pointer-events: none;
 }
@@ -93,14 +88,14 @@ body::after {
     padding: 20px;
 }
 
-/* ── Loading spinner: cool silver ── */
+/* ── Loading spinner: dusty rose ── */
 .loading-spinner {
     width: 36px;
     height: 36px;
-    border: 2px solid rgba(120, 130, 140, 0.18);
+    border: 2px solid rgba(180, 120, 140, 0.15);
     border-top-color: var(--accent);
     border-radius: 50%;
-    animation: spin 0.85s linear infinite;
+    animation: spin 0.9s linear infinite;
 }
 
 @keyframes spin {
@@ -109,66 +104,48 @@ body::after {
     }
 }
 
-/* ── Password Card — Frosted Silver Glass ── */
+/* ── Password Card — Vintage Parchment & Rose ── */
 .password-card {
-    /* Frosted silver glass — like a camera manual cover */
-    background: linear-gradient(160deg,
-            rgba(252, 253, 255, 0.96) 0%,
-            rgba(242, 245, 248, 0.94) 50%,
-            rgba(235, 239, 243, 0.92) 100%);
-    backdrop-filter: blur(50px) saturate(160%) brightness(1.05);
-    -webkit-backdrop-filter: blur(50px) saturate(160%) brightness(1.05);
+    --text: #2a1a20;
+    --text-muted: #7a5a66;
+
+    /* Warm cream parchment with subtle rose tint */
+    background: linear-gradient(160deg, #f5f0ed 0%, #ede6e2 50%, #e8e0dc 100%);
+    backdrop-filter: blur(40px) saturate(160%);
+    -webkit-backdrop-filter: blur(40px) saturate(160%);
     padding: 70px 48px;
     border-radius: 40px;
 
-    /* Polished edge — top-left chrome highlight */
-    border: 1px solid rgba(255, 255, 255, 0.85);
-    border-bottom-color: rgba(160, 170, 180, 0.3);
-    border-right-color: rgba(160, 170, 180, 0.25);
+    /* Delicate border like aged paper edge */
+    border: 1px solid rgba(200, 170, 160, 0.5);
+    border-top-color: rgba(230, 200, 190, 0.7);
+    border-left-color: rgba(220, 190, 180, 0.6);
 
     text-align: center;
     max-width: 440px;
     width: 90%;
 
-    /* Studio light shadow — bright top, deep bottom */
+    /* Warm shadow — candlelight glow beneath */
     box-shadow:
-        0 2px 0 rgba(255, 255, 255, 0.95),
-        0 40px 100px -20px rgba(30, 36, 48, 0.18),
-        0 8px 32px rgba(80, 90, 110, 0.08),
-        inset 0 1px 2px rgba(255, 255, 255, 1);
+        0 40px 100px -20px rgba(80, 30, 40, 0.2),
+        0 0 80px -20px rgba(140, 70, 90, 0.08),
+        inset 0 1px 2px rgba(255, 240, 235, 0.8);
 
     animation: fade-in-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
     position: relative;
     overflow: hidden;
 }
 
-/* Subtle specular sweep across card */
+/* Aged paper texture overlay on card */
 .password-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0.9) 30%,
-            rgba(255, 255, 255, 1) 50%,
-            rgba(255, 255, 255, 0.9) 70%,
-            transparent 100%);
-    pointer-events: none;
-}
-
-/* Inner silver sheen on card */
-.password-card::after {
-    content: '';
-    position: absolute;
     inset: 0;
-    background: linear-gradient(160deg,
-            rgba(255, 255, 255, 0.15) 0%,
-            transparent 40%);
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
     pointer-events: none;
     border-radius: 40px;
+    z-index: 0;
+    opacity: 0.6;
 }
 
 .password-card>* {
@@ -188,7 +165,7 @@ body::after {
     }
 }
 
-/* ── Title: italic Cormorant, dark slate ── */
+/* ── Password Title — italic Cormorant for romance ── */
 .password-title {
     font-family: var(--font-display);
     font-size: 38px;
@@ -204,18 +181,18 @@ body::after {
     font-family: var(--font-sans);
     font-size: 9.5px;
     text-transform: uppercase;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.2em;
     color: var(--text-muted);
     margin-bottom: 40px;
     font-weight: 500;
 }
 
-/* ── Input: polished glass ── */
+/* ── Input field — warm frosted ── */
 .password-field {
     width: 100%;
-    background: rgba(255, 255, 255, 0.88);
-    border: 1px solid rgba(180, 190, 200, 0.35);
-    border-bottom-color: rgba(140, 152, 164, 0.45);
+    background: rgba(255, 252, 250, 0.9);
+    border: 1px solid rgba(180, 140, 140, 0.25);
+    border-bottom-color: rgba(160, 110, 120, 0.4);
     border-radius: 14px;
     padding: 18px 20px;
     color: var(--text);
@@ -223,12 +200,10 @@ body::after {
     font-size: 16px;
     margin-bottom: 30px;
     outline: none;
-    transition: all 0.3s ease;
+    transition: all 0.35s ease;
     letter-spacing: 0.1em;
     font-family: var(--font-sans);
-    box-shadow:
-        inset 0 2px 6px rgba(100, 110, 130, 0.07),
-        0 1px 0 rgba(255, 255, 255, 0.8);
+    box-shadow: inset 0 2px 6px rgba(140, 80, 90, 0.06);
 }
 
 .password-field::placeholder {
@@ -239,21 +214,20 @@ body::after {
 }
 
 .password-field:focus {
-    border-color: rgba(80, 100, 130, 0.4);
-    background: rgba(255, 255, 255, 0.98);
+    border-color: rgba(160, 100, 120, 0.5);
+    background: #fff;
     box-shadow:
-        inset 0 2px 6px rgba(80, 100, 130, 0.07),
-        0 0 0 3px rgba(100, 130, 170, 0.1);
+        inset 0 2px 6px rgba(140, 80, 90, 0.06),
+        0 0 0 3px rgba(180, 120, 140, 0.1);
 }
 
-/* ── Unlock Button — polished dark chrome ── */
+/* ── Unlock Button — deep rose with shimmer ── */
 .unlock-btn {
     width: 100%;
-    /* Dark brushed silver-charcoal — like camera shutter button */
-    background: linear-gradient(160deg, #2e3640 0%, #1e2830 55%, #161e28 100%);
-    color: rgba(240, 244, 248, 0.95);
+    background: linear-gradient(160deg, #5c2d38 0%, #3e1d26 60%, #2e1520 100%);
+    color: rgba(240, 225, 220, 0.95);
     border: none;
-    border-top: 1px solid rgba(120, 140, 160, 0.25);
+    border-top: 1px solid rgba(160, 100, 110, 0.3);
     padding: 22px;
     border-radius: 16px;
     font-family: var(--font-sans);
@@ -266,12 +240,12 @@ body::after {
     position: relative;
     overflow: hidden;
     box-shadow:
-        0 10px 30px rgba(20, 30, 44, 0.25),
-        0 4px 12px rgba(20, 30, 44, 0.15),
-        inset 0 1px 2px rgba(200, 220, 240, 0.12);
+        0 10px 30px rgba(60, 20, 30, 0.3),
+        0 4px 12px rgba(80, 30, 40, 0.2),
+        inset 0 1px 2px rgba(200, 150, 160, 0.15);
 }
 
-/* Chrome shimmer sweep */
+/* Shimmer sweep on hover */
 .unlock-btn::after {
     content: '';
     position: absolute;
@@ -279,7 +253,7 @@ body::after {
     left: -100%;
     width: 60%;
     height: 100%;
-    background: linear-gradient(105deg, transparent, rgba(200, 220, 255, 0.1), transparent);
+    background: linear-gradient(105deg, transparent, rgba(255, 210, 210, 0.1), transparent);
     transition: left 0.6s ease;
 }
 
@@ -288,11 +262,11 @@ body::after {
 }
 
 .unlock-btn:hover {
-    background: linear-gradient(160deg, #38424e 0%, #26333f 55%, #1c2a36 100%);
+    background: linear-gradient(160deg, #6b3340 0%, #4a2230 60%, #361821 100%);
     transform: translateY(-2px);
     box-shadow:
-        0 18px 40px rgba(20, 30, 44, 0.3),
-        0 6px 16px rgba(20, 30, 44, 0.18);
+        0 18px 40px rgba(60, 20, 30, 0.4),
+        0 6px 16px rgba(80, 30, 40, 0.25);
 }
 
 .password-hint {
@@ -300,11 +274,11 @@ body::after {
     font-size: 9px;
     color: var(--text-muted);
     opacity: 0.7;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
 }
 
 .password-error {
-    color: #c0444f;
+    color: #b0453f;
     font-size: 10px;
     margin-top: -15px;
     margin-bottom: 25px;
@@ -315,24 +289,24 @@ body::after {
 
 /* ── Error Container ── */
 .error-container {
+    --text: #2a1a20;
+    --text-muted: #7a5a66;
+
     text-align: center;
-    background: linear-gradient(160deg,
-            rgba(252, 253, 255, 0.96) 0%,
-            rgba(240, 244, 248, 0.94) 100%);
+    background: linear-gradient(160deg, #f5f0ed 0%, #ede6e2 100%);
     padding: 60px 48px;
     border-radius: 40px;
     max-width: 440px;
     width: 90%;
-    box-shadow:
-        0 2px 0 rgba(255, 255, 255, 0.95),
-        0 40px 100px -20px rgba(30, 36, 48, 0.18);
-    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 40px 100px -20px rgba(80, 30, 40, 0.2);
+    border: 1px solid rgba(200, 170, 160, 0.4);
 }
 
 .error-icon {
     font-size: 48px;
     margin-bottom: 24px;
     display: inline-block;
+    color: #a06070;
 }
 
 .error-container h2 {
@@ -361,7 +335,7 @@ body::after {
     overflow: hidden;
 }
 
-/* ── Bokeh: soft silver-white studio light orbs ── */
+/* ── Bokeh: warm rose-amber particles ── */
 .bokeh-container {
     position: absolute;
     inset: 0;
@@ -373,13 +347,9 @@ body::after {
 .bokeh-particle {
     position: absolute;
     border-radius: 50%;
-    /* Real silver reflections — studio light caught in chrome */
-    background: radial-gradient(circle,
-            rgba(255, 255, 255, 1) 0%,
-            rgba(220, 228, 238, 0.6) 50%,
-            transparent 100%);
-    filter: blur(55px);
-    opacity: 0.22;
+    background: radial-gradient(circle, #c08090 0%, #8b4a60 100%);
+    filter: blur(70px);
+    opacity: 0.07;
     will-change: transform;
 }
 
@@ -407,142 +377,85 @@ body::after {
 }
 
 /* ============================================================
-   THE DIGICAM — Authentic Polished Chrome Silver
-   Reference: Sony Cybershot DSC-W series, Canon IXUS 80
-   Chrome body + dark lens barrel = the real silver camera look
+   THE DIGICAM — Warm Ebony & Aged Brass Feminine Edition
    ============================================================ */
 .digicam-container {
-    /* Premium polished silver body — multi-layer for realism */
+    /* Warm ebony body with subtle rose-tinted crosshatch */
     background:
-        /* Subtle brushed crosshatch — like real camera body texture */
         repeating-linear-gradient(-45deg,
-            rgba(100, 108, 118, 0.018), rgba(100, 108, 118, 0.018) 1px,
+            rgba(180, 80, 100, 0.025), rgba(180, 80, 100, 0.025) 1px,
             transparent 1px, transparent 8px),
-        repeating-linear-gradient(45deg,
-            rgba(100, 108, 118, 0.012), rgba(100, 108, 118, 0.012) 1px,
-            transparent 1px, transparent 8px),
-        /* Main chrome gradient — bright top, slightly darker base */
-        linear-gradient(170deg,
-            #f8f9fb 0%,
-            #eceef2 15%,
-            #e0e3e8 35%,
-            #d4d8de 60%,
-            #cdd1d7 80%,
-            #c6cad1 100%);
+        linear-gradient(165deg,
+            #261820 0%,
+            #1c1218 30%,
+            #160e14 60%,
+            #120c10 100%);
 
-    /* Chrome border: bright top-left edge, darker bottom-right */
-    border: 1.5px solid rgba(180, 186, 196, 0.65);
-    border-top-color: rgba(255, 255, 255, 0.98);
-    border-left-color: rgba(255, 255, 255, 0.9);
-    border-bottom-color: rgba(140, 148, 158, 0.8);
-    border-right-color: rgba(150, 158, 168, 0.7);
+    /* Rose-tinted border with warm brass top highlight */
+    border: 1.5px solid rgba(160, 90, 110, 0.3);
+    border-top-color: rgba(180, 120, 130, 0.5);
+    border-left-color: rgba(170, 110, 120, 0.4);
 
     border-radius: 50px;
     padding: 32px 26px 100px;
 
-    /* Dramatic chrome shadow — bright highlight top, deep shadow below */
+    /* Warm deep shadow with faint rose ambient */
     box-shadow:
-        0 2px 0 rgba(255, 255, 255, 0.98),
-        /* top edge chrome highlight */
-        0 -1px 0 rgba(255, 255, 255, 0.6) inset,
-        /* inner top gleam */
-        0 80px 160px -30px rgba(20, 25, 35, 0.5),
-        /* deep bottom shadow */
-        0 24px 48px rgba(60, 68, 80, 0.2),
-        /* mid shadow */
-        0 8px 20px rgba(80, 88, 100, 0.12),
-        /* near shadow */
-        inset 0 2px 4px rgba(255, 255, 255, 0.98),
-        /* inner top chrome gleam */
-        inset 0 -10px 24px rgba(100, 108, 120, 0.1);
-    /* inner bottom depth */
+        0 2px 0 rgba(80, 30, 40, 0.4),
+        0 70px 140px -30px rgba(20, 0, 5, 0.85),
+        0 20px 40px rgba(10, 0, 5, 0.45),
+        inset 0 1.5px 3px rgba(200, 130, 150, 0.2),
+        inset 0 -8px 20px rgba(0, 0, 0, 0.4);
 
     position: relative;
     overflow: hidden;
 }
 
-/* Chrome specular sweep across top of camera body */
-.digicam-container::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 18px;
-    right: 18px;
-    height: 50%;
-    background: linear-gradient(180deg,
-            rgba(255, 255, 255, 0.35) 0%,
-            rgba(255, 255, 255, 0.08) 50%,
-            transparent 100%);
-    border-radius: 50px 50px 80% 80%;
-    pointer-events: none;
-    z-index: 1;
-}
-
-/* ── Corner Screws — polished chrome Phillips head ── */
+/* ── Corner Screws — aged brass ── */
 .console-screw {
     position: absolute;
     width: 11px;
     height: 11px;
-    /* Real chrome screw: bright center, darker rim */
-    background: radial-gradient(circle at 38% 32%,
-            #ffffff 0%,
-            #d8dcE0 25%,
-            #b0b6be 55%,
-            #8a9098 80%,
-            #707880 100%);
+    background: radial-gradient(circle at 35% 35%, #5a3c2c, #3a2218);
     border-radius: 50%;
-    box-shadow:
-        0 2px 5px rgba(0, 0, 0, 0.22),
-        inset 0 1px 2px rgba(255, 255, 255, 0.9),
-        inset 0 -1px 1px rgba(80, 88, 100, 0.15);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(180, 140, 100, 0.25);
     z-index: 5;
 }
 
-/* Phillips head groove */
 .console-screw::before {
     content: '';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 6px;
-    height: 1px;
-    background: rgba(80, 88, 100, 0.45);
-    border-radius: 1px;
-    box-shadow: 0 0 0 0.5px rgba(80, 88, 100, 0.2);
-}
-
-/* Vertical groove of Phillips head */
-.console-screw::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 1px;
-    height: 6px;
-    background: rgba(80, 88, 100, 0.45);
+    width: 7px;
+    height: 1.5px;
+    background: #7a5a3a;
     border-radius: 1px;
 }
 
 .top-left {
     top: 20px;
     left: 20px;
+    transform: rotate(45deg);
 }
 
 .top-right {
     top: 20px;
     right: 20px;
+    transform: rotate(-45deg);
 }
 
 .bottom-left {
     bottom: 20px;
     left: 20px;
+    transform: rotate(-15deg);
 }
 
 .bottom-right {
     bottom: 20px;
     right: 20px;
+    transform: rotate(30deg);
 }
 
 /* ── Camera Body Layout ── */
@@ -562,91 +475,58 @@ body::after {
     gap: 8px;
 }
 
-/* ── Flash — polished chrome xenon unit ── */
+/* ── Flash unit — warm amber tint ── */
 .flash-unit {
     width: 48px;
     height: 13px;
-    background: linear-gradient(90deg,
-            #b0b6be 0%, #d8dce2 35%,
-            #eceef2 50%, #d8dce2 65%, #b0b6be 100%);
+    background: linear-gradient(90deg, #382028 0%, #4a2c38 40%, #382028 100%);
     border-radius: 3px;
-    border: 1px solid rgba(160, 168, 178, 0.7);
-    border-top-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid #4a2c38;
     overflow: hidden;
     box-shadow:
-        inset 0 1px 3px rgba(255, 255, 255, 0.85),
-        0 1px 3px rgba(0, 0, 0, 0.12),
-        0 2px 0 rgba(255, 255, 255, 0.5);
+        inset 0 1px 3px rgba(200, 100, 120, 0.2),
+        0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
-/* Flash diffuser grid */
 .flash-grid {
     width: 100%;
     height: 100%;
     background: repeating-linear-gradient(90deg,
-            rgba(255, 255, 255, 0.4) 0px, rgba(255, 255, 255, 0.4) 1.5px,
-            transparent 1.5px, transparent 3.5px);
+            rgba(255, 220, 200, 0.4) 0px, rgba(255, 220, 200, 0.4) 2px,
+            transparent 2px, transparent 4px);
 }
 
-/* Viewfinder — small dark glass circle */
 .viewfinder-dot {
     width: 8px;
     height: 8px;
-    background: radial-gradient(circle at 35% 35%, #2a2e38 0%, #0e1018 100%);
+    background: #1a0c10;
     border-radius: 50%;
-    border: 1.5px solid #8a9098;
-    border-top-color: rgba(255, 255, 255, 0.7);
-    box-shadow:
-        inset 0 0 4px rgba(0, 0, 0, 0.8),
-        0 1px 0 rgba(255, 255, 255, 0.5);
+    border: 1.5px solid #5a3040;
+    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.9);
     align-self: flex-end;
     margin-right: 6px;
 }
 
-/* ══════════════════════════════════════════════════════════
-   LENS — Authentic 5-ring optical system
-   Outer chrome ring → brushed metal barrel → glass core
-   This is the heart of the silver camera aesthetic.
-   ══════════════════════════════════════════════════════════ */
-
-/* Outermost: Polished chrome bezel ring — the brightest element */
+/* ── LENS — Warm Brass & Dark Rosewood ── */
+/* Outermost: Aged brass conic gradient */
 .lens-outer {
     position: relative;
     width: 148px;
     height: 148px;
-    /* Real chrome conic — bright specular at 12 o'clock and 4 o'clock */
     background: conic-gradient(from 0deg,
-            #c8ccd2 0deg,
-            #eaedf1 25deg,
-            #ffffff 45deg,
-            /* top-right specular peak */
-            #f0f2f5 60deg,
-            #d8dce2 90deg,
-            #b8bec6 130deg,
-            #a0a8b0 160deg,
-            /* bottom-left shadow */
-            #b0b8c0 200deg,
-            #d0d4da 240deg,
-            #f0f2f5 270deg,
-            /* right specular */
-            #ffffff 290deg,
-            /* right peak */
-            #e8eaee 310deg,
-            #d0d4d8 340deg,
-            #c8ccd2 360deg);
+            #3a2822 0deg, #5a3c30 40deg, #2e2018 80deg, #4a3228 120deg,
+            #241810 160deg, #503828 200deg, #3a2820 240deg, #4e3626 280deg,
+            #2e2018 320deg, #3a2822 360deg);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow:
-        0 14px 32px rgba(0, 0, 0, 0.28),
-        0 4px 10px rgba(0, 0, 0, 0.14),
-        -5px -5px 14px rgba(255, 255, 255, 0.9),
-        /* top-left bounce light */
-        5px 5px 10px rgba(80, 90, 105, 0.2),
-        /* bottom-right shadow */
-        inset 0 2px 4px rgba(255, 255, 255, 0.85);
-    border: 1px solid rgba(160, 168, 178, 0.5);
+        0 12px 28px rgba(0, 0, 0, 0.65),
+        0 4px 8px rgba(0, 0, 0, 0.45),
+        -4px -4px 12px rgba(80, 40, 30, 0.25),
+        inset 0 1px 4px rgba(200, 140, 100, 0.15);
+    border: 1px solid rgba(100, 60, 40, 0.5);
 }
 
 .lens-ring-label {
@@ -660,120 +540,108 @@ body::after {
     white-space: nowrap;
 }
 
-/* Ring 1: Brushed dark silver barrel — contrast against chrome outer */
+/* Ring 1: Dark rosewood bezel */
 .lens-mid {
     width: 124px;
     height: 124px;
-    /* Brushed gunmetal — the ring you actually grip to zoom */
-    background: linear-gradient(248deg,
-            #484e56 0%,
-            #363c44 25%,
-            #2e3438 50%,
-            #262c32 75%,
-            #1e2428 100%);
+    background: linear-gradient(245deg,
+            #1e1218 0%, #140c10 30%, #180e14 60%, #0e0810 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow:
-        inset 0 5px 12px rgba(0, 0, 0, 0.65),
-        inset 0 -2px 4px rgba(180, 190, 200, 0.1),
-        0 2px 0 rgba(255, 255, 255, 0.25);
-    border: 1px solid #5a6068;
-    border-top-color: rgba(180, 190, 200, 0.4);
+        inset 0 4px 10px rgba(0, 0, 0, 0.85),
+        inset 0 -2px 4px rgba(180, 80, 100, 0.08);
+    border: 1px solid #3a2028;
 }
 
-/* Ring 2: Dark camera barrel housing */
+/* Ring 2: Ebony barrel */
 .lens-inner {
     width: 98px;
     height: 98px;
-    background: linear-gradient(145deg, #1c1c20 0%, #0e0e12 100%);
+    background: linear-gradient(145deg, #1a1010 0%, #0c0808 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: inset 0 5px 16px rgba(0, 0, 0, 1);
-    border: 1.5px solid #303035;
+    box-shadow: inset 0 5px 15px rgba(0, 0, 0, 1);
+    border: 1.5px solid #2e1a1e;
 }
 
-/* Ring 3: Deep recessed optical chamber */
+/* Ring 3: Deep recessed */
 .lens-deep {
     width: 76px;
     height: 76px;
-    background: radial-gradient(circle at center, #121215 0%, #050508 100%);
+    background: radial-gradient(circle at center, #100808 0%, #040204 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow:
-        inset 0 3px 14px rgba(0, 0, 0, 1),
-        0 0 8px rgba(0, 0, 0, 0.9);
-    border: 1px solid #1c1c20;
+        inset 0 3px 12px rgba(0, 0, 0, 1),
+        0 0 6px rgba(0, 0, 0, 0.9);
+    border: 1px solid #1a0e10;
 }
 
-/* Core glass element — blue-tinted lens glass, like real optics */
+/* Core glass — warm rose flare */
 .lens-core {
     width: 58px;
     height: 58px;
     background:
-        radial-gradient(circle at 32% 30%,
-            #1a2840 0%,
-            #0c1828 22%,
-            #061020 50%,
-            #020810 78%,
-            #000 100%);
+        radial-gradient(circle at 30% 28%,
+            #3a1828 0%, #200c18 25%, #100810 55%, #060408 80%, #000 100%);
     border-radius: 50%;
     position: relative;
     overflow: hidden;
     box-shadow:
-        inset 0 0 14px rgba(80, 120, 200, 0.2),
-        inset 0 3px 8px rgba(160, 200, 255, 0.06);
+        inset 0 0 16px rgba(160, 60, 80, 0.2),
+        inset 0 3px 8px rgba(220, 100, 130, 0.06);
 }
 
-/* Main glare — bright white star at top-left */
+/* Main glare — warm white */
 .lens-glare-main {
     position: absolute;
-    top: 4px;
-    left: 4px;
-    width: 28px;
-    height: 28px;
+    top: 5px;
+    left: 5px;
+    width: 26px;
+    height: 26px;
     background: radial-gradient(circle at center,
-            rgba(255, 255, 255, 0.55) 0%,
-            rgba(220, 235, 255, 0.15) 40%,
+            rgba(255, 245, 240, 0.45) 0%,
+            rgba(255, 220, 210, 0.12) 40%,
             transparent 70%);
     border-radius: 50%;
     pointer-events: none;
 }
 
-/* Secondary glare — blue-violet lens flare at bottom-right */
+/* Secondary glare — soft rose flare */
 .lens-glare-blue {
     position: absolute;
-    bottom: 6px;
-    right: 6px;
+    bottom: 7px;
+    right: 7px;
     width: 18px;
     height: 18px;
     background: radial-gradient(circle,
-            rgba(120, 170, 255, 0.4) 0%,
-            rgba(80, 130, 240, 0.12) 50%,
+            rgba(220, 100, 130, 0.3) 0%,
+            rgba(180, 70, 100, 0.1) 50%,
             transparent 70%);
     border-radius: 50%;
     pointer-events: none;
 }
 
-/* Tiny specular dot */
 .lens-specular {
     position: absolute;
-    top: 11px;
-    left: 12px;
+    top: 12px;
+    left: 13px;
     width: 5px;
     height: 5px;
-    background: rgba(255, 255, 255, 0.88);
+    background: rgba(255, 245, 240, 0.8);
     border-radius: 50%;
-    filter: blur(0.4px);
+    filter: blur(0.5px);
     pointer-events: none;
 }
 
-/* ── RIGHT: LCD + Controls ── */
+/* ── RIGHT: LCD + Play ── */
 .camera-right {
     flex: 1;
     display: flex;
@@ -782,17 +650,16 @@ body::after {
     gap: 24px;
 }
 
-/* LCD Bezel — dark plastic frame, like real digicam screen housing */
+/* Bezel — warm ebony plastic */
 .lcd-bezel {
     background: var(--cam-dark);
     border-radius: 9px;
     padding: 7px;
     box-shadow:
-        inset 0 4px 10px rgba(0, 0, 0, 0.92),
-        inset 0 -1px 2px rgba(255, 255, 255, 0.04),
-        0 4px 14px rgba(0, 0, 0, 0.35),
-        0 1px 0 rgba(255, 255, 255, 0.6);
-    /* bottom chrome edge of camera body */
+        inset 0 4px 10px rgba(0, 0, 0, 0.95),
+        inset 0 -1px 2px rgba(200, 100, 120, 0.05),
+        0 4px 12px rgba(0, 0, 0, 0.45),
+        0 1px 0 rgba(200, 150, 140, 0.3);
     width: 95%;
     max-width: 220px;
     position: relative;
@@ -801,7 +668,7 @@ body::after {
 .lcd-screen {
     width: 100%;
     height: 100%;
-    background: #050508;
+    background: #050303;
     border-radius: 3px;
     overflow: hidden;
     position: relative;
@@ -814,9 +681,7 @@ body::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg,
-            rgba(255, 255, 255, 0.1) 0%,
-            rgba(255, 255, 255, 0) 38%);
+    background: linear-gradient(135deg, rgba(255, 230, 220, 0.08) 0%, rgba(255, 255, 255, 0) 38%);
     pointer-events: none;
     z-index: 30;
 }
@@ -833,13 +698,13 @@ body::after {
 
 .lcd-intro-text p:last-child {
     font-size: 7.5px;
-    color: #7a8090;
+    color: #886060;
     text-transform: uppercase;
     letter-spacing: 0.15em;
     font-family: var(--font-mono);
 }
 
-/* ── Film Tray ── */
+/* ── Film Tray (scrolls horizontally) ── */
 .film-tray {
     display: flex;
     height: 100%;
@@ -858,14 +723,14 @@ body::after {
     box-sizing: border-box;
 }
 
-/* Photos: keep the authentic analog feel */
+/* ── Film photo — warm vintage filter ── */
 .film-frame img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
     border-radius: 1px;
-    filter: sepia(0.08) contrast(1.06) brightness(1.02);
+    filter: sepia(0.2) contrast(1.04) saturate(0.9) brightness(0.97);
     transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -873,7 +738,7 @@ body::after {
     transform: scale(1.05) rotate(0.4deg);
 }
 
-/* Film grain */
+/* Film grain overlay */
 .film-frame::after {
     content: '';
     position: absolute;
@@ -881,17 +746,17 @@ body::after {
     background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
     pointer-events: none;
     z-index: 5;
-    opacity: 0.55;
+    opacity: 0.7;
     mix-blend-mode: overlay;
 }
 
-/* ── Light Leaks — soft silver-white on light theme ── */
+/* ── Light Leaks — warm rose-amber ── */
 .light-leak-overlay {
     position: absolute;
     inset: 0;
     background: radial-gradient(circle at 70% 30%,
-            rgba(255, 140, 40, 0.18) 0%,
-            rgba(255, 80, 0, 0.06) 50%,
+            rgba(220, 80, 80, 0.2) 0%,
+            rgba(180, 40, 60, 0.06) 50%,
             transparent 100%);
     mix-blend-mode: color-dodge;
     opacity: 0;
@@ -900,7 +765,7 @@ body::after {
     transition: opacity 0.3s ease;
 }
 
-/* ── Glass Lens Reflection on LCD ── */
+/* ── Glass Lens Reflection — warm tint ── */
 .glass-lens-overlay {
     position: absolute;
     inset: 0;
@@ -908,16 +773,17 @@ body::after {
     z-index: 25;
     background:
         linear-gradient(135deg,
-            rgba(255, 255, 255, 0.16) 0%,
-            rgba(255, 255, 255, 0.05) 15%,
-            transparent 40%),
+            rgba(255, 230, 220, 0.12) 0%,
+            rgba(255, 200, 190, 0.04) 15%,
+            transparent 40%,
+            transparent 100%),
         radial-gradient(circle at 30% 25%,
-            rgba(200, 220, 255, 0.06) 0%,
+            rgba(255, 220, 210, 0.06) 0%,
             transparent 30%),
         radial-gradient(circle at 70% 80%,
-            rgba(100, 140, 255, 0.03) 0%,
+            rgba(180, 80, 100, 0.04) 0%,
             transparent 50%);
-    opacity: 0.9;
+    opacity: 0.85;
     mix-blend-mode: screen;
 }
 
@@ -925,7 +791,7 @@ body::after {
 .lcd-idle-overlay {
     position: absolute;
     inset: 0;
-    background: #040408;
+    background: #040202;
     z-index: 30;
     display: flex;
     flex-direction: column;
@@ -940,17 +806,18 @@ body::after {
     pointer-events: none;
 }
 
+/* Idle: thin warm rose line */
 .lcd-idle-line {
     width: 32px;
     height: 1px;
-    background: rgba(180, 200, 230, 0.2);
+    background: rgba(220, 160, 150, 0.2);
 }
 
 .lcd-idle-label {
     font-family: var(--font-mono);
     font-size: 6px;
     letter-spacing: 0.28em;
-    color: rgba(180, 200, 230, 0.2);
+    color: rgba(220, 160, 150, 0.2);
     text-transform: uppercase;
 }
 
@@ -958,8 +825,7 @@ body::after {
 .lcd-glass-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg,
-            rgba(255, 255, 255, 0.08) 0%, transparent 38%);
+    background: linear-gradient(135deg, rgba(255, 220, 210, 0.06) 0%, transparent 38%);
     pointer-events: none;
     z-index: 15;
 }
@@ -968,7 +834,7 @@ body::after {
     position: absolute;
     inset: 0;
     background: repeating-linear-gradient(0deg,
-            rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0.03) 1px, transparent 2px);
+            rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0.04) 1px, transparent 2px);
     background-size: 100% 3px;
     pointer-events: none;
     z-index: 12;
@@ -981,36 +847,36 @@ body::after {
     right: 6px;
     font-family: var(--font-mono);
     font-size: 7px;
-    color: rgba(200, 218, 255, 0.5);
-    background: rgba(0, 0, 0, 0.5);
+    color: rgba(220, 160, 160, 0.5);
+    background: rgba(0, 0, 0, 0.55);
     padding: 2px 5px;
     border-radius: 3px;
     z-index: 20;
     letter-spacing: 0.1em;
 }
 
-/* ── Lens Active Animation — chrome-blue pulse ── */
+/* ── Lens Active Animation — rose pulse ── */
 @keyframes lens-pulse {
 
     0%,
     100% {
         box-shadow:
-            inset 0 0 12px rgba(80, 130, 220, 0.15),
-            inset 0 3px 8px rgba(200, 220, 255, 0.06);
+            inset 0 0 12px rgba(160, 50, 70, 0.15),
+            inset 0 3px 8px rgba(220, 100, 120, 0.06);
     }
 
     50% {
         box-shadow:
-            inset 0 0 26px rgba(100, 160, 255, 0.45),
-            inset 0 3px 12px rgba(180, 210, 255, 0.14);
+            inset 0 0 24px rgba(220, 80, 110, 0.35),
+            inset 0 3px 12px rgba(255, 130, 150, 0.1);
     }
 }
 
 .lens-core.lens-active {
-    animation: lens-pulse 2s ease-in-out infinite;
+    animation: lens-pulse 2.2s ease-in-out infinite;
 }
 
-/* ── Light Leak Flicker ── */
+/* ── Light Leak Flicker — warm rose-amber analog ── */
 @keyframes light-leak-flicker {
 
     0%,
@@ -1022,20 +888,20 @@ body::after {
 
     25% {
         background-position: 10% 20%;
-        filter: hue-rotate(20deg) brightness(1.25);
+        filter: hue-rotate(-15deg) brightness(1.2);
         opacity: 0.55;
     }
 
     50% {
         background-position: -5% 10%;
-        filter: hue-rotate(-10deg) brightness(1.15);
-        opacity: 1;
+        filter: hue-rotate(10deg) brightness(1.1);
+        opacity: 0.9;
     }
 
     75% {
         background-position: 20% -10%;
-        filter: hue-rotate(8deg) brightness(1.3);
-        opacity: 0.75;
+        filter: hue-rotate(-5deg) brightness(1.25);
+        opacity: 0.7;
     }
 }
 
@@ -1059,7 +925,7 @@ body::after {
     animation: scanline-flicker 0.1s infinite;
 }
 
-/* ── Mechanical Jitter ── */
+/* ── Mechanical Camera Jitter ── */
 @keyframes mechanical-jitter {
     0% {
         transform: translate3d(0, 0, 0) rotate(0);
@@ -1091,20 +957,12 @@ body::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.45) 100%);
+    background: radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.5) 100%);
     pointer-events: none;
     z-index: 10;
 }
 
-/* ── Playing state: screws get a chrome gleam ── */
-.digicam-container.is-playing .console-screw {
-    box-shadow:
-        0 2px 4px rgba(0, 0, 0, 0.15),
-        inset 0 1px 2px rgba(255, 255, 255, 0.95),
-        0 0 8px rgba(160, 200, 255, 0.2);
-}
-
-/* ── Auto-Play Button — dark chrome hardware button ── */
+/* ── Auto-Play Button — warm ebony ── */
 .auto-play-btn {
     display: flex;
     align-items: center;
@@ -1113,28 +971,28 @@ body::after {
     width: 100%;
     max-width: 240px;
     background: var(--cam-dark);
-    color: #d0d8e4;
-    border: 1px solid #3a3e46;
-    border-bottom-color: #101216;
+    color: #d8c0c4;
+    border: 1px solid #3a2028;
+    border-bottom-color: #150c10;
     border-radius: 6px;
     padding: 8px 16px;
     cursor: pointer;
     transition: all 0.2s;
     box-shadow:
-        0 3px 8px rgba(0, 0, 0, 0.35),
-        inset 0 1px 0 rgba(200, 220, 255, 0.08);
+        0 3px 8px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(200, 130, 140, 0.08);
 }
 
 .auto-play-btn:hover {
-    background: #181c22;
+    background: #1a0e14;
     transform: translateY(-1px);
-    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.42);
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.45);
 }
 
 .auto-play-btn.is-active {
     background: var(--accent);
     border-color: var(--accent);
-    color: #e8eef4;
+    color: #f0dde0;
 }
 
 .auto-play-icon {
@@ -1149,6 +1007,14 @@ body::after {
     letter-spacing: 0.2em;
     font-weight: 700;
     opacity: 0.9;
+}
+
+/* ── Digicam playing state — screw warm glow ── */
+.digicam-container.is-playing .console-screw {
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.25),
+        inset 0 1px 1px rgba(220, 190, 160, 0.5),
+        0 0 6px rgba(200, 120, 100, 0.15);
 }
 
 /* ── Message ── */
@@ -1191,22 +1057,21 @@ body::after {
     padding: 0 26px 18px;
 }
 
-/* Waveform — silver-chrome capsule on light body */
+/* ── Waveform — warm rose glow bars ── */
 .music-box-waveform {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 2.5px;
     height: 36px;
-    /* Matches the chrome body — inset capsule */
-    background: rgba(20, 24, 32, 0.1);
+    background: rgba(20, 10, 14, 0.15);
     border-radius: 100px;
     padding: 0 18px;
-    border: 1px solid rgba(100, 110, 125, 0.2);
+    border: 1px solid rgba(120, 60, 70, 0.2);
     box-shadow:
         inset 0 2px 6px rgba(0, 0, 0, 0.1),
-        inset 0 -1px 0 rgba(255, 255, 255, 0.6),
-        0 1px 0 rgba(255, 255, 255, 0.7);
+        inset 0 -1px 0 rgba(220, 180, 170, 0.35),
+        0 1px 0 rgba(220, 180, 170, 0.4);
     max-width: 220px;
     width: 100%;
     position: relative;
@@ -1225,12 +1090,12 @@ body::after {
     will-change: transform, opacity;
 }
 
-/* Active bars — dark charcoal gradient for contrast on silver ── */
+/* Active bars — warm rose gradient */
 .waveform-bar.active {
     opacity: 1;
     background: linear-gradient(to top,
-            #3a4048 0%, #2a3038 40%, #1a2028 100%);
-    box-shadow: 0 0 6px rgba(60, 80, 120, 0.3);
+            #8b4a5a 0%, #6a3848 40%, #4a2830 100%);
+    box-shadow: 0 0 6px rgba(160, 80, 100, 0.4);
 }
 
 .timer-display {
@@ -1240,18 +1105,15 @@ body::after {
     letter-spacing: 0.2em;
 }
 
-/* ── Brand Badge — frosted silver glass ── */
+/* ── Brand Badge — warm dark glass ── */
 .watermark-badge {
     position: fixed;
     top: 28px;
     right: 28px;
-    /* Frosted silver glass — matches camera body */
-    background: rgba(240, 243, 247, 0.88);
-    backdrop-filter: blur(24px) saturate(160%);
-    -webkit-backdrop-filter: blur(24px) saturate(160%);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    border-bottom-color: rgba(150, 160, 175, 0.3);
-    border-right-color: rgba(150, 160, 175, 0.25);
+    background: rgba(18, 10, 14, 0.82);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(160, 90, 110, 0.2);
     border-radius: 100px;
     padding: 7px 18px 7px 13px;
     color: var(--primary);
@@ -1261,9 +1123,8 @@ body::after {
     display: flex;
     align-items: center;
     box-shadow:
-        0 8px 32px -8px rgba(30, 40, 60, 0.18),
-        0 2px 0 rgba(255, 255, 255, 0.95),
-        inset 0 1px 2px rgba(255, 255, 255, 0.9);
+        0 8px 32px -8px rgba(0, 0, 0, 0.55),
+        inset 0 1px 1px rgba(180, 100, 120, 0.1);
 }
 
 .watermark-badge .flex {
@@ -1282,30 +1143,24 @@ body::after {
     font-weight: 500 !important;
     letter-spacing: 0.32em !important;
     text-transform: uppercase;
-    color: var(--text);
-    opacity: 0.6;
+    color: rgba(210, 180, 190, 0.75);
+    opacity: 0.7;
     padding-left: 14px;
-    border-left: 1px solid rgba(80, 90, 110, 0.12);
+    border-left: 1px solid rgba(160, 90, 110, 0.2);
     line-height: 1;
 }
 
 .watermark-badge:hover {
-    background: rgba(28, 34, 44, 0.82);
-    color: #d0d8e4;
+    background: rgba(28, 15, 20, 0.92);
     transform: translateY(-4px);
     box-shadow:
-        0 16px 48px -8px rgba(20, 28, 44, 0.3),
-        0 0 24px -4px rgba(100, 140, 200, 0.1);
+        0 14px 40px -8px rgba(0, 0, 0, 0.65),
+        0 0 20px -5px rgba(160, 80, 100, 0.12);
 }
 
 .watermark-badge:hover .material-symbols-outlined {
     transform: rotate(15deg) scale(1.1);
-    color: #b0c0d8;
-}
-
-.watermark-badge:hover span:last-child {
-    color: rgba(200, 215, 235, 0.75);
-    border-left-color: rgba(100, 130, 180, 0.2);
+    color: #d4a0b0;
 }
 
 /* ── Utility ── */
@@ -1346,7 +1201,7 @@ body::after {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   MOBILE — Same horizontal layout, tighter.
+   MOBILE — Same horizontal layout as desktop, just tighter.
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
 
@@ -1359,15 +1214,18 @@ body::after {
         width: 100%;
     }
 
+    /* Camera shell */
     .digicam-container {
         border-radius: 44px;
         padding: 44px 20px 72px;
     }
 
+    /* Tighter gap between lens and LCD */
     .camera-body {
         gap: 14px;
     }
 
+    /* ── Lens: smaller ── */
     .lens-outer {
         width: 110px;
         height: 110px;
@@ -1398,6 +1256,7 @@ body::after {
         bottom: -14px;
     }
 
+    /* ── LCD ── */
     .lcd-bezel {
         max-width: 190px;
         width: 190px;
@@ -1408,21 +1267,25 @@ body::after {
         height: 190px;
     }
 
+    /* Auto-play button matches LCD width */
     .auto-play-btn {
         max-width: 190px;
         width: 190px;
     }
 
+    /* Waveform */
     .music-box-waveform {
         max-width: 200px;
     }
 
+    /* Watermark: hidden on mobile */
     .watermark-badge {
         display: none !important;
     }
 
+    /* Bokeh: simplify for performance */
     .bokeh-particle {
         filter: none !important;
-        opacity: 0.18 !important;
+        opacity: 0.07 !important;
     }
 }
