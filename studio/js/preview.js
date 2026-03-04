@@ -53,10 +53,21 @@ const Preview = (() => {
     }, 500);
   };
 
+  const openDemo = () => {
+    const state = Studio.getState();
+    const themeConfig = Studio.getThemeConfig(state.theme);
+    const folder = themeConfig ? themeConfig.folder : 'gift';
+
+    Studio.showToast('Membuka Contoh Demo...');
+    const demoUrl = `../${folder}/index.html?to=for-iklan2`;
+    window.open(demoUrl, '_blank');
+  };
+
   // Expose public API
   return {
     update,
-    openPreview
+    openPreview,
+    openDemo
   };
 
 })();
