@@ -129,7 +129,9 @@ const _fetchAndRender = async (giftId) => {
       return;
     }
 
-    const endpoint = `${API_BASE_URL}/get-config?id=${giftId}&t=${Date.now()}`;
+    const urlParams = new URLSearchParams(window.location.search);
+    const cacheBuster = urlParams.get('t') ? `&t=${urlParams.get('t')}` : '';
+    const endpoint = `${API_BASE_URL}/get-config?id=${giftId}${cacheBuster}&t=${Date.now()}`;
 
     // Set timeout untuk fetch agar tidak buffering selamanya
     const controller = new AbortController();
@@ -190,7 +192,9 @@ const _setupPasswordGate = (giftId, partialGift) => {
       // Re-fetch with ID — with timeout protection
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 detik
-      const response = await fetch(`${API_BASE_URL}/get-config?id=${giftId}&t=${Date.now()}`, { signal: controller.signal });
+      const urlParams = new URLSearchParams(window.location.search);
+      const cacheBuster = urlParams.get('t') ? `&t=${urlParams.get('t')}` : '';
+      const response = await fetch(`${API_BASE_URL}/get-config?id=${giftId}${cacheBuster}`, { signal: controller.signal });
       clearTimeout(timeoutId);
       const data = await response.json();
 

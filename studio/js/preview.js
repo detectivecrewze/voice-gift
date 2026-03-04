@@ -24,26 +24,33 @@ const Preview = (() => {
 
   const openPreview = () => {
     const state = Studio.getState();
+
+    // Proteksi Layar Blank: Wajib 1 foto
+    if (!state.photos || state.photos.length === 0) {
+      Studio.showToast('Oops! Tambahkan minimal 1 foto dulu untuk melihat preview. 📸');
+      return;
+    }
+
+    // Force Auth Token
+    const token = Auth.getToken();
+    if (!token) {
+      Studio.showToast('Token tidak ditemukan, harap ulangi akses studio.');
+      return;
+    }
+
+    // Force save draft to server BEFORE opening preview
+    Autosave.saveNow(state);
+
     const themeConfig = Studio.getThemeConfig(state.theme);
     const folder = themeConfig ? themeConfig.folder : 'gift';
 
-    // Untuk Camera themes: arahkan ke halaman iklan publik yang sudah ada datanya
-    // Untuk Gift themes: gunakan sessionStorage preview seperti biasa
-    const isCameraTheme = folder.startsWith('camera/');
-
-    if (isCameraTheme) {
-      // Buka halaman iklan publik yang sudah disiapkan dengan data asli
-      window.open(`../${folder}/index.html?to=for-iklan2`, '_blank');
-    } else {
-      // Simpan state saat ini ke sessionStorage agar preview bisa membacanya
-      try {
-        sessionStorage.setItem('studio_preview_config', JSON.stringify(state));
-      } catch (e) {
-        console.warn('[Preview] Could not save preview config to sessionStorage:', e);
-      }
-      // Buka dengan ?to=for-preview agar lari ke demo/mock data (tanpa password gate)
-      window.open(`../${folder}/index.html?to=for-preview`, '_blank');
-    }
+    // Tambahkan delay 500ms agar save KV Cloudflare punya jeda propagasi aman
+    Studio.showToast('Membuka Live Preview...');
+    setTimeout(() => {
+      // Buka URL token dengan parameter cache-busting
+      const previewUrl = `../${folder}/index.html?to=${token}&preview=true&t=${Date.now()}`;
+      window.open(previewUrl, '_blank');
+    }, 500);
   };
 
   // Expose public API

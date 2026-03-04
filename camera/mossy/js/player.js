@@ -640,7 +640,9 @@ const initPlayer = (config) => {
 // ── Fetch & Load Gift ────────────────────────────────────────
 const loadGift = async (id) => {
     try {
-        const res = await fetch(`${API_BASE_URL}/get-config?id=${encodeURIComponent(id)}`);
+        const urlParams = new URLSearchParams(window.location.search);
+        const cacheBuster = urlParams.get('t') ? `&t=${urlParams.get('t')}` : '';
+        const res = await fetch(`${API_BASE_URL}/get-config?id=${encodeURIComponent(id)}${cacheBuster}`);
         if (!res.ok) throw new Error('not found');
         return await res.json();
     } catch {
