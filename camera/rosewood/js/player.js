@@ -52,8 +52,10 @@ const initPlayer = (config) => {
     const photoUrls = normalizedPhotos.map(p => p.url);
     const totalPhotos = normalizedPhotos.length;
     const voiceNote = config.voiceNote;
+    const voiceVol = config.voiceVolume !== undefined ? config.voiceVolume : 1.0;
     const ambientId = config.ambient || 'none';
     const customAmbientUrl = config.customAmbientUrl || null;
+    const ambientVol = config.ambientVolume !== undefined ? config.ambientVolume : 0.085;
     const message = config.message || '';
 
     // ── Build infinite photo tray inside the LCD ──────────────
@@ -460,7 +462,7 @@ const initPlayer = (config) => {
 
         if (voiceGain && audioCtx) {
             voiceGain.gain.setValueAtTime(0, audioCtx.currentTime);
-            voiceGain.gain.setTargetAtTime(1, audioCtx.currentTime, 0.4);
+            voiceGain.gain.setTargetAtTime(voiceVol, audioCtx.currentTime, 0.4);
         }
 
         ambientAudio?.play().catch(() => { });
@@ -468,7 +470,7 @@ const initPlayer = (config) => {
         updateVisuals();
 
         if (ambientGain && audioCtx) {
-            ambientGain.gain.setTargetAtTime(0.085, audioCtx.currentTime, 0.5);
+            ambientGain.gain.setTargetAtTime(ambientVol, audioCtx.currentTime, 0.5);
         }
     };
 
