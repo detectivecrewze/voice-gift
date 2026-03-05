@@ -67,6 +67,8 @@ const Studio = (() => {
     ambientVolume: 0.1,    // Default 10% (background)
     password: null,
     studioPassword: null,
+    polaroid_photo: null,
+    polaroid_letter: '',
   };
 
   // ── Ambient Preview State ───────────────────────────────────
@@ -344,6 +346,10 @@ const Studio = (() => {
       // If the saved theme is a camera theme, auto-switch to camera tab
       if (state.theme && CAMERA_THEMES.some(t => t.id === state.theme)) {
         switchThemeTab('camera');
+      } else {
+        // Pastikan section polaroid tersembunyi jika theme bukan camera
+        const secretSection = document.getElementById('section-pesan-rahasia');
+        if (secretSection) secretSection.classList.add('hidden');
       }
       _updateRequirementsUI();
       _initInputs();
@@ -352,6 +358,7 @@ const Studio = (() => {
       Preview.update(state);
       _initMusicUpload();
       _initVolumeControls();
+      _initPolaroidSection();
 
       const iframe = document.getElementById('preview-frame');
       if (iframe) {
@@ -470,6 +477,21 @@ const Studio = (() => {
     _triggerImmediateSave();
   };
 
+  const onPolaroidPhotoUploaded = (url) => {
+    _state.polaroid_photo = url;
+    _triggerSaveAndPreview();
+  };
+
+  const onPolaroidLetterChanged = (text) => {
+    _state.polaroid_letter = text;
+    _triggerSaveAndPreview();
+  };
+
+  const onPolaroidPhotoRemoved = () => {
+    _state.polaroid_photo = null;
+    _triggerSaveAndPreview();
+  };
+
   const onThemeSelected = (themeId) => {
     if (_state.theme === themeId) return; // No change
 
@@ -519,6 +541,95 @@ const Studio = (() => {
       const remaining = 5 - _state.customUploadCount;
       alert(`Lagu dihapus. Kamu sudah menggunakan ${_state.customUploadCount} dari 5 kesempatan upload lagu sendiri.`);
       showToast('Lagu berhasil dihapus. ✨');
+    }
+  };
+
+  // ── Polaroid Section Logic ────────────────────────────────
+  const _initPolaroidSection = () => {
+    // Restore saved state ke UI
+    const letterEl = document.getElementById('polaroid-letter-input');
+    const previewWrap = document.getElementById('polaroid-photo-preview-wrap');
+    const previewImg = document.getElementById('polaroid-photo-preview');
+    const emptyZone = document.getElementById('polaroid-photo-zone-empty');
+    const removeBtn = document.getElementById('btn-remove-polaroid-photo');
+    const charCount = document.getElementById('polaroid-letter-count');
+
+    // Restore letter
+    if (letterEl && _state.polaroid_letter) {
+      letterEl.value = _state.polaroid_letter;
+      if (charCount) charCount.textContent = `${_state.polaroid_letter.length} / 800`;
+    }
+
+    // Restore photo preview
+    if (_state.polaroid_photo && previewImg && previewWrap && emptyZone) {
+      previewImg.src = _state.polaroid_photo;
+      previewWrap.classList.remove('hidden');
+      emptyZone.classList.add('hidden');
+    }
+
+    // Letter input handler
+    if (letterEl) {
+      letterEl.addEventListener('input', (e) => {
+        const text = e.target.value.slice(0, 800);
+        e.target.value = text;
+        if (charCount) charCount.textContent = `${text.length} / 800`;
+        Studio.onPolaroidLetterChanged(text);
+      });
+    }
+
+    // Remove photo handler
+    if (removeBtn) {
+      removeBtn.addEventListener('click', () => {
+        _state.polaroid_photo = null;
+        if (previewImg) previewImg.src = '';
+        if (previewWrap) previewWrap.classList.add('hidden');
+        if (emptyZone) emptyZone.classList.remove('hidden');
+        Studio.onPolaroidPhotoRemoved();
+      });
+    }
+
+    // File input handler
+    const fileInput = document.getElementById('file-input-polaroid');
+    const zone = document.getElementById('polaroid-photo-dropzone');
+
+    const handleFile = async (file) => {
+      if (!file || !file.type.startsWith('image/')) {
+        showToast('Pilih file gambar ya! 📸');
+        return;
+      }
+
+      showToast('Mengupload foto rahasia... 📸');
+
+      // Gunakan fungsi upload reusable dari Uploader
+      const url = await Uploader.uploadSinglePhoto(file);
+      if (url) {
+        _state.polaroid_photo = url;
+        if (previewImg) previewImg.src = url;
+        if (previewWrap) previewWrap.classList.remove('hidden');
+        if (emptyZone) emptyZone.classList.add('hidden');
+        Studio.onPolaroidPhotoUploaded(url);
+        showToast('Foto rahasia berhasil diupload! ✨');
+      } else {
+        showToast('Gagal upload foto. Coba lagi.');
+      }
+    };
+
+    if (fileInput) {
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files[0]) handleFile(e.target.files[0]);
+        fileInput.value = '';
+      });
+    }
+
+    if (zone) {
+      zone.addEventListener('click', () => fileInput?.click());
+      zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('border-black'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('border-black'));
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('border-black');
+        if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+      });
     }
   };
 
@@ -626,6 +737,12 @@ const Studio = (() => {
       } else {
         indicator.style.transform = 'translateX(0)';
       }
+    }
+
+    // Show/hide Pesan Rahasia section based on tab
+    const secretSection = document.getElementById('section-pesan-rahasia');
+    if (secretSection) {
+      secretSection.classList.toggle('hidden', tabId !== 'camera');
     }
 
     // Auto-select silver when switching to camera if no camera theme is active
@@ -744,6 +861,9 @@ const Studio = (() => {
     getState: () => ({ ..._state }),
     onPhotosChanged,
     onVoiceNoteChanged,
+    onPolaroidPhotoUploaded,
+    onPolaroidLetterChanged,
+    onPolaroidPhotoRemoved,
     onThemeSelected,
     onAmbientSelected,
     onRemoveCustomMusic,

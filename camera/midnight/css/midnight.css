@@ -6,6 +6,7 @@
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&display=swap');
 
 :root {
     /* ── Typography — more feminine & editorial ── */
@@ -381,7 +382,7 @@ body::before {
     justify-content: center;
     padding: 40px 20px 60px;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 /* ── Bokeh — purple & rose wisps ── */
@@ -407,6 +408,7 @@ body::before {
     max-width: 470px;
     position: relative;
     z-index: 5;
+    overflow: visible;
 }
 
 @keyframes bokeh-drift {
@@ -486,6 +488,11 @@ body::before {
         0 0 80px -20px rgba(155, 100, 130, 0.12);
 
     position: relative;
+    overflow: visible;
+}
+
+/* Saat polaroid terbuka: clip backdrop agar ikut border-radius kamera */
+.digicam-container.polaroid-open {
     overflow: hidden;
 }
 
@@ -1164,6 +1171,114 @@ body::before {
     opacity: 0.85;
 }
 
+/* ── Slot re-open label — tooltip di atas slot, tidak menambah elemen ke kamera ── */
+.slot-reopen-label {
+    font-family: var(--font-mono);
+    font-size: 5.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: transparent;
+    pointer-events: none;
+    transition: color 0.6s ease;
+    margin-top: 5px;
+    display: block;
+    text-align: center;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.slot-reopen-label.is-ready {
+    color: rgba(200, 184, 212, 0.22);
+}
+
+.polaroid-slot-wrap:hover .slot-reopen-label.is-ready {
+    color: rgba(200, 184, 212, 0.55);
+}
+
+/* ── Scroll indicator di belakang polaroid ── */
+/* Fade gradient — muncul hanya jika teks lebih panjang dari kartu */
+.polaroid-back::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: linear-gradient(to bottom,
+            rgba(245, 241, 232, 0) 0%,
+            rgba(245, 241, 232, 0.82) 55%,
+            rgba(245, 241, 232, 0.97) 100%);
+    pointer-events: none;
+    z-index: 5;
+    border-radius: 0 0 2px 2px;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+/* Chevron bounce di dalam fade */
+.polaroid-back-scroll-hint {
+    position: absolute;
+    bottom: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.polaroid-back-scroll-hint span {
+    font-family: var(--font-mono);
+    font-size: 5.5px;
+    letter-spacing: 0.18em;
+    color: rgba(80, 60, 45, 0.5);
+    text-transform: uppercase;
+}
+
+.polaroid-back-scroll-hint::after {
+    content: '∨';
+    font-size: 10px;
+    color: rgba(80, 60, 45, 0.45);
+    animation: scroll-bounce 1.4s ease-in-out infinite;
+    display: block;
+    line-height: 1;
+}
+
+@keyframes scroll-bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(3px);
+    }
+}
+
+/* Visible when JS adds has-scroll */
+.polaroid-back.has-scroll::after {
+    opacity: 1;
+}
+
+.polaroid-back.has-scroll .polaroid-back-scroll-hint {
+    opacity: 1;
+}
+
+/* Hide when scrolled to bottom */
+.polaroid-back.scrolled-to-bottom::after {
+    opacity: 0;
+}
+
+.polaroid-back.scrolled-to-bottom .polaroid-back-scroll-hint {
+    opacity: 0;
+}
+
 /* ── Playing state — screws glow softly ── */
 .digicam-container.is-playing .console-screw {
     box-shadow:
@@ -1212,6 +1327,9 @@ body::before {
     justify-content: center;
     gap: 7px;
     padding: 0 28px 20px;
+    overflow: visible;
+    /* allows polaroid peek to travel upward */
+    z-index: 10;
 }
 
 /* ── Waveform — redesigned: mauve-tinted bars ── */
@@ -1457,4 +1575,335 @@ body::before {
         font-size: 28px;
         margin-bottom: 28px;
     }
+}
+
+
+
+/* ============================================================
+   POLAROID — Foto fisik sungguhan, bukan notebook
+   Front: kertas foto Fujifilm/Kodak klasik
+   Back : kertas putih polos agak kusam, tulisan tangan bebas
+   ============================================================ */
+
+/* ── Slot wrapper ── */
+.polaroid-slot-wrap {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+/* ── Slot slit ── */
+.polaroid-slot {
+    width: 86%;
+    max-width: 260px;
+    height: 6px;
+    background: linear-gradient(180deg,
+            rgba(0, 0, 0, 0.9) 0%,
+            rgba(6, 6, 18, 0.95) 50%,
+            rgba(0, 0, 0, 0.75) 100%);
+    border-radius: 3px;
+    border: 1px solid rgba(155, 138, 170, 0.1);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 1), 0 1px 0 rgba(255, 255, 255, 0.03);
+    position: relative;
+    z-index: 5;
+    transition: border-color 0.6s ease, box-shadow 0.6s ease;
+}
+
+.polaroid-slot-inner {
+    position: absolute;
+    inset: 1px 5px;
+    background: #000;
+    border-radius: 2px;
+}
+
+/* Glow saat aktif */
+.polaroid-slot-wrap.slot-active .polaroid-slot {
+    border-color: rgba(200, 184, 212, 0.5);
+    box-shadow:
+        inset 0 2px 5px rgba(0, 0, 0, 1),
+        0 0 12px rgba(200, 184, 212, 0.35),
+        0 0 28px rgba(155, 138, 170, 0.2),
+        0 0 50px rgba(155, 138, 170, 0.08);
+    animation: slot-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes slot-pulse {
+
+    0%,
+    100% {
+        box-shadow:
+            inset 0 2px 5px rgba(0, 0, 0, 1),
+            0 0 12px rgba(200, 184, 212, 0.35),
+            0 0 28px rgba(155, 138, 170, 0.2);
+    }
+
+    50% {
+        box-shadow:
+            inset 0 2px 5px rgba(0, 0, 0, 1),
+            0 0 20px rgba(200, 184, 212, 0.55),
+            0 0 45px rgba(155, 138, 170, 0.35),
+            0 0 70px rgba(155, 138, 170, 0.12);
+    }
+}
+
+/* ── Modal backdrop — soft vignette ── */
+/* position: absolute mengikuti .digicam-container (position: relative).
+   border-radius sama dengan kamera — backdrop tidak keluar bentuk kamera. */
+.polaroid-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    border-radius: 52px;
+    z-index: 500;
+    background: radial-gradient(ellipse 72% 72% at center,
+            transparent 0%,
+            rgba(4, 4, 14, 0.48) 58%,
+            rgba(4, 4, 14, 0.86) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.polaroid-modal-backdrop.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* ── Modal card wrapper ── */
+.polaroid-modal {
+    position: relative;
+    width: min(300px, 84vw);
+    perspective: 1200px;
+    opacity: 0;
+    transform: translateY(-18px) scale(0.97);
+    transition: none;
+}
+
+@media (max-width: 640px) {
+    .polaroid-modal-backdrop {
+        border-radius: 46px;
+    }
+
+    .polaroid-modal {
+        width: min(210px, 60vw);
+    }
+}
+
+@keyframes polaroid-eject {
+    0% {
+        transform: translateY(-18px) scale(0.97);
+        opacity: 0;
+    }
+
+    60% {
+        transform: translateY(6px) scale(1.005);
+        opacity: 1;
+    }
+
+    80% {
+        transform: translateY(-2px) scale(0.999);
+    }
+
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.polaroid-modal.entering {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    animation: polaroid-eject 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Flipper 3D ── */
+.polaroid-flipper {
+    width: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.75s cubic-bezier(0.35, 0.2, 0.15, 1);
+    cursor: pointer;
+    position: relative;
+}
+
+.polaroid-flipper.flipped {
+    transform: rotateY(180deg);
+}
+
+/* ── Shared: kedua sisi terasa seperti satu lembar kertas foto ── */
+.polaroid-front,
+.polaroid-back {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    /* Kertas foto: putih bersih dengan sedikit krem */
+    background: #f8f5ef;
+    box-shadow:
+        0 32px 80px rgba(0, 0, 0, 0.85),
+        0 8px 24px rgba(0, 0, 0, 0.6),
+        /* Edge highlight — kilap kertas foto */
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.06),
+        inset 1px 0 0 rgba(255, 255, 255, 0.5),
+        inset -1px 0 0 rgba(0, 0, 0, 0.05);
+    border-radius: 2px;
+}
+
+/* ══════════════════════════════
+   FRONT — foto dengan border putih tebal khas polaroid
+   ══════════════════════════════ */
+.polaroid-front {
+    width: 100%;
+    padding: 10px 10px 0;
+    /* border putih di atas & samping */
+}
+
+.polaroid-front-photo-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1/1;
+    overflow: hidden;
+    background: #111;
+    /* frame hitam tipis sebelum foto muncul */
+}
+
+/* Subtle vignette — seperti foto yang sedikit underexposed di pinggir */
+.polaroid-front-photo-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 45%, transparent 50%, rgba(0, 0, 0, 0.22) 100%);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.polaroid-front-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.12) blur(10px) saturate(0.2);
+    transition: filter 3s ease;
+}
+
+.polaroid-front-img.developed {
+    /* Film look: sedikit warm, contrast naik tipis */
+    filter: brightness(1) sepia(0.12) contrast(1.04) saturate(0.92);
+}
+
+/* Border bawah polaroid — lebih tebal dari atas, khas Instax/Polaroid */
+.polaroid-front-bottom {
+    padding: 16px 10px 22px;
+    text-align: center;
+}
+
+/* Teks hint — tulisan kecil seperti orang nulis di bawah foto */
+.polaroid-flip-hint {
+    font-family: 'Caveat', cursive;
+    font-size: 13px;
+    color: rgba(90, 72, 55, 0.45);
+    letter-spacing: 0.01em;
+    font-weight: 400;
+    line-height: 1;
+    user-select: none;
+}
+
+/* Close button — di dalam foto, pojok kanan atas */
+.polaroid-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.48);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    z-index: 20;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.polaroid-close:hover {
+    background: rgba(155, 138, 170, 0.55);
+    color: #fff;
+    border-color: rgba(200, 184, 212, 0.6);
+}
+
+/* ══════════════════════════════
+   BACK — belakang kertas foto
+   Tidak ada garis. Tidak ada header. Kertas putih kosong + tinta.
+   ══════════════════════════════ */
+.polaroid-back {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(180deg);
+    /* Kertas foto bagian belakang: sedikit lebih putih, sedikit kasar */
+    background:
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E"),
+        #f5f1e8;
+    display: flex;
+    align-items: flex-start;
+    /* overflow-y: auto agar pesan panjang bisa di-scroll */
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.polaroid-back::-webkit-scrollbar {
+    display: none;
+}
+
+/* Noda tinta halus di pojok — seperti bolpen yang bocor sedikit */
+.polaroid-back::before {
+    content: '';
+    position: absolute;
+    bottom: 14px;
+    right: 16px;
+    width: 38px;
+    height: 38px;
+    background: radial-gradient(circle, rgba(60, 40, 20, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+    border-radius: 50%;
+}
+
+/* Bayangan ringan di tepi atas — kesan kertas yang sedikit melengkung */
+.polaroid-back::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 18px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.04) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+/* Tidak ada .polaroid-back-lines, tidak ada .polaroid-back-header */
+
+.polaroid-letter {
+    font-family: 'Caveat', cursive;
+    font-size: 17px;
+    line-height: 1.7;
+    color: #1e1206;
+    white-space: pre-wrap;
+    word-break: break-word;
+    position: relative;
+    z-index: 2;
+    padding: 20px 18px 20px 20px;
+    width: 100%;
+    /* height: auto — biarkan konten menentukan tinggi, scroll ditangani .polaroid-back */
+    height: auto;
 }

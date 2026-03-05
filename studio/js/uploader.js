@@ -457,6 +457,54 @@ const Uploader = (() => {
     `;
   };
 
+  // ── Upload Single Photo (for features like Polaroid) ──────
+  const uploadSinglePhoto = async (file) => {
+    try {
+      let processedFile = file;
+
+      // 1. Convert HEIC
+      const isHeic = file.name.toLowerCase().endsWith('.heic') || file.type === 'image/heic';
+      if (isHeic && typeof heic2any === 'function') {
+        try {
+          const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.8 });
+          processedFile = new File([Array.isArray(blob) ? blob[0] : blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: 'image/jpeg' });
+        } catch (heicErr) {
+          console.warn('[Uploader] HEIC conversion failed, trying original', heicErr);
+        }
+      }
+
+      // 2. Compress
+      processedFile = await _compressImage(processedFile);
+
+      // 3. Get Presigned URL
+      const API_BASE_URL = window.APP_CONFIG?.apiBaseUrl || 'https://valentine-upload.aldoramadhan16.workers.dev';
+      const presignRes = await fetch(`${API_BASE_URL}/presign`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename: processedFile.name,
+          contentType: processedFile.type || 'image/jpeg'
+        })
+      });
+
+      if (!presignRes.ok) throw new Error(`Presign error (${presignRes.status})`);
+      const { key, publicUrl } = await presignRes.json();
+
+      // 4. Upload Direct to R2
+      const uploadRes = await fetch(`${API_BASE_URL}/upload-direct/${key}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': processedFile.type || 'image/jpeg' },
+        body: processedFile
+      });
+
+      if (!uploadRes.ok) throw new Error(`Upload error (${uploadRes.status})`);
+      return publicUrl;
+    } catch (err) {
+      console.error('[Uploader] Single photo upload error:', err);
+      return null;
+    }
+  };
+
   // ── Public API ────────────────────────────────────────────
   return {
     init,
@@ -464,7 +512,8 @@ const Uploader = (() => {
     loadFromConfig: (photos) => init(photos),
     remove: deletePhoto,
     retry: retryUpload,
-    isUploading
+    isUploading,
+    uploadSinglePhoto
   };
 
 })();

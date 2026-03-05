@@ -148,6 +148,7 @@ const initPlayer = (config) => {
                         <span class="material-symbols-outlined auto-play-icon">play_arrow</span>
                         <span class="auto-play-text">AUTO PLAY</span>
                     </button>
+
                 </div>
 
             </div>
@@ -157,12 +158,47 @@ const initPlayer = (config) => {
                 <div class="message-strip" id="message-text"></div>
             </div>
 
-            <!-- Bottom waveform + timer -->
+            <!-- Bottom waveform + timer + polaroid slot -->
             <div class="bottom-panel">
+                <!-- Polaroid slot — glow saat voice selesai -->
+                <div class="polaroid-slot-wrap" id="polaroid-slot-wrap">
+                    <div class="polaroid-slot" id="polaroid-slot">
+                        <div class="polaroid-slot-inner"></div>
+                    </div>
+                    <span class="slot-reopen-label" id="slot-reopen-label">tap to reopen</span>
+                </div>
                 <div class="music-box-waveform" id="waveform-bars">
                     ${waveformHTML}
                 </div>
                 <div class="timer-display" id="timer-display">0:00</div>
+            </div>
+
+            <!-- Polaroid Modal (fixed overlay, flippable) -->
+            <div class="polaroid-modal-backdrop" id="polaroid-modal-backdrop">
+                <div class="polaroid-modal" id="polaroid-modal">
+                    <div class="polaroid-flipper" id="polaroid-flipper">
+
+                        <!-- Front: photo -->
+                        <div class="polaroid-front">
+                            <div class="polaroid-front-photo-wrap">
+                                <img class="polaroid-front-img" id="polaroid-front-img" src="" alt="Memory" />
+                                <button class="polaroid-close" id="polaroid-close">✕</button>
+                            </div>
+                            <div class="polaroid-front-bottom">
+                                <span class="polaroid-flip-hint">balik untuk baca ↩</span>
+                            </div>
+                        </div>
+
+                        <!-- Back: letter — kertas foto polos, tulisan bebas -->
+                        <div class="polaroid-back" id="polaroid-back">
+                            <div class="polaroid-letter" id="polaroid-letter"></div>
+                            <div class="polaroid-back-scroll-hint" id="polaroid-scroll-hint">
+                                <span>scroll</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -233,11 +269,13 @@ const initPlayer = (config) => {
     const updateDuration = () => {
         const timerEl = document.getElementById('timer-display');
         if (!timerEl || !audio) return;
+        // WebM Duration Fix: fall back to config duration if browser reports Infinity or 0
         let dur = audio.duration;
         if (!dur || isNaN(dur) || !isFinite(dur) || dur === 0) {
             dur = voiceNote?.duration || 0;
         }
         timerEl.textContent = fmt(audio.currentTime) + ' / ' + fmt(dur);
+        // Reveal message near the end (5 s remaining)
         if (dur > 0 && audio.currentTime >= (dur - 5)) {
             document.getElementById('message-text')?.classList.add('visible');
         }
@@ -274,6 +312,7 @@ const initPlayer = (config) => {
             const pv = audio.volume;
             audio.volume = 0;
             audio.play().then(() => { audio.pause(); audio.currentTime = 0; audio.volume = pv; }).catch(() => { audio.volume = pv; });
+            // WebM Duration Hack
             if (voiceNote?.url && (audio.duration === Infinity || audio.duration === 0 || isNaN(audio.duration))) {
                 audio.currentTime = 1e10;
                 audio.addEventListener('timeupdate', function reset() {
@@ -321,6 +360,7 @@ const initPlayer = (config) => {
         const bars = document.querySelectorAll('#waveform-bars .waveform-bar');
         const nowSec = Date.now() / 1000;
 
+        // Fallback: no analyser (Web Audio API unavailable)
         if (!analyser || !dataArray) {
             bars.forEach((bar, i) => {
                 const idleScale = 0.125 + Math.sin(nowSec / 0.4 + i * 0.4) * 0.06;
@@ -333,6 +373,7 @@ const initPlayer = (config) => {
 
         analyser.getByteFrequencyData(dataArray);
 
+        // CORS / iOS fallback: browser plays but won't expose frequency data
         let isFallback = false;
         if (isPlaying && audio && !audio.paused && audio.currentTime > 0) {
             let total = 0;
@@ -364,16 +405,18 @@ const initPlayer = (config) => {
     const digicamBox = document.getElementById('digicam-box');
     const lensCore = document.getElementById('lens-core');
 
+    // Frame width = matches CSS .film-frame size
     const VIEW_WIDTH = 165;
 
     let totalCrankAngle = 0;
     let lastActiveIndex = -1;
-    const AUTO_SPEED = 3.6;
+    const AUTO_SPEED = 3.6; // degrees per frame @ 60fps (delta-time corrected)
     let _autoLastTime = 0;
     let isAutoPlaying = false;
     let autoRafId = null;
     let countdownWasStarted = false;
 
+    // Cache film frame elements after injection
     const frameEls = tray ? tray.querySelectorAll('.film-frame') : [];
     let lastActiveFrameIndex = -1;
 
@@ -395,10 +438,12 @@ const initPlayer = (config) => {
             }
             frameEls[activeIndex].classList.add('is-active');
             lastActiveFrameIndex = activeIndex;
+            // Update caption for the newly active photo
             const caption = normalizedPhotos[displayIndex]?.caption || '';
             updateCaption(caption);
         }
 
+        // Fade caption during transition (40-60% of slide)
         const slideProgress = (loopSlide % VIEW_WIDTH) / VIEW_WIDTH;
         if (slideProgress > 0.40 && slideProgress < 0.60) {
             if (captionEl && captionEl.style.opacity !== '0') {
@@ -416,6 +461,7 @@ const initPlayer = (config) => {
     const autoPlayLoop = (timestamp) => {
         if (!isAutoPlaying) return;
 
+        // Delta-time: consistent speed regardless of device framerate
         const now = (typeof timestamp === 'number') ? timestamp : performance.now();
         if (_autoLastTime === 0) _autoLastTime = now;
         const elapsed = now - _autoLastTime;
@@ -439,16 +485,20 @@ const initPlayer = (config) => {
     const startPlayingAudio = () => {
         if (isPlaying) return;
         if (!audio && !ambientAudio) return;
-        if (audio?.ended) return;
+        if (audio?.ended) return; // One-shot: don't restart finished voice note
         isPlaying = true;
         digicamBox?.classList.add('is-playing');
 
+        // Hide idle overlay
         if (idleOverlay) idleOverlay.classList.add('hidden');
+
+        // Lens flicker effect
         if (lensCore) lensCore.classList.add('lens-active');
 
         if (!sourceNode) setupVisualizer(audio || ambientAudio);
         if (!ambientAudio) initAmbient();
 
+        // Subtle fade-in for the user voice note
         if (voiceGain && audioCtx) {
             voiceGain.gain.setValueAtTime(0, audioCtx.currentTime);
             voiceGain.gain.setTargetAtTime(voiceVol, audioCtx.currentTime, 0.4);
@@ -587,8 +637,10 @@ const initPlayer = (config) => {
 
     if (toggleBtn) {
         toggleBtn.addEventListener('click', () => {
-            warmUpAudio();
+            warmUpAudio(); // iOS unlock + WebM duration hack
             getAudioContext();
+
+            // Reset delta-time so first frame doesn't jump
             _autoLastTime = 0;
 
             isAutoPlaying = !isAutoPlaying;
@@ -599,6 +651,13 @@ const initPlayer = (config) => {
             if (isAutoPlaying) {
                 if (!ambientAudio) initAmbient();
                 if (countdownWasStarted) {
+                    // Jika voice sudah selesai, ambient tetap harus di-resume
+                    if (ambientAudio && ambientAudio.paused) {
+                        ambientAudio.play().catch(() => { });
+                        if (ambientGain && audioCtx) {
+                            ambientGain.gain.setTargetAtTime(ambientVol, audioCtx.currentTime, 0.5);
+                        }
+                    }
                     autoPlayLoop();
                 } else {
                     runCountdownThenPlay();
@@ -615,8 +674,120 @@ const initPlayer = (config) => {
     if (audio) {
         audio.addEventListener('loadedmetadata', updateDuration);
         audio.addEventListener('timeupdate', updateDuration);
+        audio.addEventListener('ended', () => {
+            triggerPolaroid(config);
+        });
     }
 
+    // ── Polaroid Trigger ───────────────────────────────────────
+    const triggerPolaroid = (cfg) => {
+        const photoUrl = cfg.polaroid_photo || null;
+        const letterText = cfg.polaroid_letter || null;
+        if (!photoUrl && !letterText) return;
+
+        const wrap = document.getElementById('polaroid-slot-wrap');
+        const backdrop = document.getElementById('polaroid-modal-backdrop');
+        const frontImg = document.getElementById('polaroid-front-img');
+        const letterEl = document.getElementById('polaroid-letter');
+        const flipper = document.getElementById('polaroid-flipper');
+        const closeBtn = document.getElementById('polaroid-close');
+        const modal = document.getElementById('polaroid-modal');
+        if (!wrap || !backdrop) return;
+
+        // Isi konten modal
+        if (frontImg && photoUrl) frontImg.src = photoUrl;
+        if (letterEl && letterText) letterEl.textContent = letterText;
+
+        // Step 1: slot glow
+        wrap.classList.add('slot-active');
+
+        // Step 2: setelah 1.5s glow → modal muncul dengan eject animation
+        setTimeout(() => {
+            backdrop.classList.add('visible');
+            modal.classList.remove('entering');
+            void modal.offsetWidth; // force reflow agar animasi replay
+            modal.classList.add('entering');
+
+            // Foto develop: gelap+blur → clear
+            if (frontImg) {
+                frontImg.classList.remove('developed');
+                setTimeout(() => frontImg.classList.add('developed'), 400);
+            }
+        }, 1500);
+
+        // ── Re-open via slot — tidak ada tombol baru ──
+        const slotLabel = document.getElementById('slot-reopen-label');
+
+        // Fungsi buka modal
+        const openModal = () => {
+            const digicam = document.getElementById('digicam-box');
+            digicam?.classList.add('polaroid-open');
+            backdrop.classList.add('visible');
+            modal.classList.remove('entering');
+            void modal.offsetWidth;
+            modal.classList.add('entering');
+            if (frontImg) {
+                frontImg.classList.remove('developed');
+                setTimeout(() => frontImg.classList.add('developed'), 400);
+            }
+        };
+
+        // Aktifkan slot sebagai tombol re-open setelah polaroid pertama keluar
+        if (slotLabel) slotLabel.classList.add('is-ready');
+        wrap.style.cursor = 'pointer';
+        wrap.addEventListener('click', openModal);
+
+        // ── Tutup modal ──
+        const digicam = document.getElementById('digicam-box');
+        digicam?.classList.add('polaroid-open');
+
+        const closeModal = () => {
+            backdrop.classList.remove('visible');
+            modal.classList.remove('entering');
+            flipper?.classList.remove('flipped');
+            wrap.classList.remove('slot-active');
+            digicam?.classList.remove('polaroid-open');
+        };
+
+        // ── Scroll indicator — pakai ResizeObserver (fix absolute positioning bug) ──
+        const polaroidBack = document.getElementById('polaroid-back');
+        const letterElScroll = document.getElementById('polaroid-letter');
+
+        const checkScroll = () => {
+            if (!polaroidBack || !letterElScroll) return;
+            const containerH = polaroidBack.getBoundingClientRect().height || polaroidBack.offsetHeight;
+            const hasMore = letterElScroll.scrollHeight > containerH + 10;
+            polaroidBack.classList.toggle('has-scroll', hasMore);
+            if (hasMore) {
+                // scrollTop dibaca dari polaroidBack — elemen yang overflow-y: auto
+                const atBottom = polaroidBack.scrollTop + containerH >= letterElScroll.scrollHeight - 20;
+                polaroidBack.classList.toggle('scrolled-to-bottom', atBottom);
+            } else {
+                // Konten muat semua — tidak perlu scroll hint
+                polaroidBack.classList.remove('scrolled-to-bottom');
+            }
+        };
+
+        const ro = new ResizeObserver(() => { checkScroll(); });
+        if (polaroidBack) ro.observe(polaroidBack);
+        if (letterElScroll) ro.observe(letterElScroll);
+
+        // Fallback timeout
+        setTimeout(checkScroll, 800);
+        setTimeout(checkScroll, 1500);
+
+        polaroidBack?.addEventListener('scroll', checkScroll, { passive: true });
+
+        flipper?.addEventListener('click', () => {
+            flipper.classList.toggle('flipped');
+            // Cek scroll saat flip ke back
+            setTimeout(checkScroll, 400);
+        });
+        closeBtn?.addEventListener('click', (e) => { e.stopPropagation(); closeModal(); });
+        backdrop?.addEventListener('click', (e) => { if (e.target === backdrop) closeModal(); });
+    };
+
+    // visibilitychange: recover audio after tab-switch
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible' && isAutoPlaying) {
             const ctx = getAudioContext();
@@ -650,7 +821,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
     let giftIdParam = params.get('to');
 
-    // Fallback: baca gift ID dari path jika tidak ada ?to= (e.g., /camera/rosewood/GIFT_ID)
+    // Fallback: baca gift ID dari path jika tidak ada ?to= (e.g., /camera/midnight/GIFT_ID)
     if (!giftIdParam) {
         const parts = window.location.pathname.split('/').filter(Boolean);
         const lastPart = parts[parts.length - 1];
@@ -668,7 +839,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         ],
         message: '',
         ambient: 'none',
-        voiceNote: null
+        voiceNote: null,
+        polaroid_photo: 'https://images.unsplash.com/photo-1516589091380-5d8e87df6999?q=80&w=600&auto=format&fit=crop',
+        polaroid_letter: 'Hei kamu,\n\nAku selalu ingat momen ini. Terima kasih sudah ada di sini, selalu.\n\nSemua hal kecil yang kita lakukan bersama — itu yang paling aku syukuri.\n\nSelalu milikmu,\n— Aku'
     };
 
     if (giftIdParam) {
