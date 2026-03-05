@@ -1694,6 +1694,13 @@ body::after {
     border-color: rgba(220, 160, 80, 0.6);
 }
 
+/* FIX: Hide close button on back side — Safari iPhone ignores backface-visibility for buttons */
+.polaroid-flipper.flipped .polaroid-close {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+}
+
 /* ══════════════════════════════
    BACK
    ══════════════════════════════ */

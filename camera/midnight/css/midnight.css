@@ -1841,6 +1841,13 @@ body::before {
     border-color: rgba(200, 184, 212, 0.6);
 }
 
+/* FIX: Hide close button on back side — Safari iPhone ignores backface-visibility for buttons */
+.polaroid-flipper.flipped .polaroid-close {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+}
+
 /* ══════════════════════════════
    BACK — belakang kertas foto
    Tidak ada garis. Tidak ada header. Kertas putih kosong + tinta.
