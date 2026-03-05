@@ -1734,21 +1734,8 @@ body::after {
 /* ── Scroll indicator di belakang polaroid ── */
 /* Fade gradient — muncul hanya jika teks lebih panjang dari kartu */
 .polaroid-back::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 56px;
-    background: linear-gradient(to bottom,
-            rgba(245, 238, 219, 0) 0%,
-            rgba(245, 238, 219, 0.82) 55%,
-            rgba(245, 238, 219, 0.97) 100%);
-    pointer-events: none;
-    z-index: 5;
-    border-radius: 0 0 2px 2px;
-    opacity: 0;
-    transition: opacity 0.35s ease;
+    display: none;
+    /* Removed: gray fade gradient was visible on iPhone */
 }
 
 /* Chevron bounce di dalam fade */
@@ -1799,7 +1786,8 @@ body::after {
 
 /* Visible when JS adds has-scroll */
 .polaroid-back.has-scroll::after {
-    opacity: 1;
+    opacity: 0;
+    /* Gradient hidden */
 }
 
 .polaroid-back.has-scroll .polaroid-back-scroll-hint {
