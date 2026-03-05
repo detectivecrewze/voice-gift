@@ -185,7 +185,7 @@ const initPlayer = (config) => {
                                 <button class="polaroid-close" id="polaroid-close">✕</button>
                             </div>
                             <div class="polaroid-front-bottom">
-                                <span class="polaroid-flip-hint">balik untuk baca ↩</span>
+                                <span class="polaroid-flip-hint">balik untuk baca</span>
                             </div>
                         </div>
 

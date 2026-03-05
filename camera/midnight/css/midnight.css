@@ -1861,29 +1861,10 @@ body::before {
     display: none;
 }
 
-/* Noda tinta halus di pojok — seperti bolpen yang bocor sedikit */
-.polaroid-back::before {
-    content: '';
-    position: absolute;
-    bottom: 14px;
-    right: 16px;
-    width: 38px;
-    height: 38px;
-    background: radial-gradient(circle, rgba(60, 40, 20, 0.04) 0%, transparent 70%);
-    pointer-events: none;
-    border-radius: 50%;
-}
-
-/* Bayangan ringan di tepi atas — kesan kertas yang sedikit melengkung */
+/* Removed: ::before ink blot and ::after top-shadow caused gray artifacts on iPhone */
+.polaroid-back::before,
 .polaroid-back::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 18px;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.04) 0%, transparent 100%);
-    pointer-events: none;
+    display: none !important;
 }
 
 /* Tidak ada .polaroid-back-lines, tidak ada .polaroid-back-header */

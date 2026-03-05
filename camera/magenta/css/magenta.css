@@ -1617,16 +1617,9 @@ body::after {
     display: none;
 }
 
+/* Removed: ::before ink blot caused gray artifacts on iPhone */
 .polaroid-back::before {
-    content: '';
-    position: absolute;
-    bottom: 14px;
-    right: 16px;
-    width: 38px;
-    height: 38px;
-    background: radial-gradient(circle, rgba(90, 40, 60, 0.04) 0%, transparent 70%);
-    pointer-events: none;
-    border-radius: 50%;
+    display: none !important;
 }
 
 .polaroid-back::after {
