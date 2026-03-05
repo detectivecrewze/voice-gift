@@ -774,6 +774,11 @@ const initPlayer = (config) => {
             backdrop.classList.remove('visible');
             modal.classList.remove('entering');
             flipper?.classList.remove('flipped');
+            // Reset close button visibility when modal closes
+            if (closeBtn) {
+                closeBtn.style.opacity = '1';
+                closeBtn.style.pointerEvents = 'all';
+            }
             wrap.classList.remove('slot-active');
             digicam?.classList.remove('polaroid-open');
         };
@@ -809,6 +814,13 @@ const initPlayer = (config) => {
 
         flipper?.addEventListener('click', () => {
             flipper.classList.toggle('flipped');
+            const isFlipped = flipper.classList.contains('flipped');
+            // FIX: Safari iPhone does not reliably hide interactive elements
+            // via backface-visibility. Hide close button explicitly on back side.
+            if (closeBtn) {
+                closeBtn.style.opacity = isFlipped ? '0' : '1';
+                closeBtn.style.pointerEvents = isFlipped ? 'none' : 'all';
+            }
             // Cek scroll saat flip ke back
             setTimeout(checkScroll, 400);
         });
