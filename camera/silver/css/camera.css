@@ -1545,6 +1545,9 @@ body::after {
     position: relative;
     width: min(300px, 84vw);
     perspective: 1200px;
+    /* FIX 1: iOS Safari needs explicit preserve-3d for backface-visibility to work on children */
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
     opacity: 0;
     transform: translateY(-18px) scale(0.97);
     transition: none;
@@ -1686,8 +1689,9 @@ body::after {
     transition: all 0.2s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     z-index: 20;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    /* FIX 2: Removed backdrop-filter — creates gray compositing layer inside preserve-3d on iOS Safari */
+    /* backdrop-filter: blur(4px); */
+    /* -webkit-backdrop-filter: blur(4px); */
 }
 
 .polaroid-close:hover {
@@ -1711,6 +1715,7 @@ body::after {
     position: absolute;
     inset: 0;
     transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
     background: #fdfdfd !important;
     /* Override inherited box-shadow — inset shadows create gray edges on mobile Safari */
     box-shadow: 0 32px 80px rgba(0, 0, 0, 0.85), 0 8px 24px rgba(0, 0, 0, 0.6) !important;
@@ -1720,12 +1725,10 @@ body::after {
     overflow-x: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    /* Extra safety for Safari */
-    -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    -webkit-transform: rotateY(180deg);
-    -webkit-transform-style: flat;
-    transform-style: flat;
+    -webkit-backface-visibility: hidden;
+    /* FIX 3: Force separate GPU layer — prevents front-side bleed-through on iOS Safari */
+    isolation: isolate;
 }
 
 .polaroid-back::-webkit-scrollbar {
