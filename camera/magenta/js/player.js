@@ -72,7 +72,7 @@ const initPlayer = (config) => {
         </div>
     `).join('');
 
-    const waveformHTML = Array(28).fill('<div class="waveform-bar"></div>').join('');
+    const waveformHTML = Array(24).fill('<div class="waveform-bar"></div>').join('');
 
     giftSection.innerHTML = `
         <div class="digicam-container" id="digicam-box">
@@ -348,25 +348,37 @@ const initPlayer = (config) => {
 
     let frameCounter = 0;
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    let particleCache = null;
+
+    // ── OPTIMISATION: Cache bar elements once, never query inside the loop ──
+    let cachedBars = null;
+    let cachedBokeh = null;
+    const getBarEls = () => {
+        if (!cachedBars) cachedBars = Array.from(document.querySelectorAll('#waveform-bars .waveform-bar'));
+        return cachedBars;
+    };
+    const getBokehEls = () => {
+        if (!cachedBokeh) cachedBokeh = Array.from(document.querySelectorAll('.bokeh-particle'));
+        return cachedBokeh;
+    };
 
     const updateVisuals = () => {
         if (!isPlaying) { cancelAnimationFrame(animationId); return; }
         animationId = requestAnimationFrame(updateVisuals);
         frameCounter++;
-        const skipRate = isMobile ? 6 : 4;
+        // OPTIMISATION: tighter skip rate for smoother animation
+        const skipRate = isMobile ? 3 : 2;
         if (frameCounter % skipRate !== 0) return;
 
-        const bars = document.querySelectorAll('#waveform-bars .waveform-bar');
+        const bars = getBarEls();
         const nowSec = Date.now() / 1000;
 
         // Fallback: no analyser (Web Audio API unavailable)
         if (!analyser || !dataArray) {
-            bars.forEach((bar, i) => {
+            for (let i = 0; i < bars.length; i++) {
                 const idleScale = 0.125 + Math.sin(nowSec / 0.4 + i * 0.4) * 0.06;
-                bar.style.transform = `scaleY(${idleScale})`;
-                bar.style.opacity = '0.18';
-            });
+                bars[i].style.transform = `scaleY(${idleScale})`;
+                bars[i].style.opacity = '0.18';
+            }
             if (audio) updateDuration();
             return;
         }
@@ -381,8 +393,9 @@ const initPlayer = (config) => {
             isFallback = (total === 0);
         }
 
-        bars.forEach((bar, i) => {
-            const distToCenter = Math.abs(i - 14);
+        const halfLen = Math.floor(bars.length / 2);
+        for (let i = 0; i < bars.length; i++) {
+            const distToCenter = Math.abs(i - halfLen);
             const binIndex = Math.floor(distToCenter * 0.8) + 2;
             let val = dataArray[binIndex] || 0;
             if (isFallback) {
@@ -390,10 +403,23 @@ const initPlayer = (config) => {
                 val = (wave * 120) + (Math.random() * 60) + 20;
             }
             const scale = Math.min(val / 255, 1);
-            bar.style.transform = `scaleY(${0.12 + scale * 0.88})`;
-            bar.style.opacity = scale > 0.3 ? (0.5 + scale * 0.5) : (0.1 + scale * 0.2);
-        });
+            bars[i].style.transform = `scaleY(${0.12 + scale * 0.88})`;
+            bars[i].style.opacity = scale > 0.3 ? (0.5 + scale * 0.5) : (0.1 + scale * 0.2);
+        }
 
+        // ── REACTIVE BOKEH: update background particles based on volume (every 4 frames) ──
+        if (frameCounter % 4 === 0 && dataArray) {
+            let avgVol = 0;
+            for (let k = 0; k < dataArray.length; k++) avgVol += dataArray[k];
+            avgVol = avgVol / dataArray.length;
+            const bokehEls = getBokehEls();
+            for (let idx = 0; idx < bokehEls.length; idx++) {
+                const move = (avgVol / 255) * (25 + idx * 4);
+                const scale = 1 + (avgVol / 255) * 0.4;
+                bokehEls[idx].style.transform = `translate3d(${Math.sin(nowSec + idx) * move}px, ${Math.cos(nowSec + idx) * move}px, 0) scale(${scale})`;
+                bokehEls[idx].style.opacity = 0.05 + (avgVol / 255) * 0.08;
+            }
+        }
 
         if (audio) updateDuration();
     };
@@ -420,12 +446,15 @@ const initPlayer = (config) => {
     const frameEls = tray ? tray.querySelectorAll('.film-frame') : [];
     let lastActiveFrameIndex = -1;
 
+    // ── OPTIMISATION: Cache lcd screen width — reading clientWidth every frame forces a reflow ──
+    const _lcdScreen = document.getElementById('lcd-screen');
+    let _cachedLcdWidth = _lcdScreen ? _lcdScreen.clientWidth : 165;
+    window.addEventListener('resize', () => { _cachedLcdWidth = _lcdScreen ? _lcdScreen.clientWidth : 165; }, { passive: true });
+
     const advanceTray = (loopSlide) => {
         if (!tray || !frameEls.length) return;
 
-        const screen = document.getElementById('lcd-screen');
-        const lcdWidth = screen ? screen.clientWidth : 165;
-        const offset = (lcdWidth - VIEW_WIDTH) / 2;
+        const offset = (_cachedLcdWidth - VIEW_WIDTH) / 2;
         tray.style.transform = `translate3d(${-loopSlide + offset}px, 0, 0)`;
 
         const activeIndex = Math.round(loopSlide / VIEW_WIDTH);
