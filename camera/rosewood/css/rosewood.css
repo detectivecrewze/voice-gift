@@ -1704,17 +1704,26 @@ body::after {
 /* ══════════════════════════════
    BACK
    ══════════════════════════════ */
+/* FIX NUCLEAR: Safari iPhone gray bleed-through on 3D flip */
 .polaroid-back {
     position: absolute;
     inset: 0;
     transform: rotateY(180deg);
-    background: #f5eedb;
+    background: #f5eedb !important;
+    /* Override inherited box-shadow — inset shadows create gray edges on mobile Safari */
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.85), 0 8px 24px rgba(0, 0, 0, 0.6) !important;
     display: flex;
     align-items: flex-start;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    /* Extra safety for Safari */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-transform: rotateY(180deg);
+    -webkit-transform-style: flat;
+    transform-style: flat;
 }
 
 .polaroid-back::-webkit-scrollbar {

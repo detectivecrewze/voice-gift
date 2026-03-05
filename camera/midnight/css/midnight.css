@@ -1855,6 +1855,7 @@ body::before {
     backface-visibility: hidden;
     -webkit-transform: rotateY(180deg);
     -webkit-transform-style: flat;
+    transform-style: flat;
 }
 
 .polaroid-back::-webkit-scrollbar {
