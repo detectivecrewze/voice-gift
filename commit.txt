@@ -1,0 +1,5 @@
+﻿commit 61f12cf38595a46b5e2463646f4e7035e418c26d
+Author: detectivecrewze <aldoramadhan16@gmail.com>
+Date:   Fri Mar 6 06:58:06 2026 +0700
+
+    Fix: apply 3 iOS Safari specific fixes to prevent polaroid front bleed-through and compositing artifacts

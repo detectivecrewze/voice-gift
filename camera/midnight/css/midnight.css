@@ -1726,6 +1726,42 @@ body::before {
     transform: rotateY(180deg);
 }
 
+/* ── FIX iOS Safari: backface-visibility on ALL front children ── */
+/* Safari promotes filtered/composited children to separate GPU layers
+   that ignore parent's backface-visibility: hidden */
+.polaroid-front,
+.polaroid-front *,
+.polaroid-front-photo-wrap,
+.polaroid-front-img {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* ── FIX iOS Safari: z-index swap on flip ── */
+.polaroid-front {
+    z-index: 2;
+}
+
+.polaroid-back {
+    z-index: 1;
+}
+
+.polaroid-flipper.flipped .polaroid-front {
+    z-index: 1;
+}
+
+.polaroid-flipper.flipped .polaroid-back {
+    z-index: 2;
+}
+
+/* ── FIX iOS Safari: opacity toggle (ultimate failsafe) ── */
+/* At 0.35s the card is edge-on — front becomes fully transparent,
+   eliminating any possibility of layer bleed-through */
+.polaroid-flipper.flipped .polaroid-front {
+    opacity: 0;
+    transition: opacity 0s 0.35s;
+}
+
 /* ── Shared: kedua sisi terasa seperti satu lembar kertas foto ── */
 .polaroid-front,
 .polaroid-back {
