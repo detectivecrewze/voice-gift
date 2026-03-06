@@ -707,6 +707,33 @@ const Studio = (() => {
     }
   };
 
+  // ── Ambient Tab Switching ─────────────────────────────────
+  const _activeAmbientTab = { current: 'suasana' };
+
+  const switchAmbientTab = (tabId) => {
+    _activeAmbientTab.current = tabId;
+    const tabs = ['suasana', 'lagu'];
+    const indicator = document.getElementById('ambient-tab-indicator');
+    const uploadHint = document.getElementById('ambient-upload-hint');
+
+    tabs.forEach(id => {
+      const panel = document.getElementById(`ambient-tab-panel-${id}`);
+      const btn = document.getElementById(`ambient-tab-btn-${id}`);
+      if (!panel || !btn) return;
+      const isActive = id === tabId;
+      panel.classList.toggle('hidden', !isActive);
+      btn.classList.toggle('text-black', isActive);
+      btn.classList.toggle('text-gray-400', !isActive);
+    });
+
+    if (indicator) {
+      indicator.style.transform = tabId === 'lagu' ? 'translateX(100%)' : 'translateX(0)';
+    }
+
+    // Show upload hint only on the Lagu tab
+    if (uploadHint) uploadHint.classList.toggle('hidden', tabId !== 'lagu');
+  };
+
   // ── Tab Switching ──────────────────────────────────────────
   const _activeTab = { current: 'musicbox' };
 
@@ -777,40 +804,37 @@ const Studio = (() => {
   };
 
   const _renderAmbients = (activeAmbientId) => {
-    const container = document.getElementById('ambient-selector');
-    if (!container) return;
+    const muteWrap = document.getElementById('ambient-mute-btn-wrap');
+    const suasanaPanel = document.getElementById('ambient-tab-panel-suasana');
+    const laguPanel = document.getElementById('ambient-tab-panel-lagu');
+    if (!muteWrap && !suasanaPanel) return;
 
     const data = (typeof AMBIENTS !== 'undefined' ? AMBIENTS : []);
-    if (data.length === 0) {
-      container.innerHTML = '<p class="text-[9px] text-gray-400">Memuat data...</p>';
-      return;
-    }
+    if (data.length === 0) return;
 
-    container.innerHTML = data.map(a => {
+    // Helper: render one sound card
+    const renderCard = (a) => {
       const isActive = a.id === activeAmbientId;
       const isPlaying = _currentPreviewId === a.id;
-      const hasSound = (a.id !== 'none' && AMBIENT_SOUNDS[a.id]) || (a.id === 'custom' && _state.customAmbientUrl);
+      const hasSound = (AMBIENT_SOUNDS[a.id]) || (a.id === 'custom' && _state.customAmbientUrl);
 
       return `
-        <div class="inline-flex items-center gap-2 mb-2">
+        <div class="inline-flex items-center gap-2">
           ${hasSound ? `
-            <button 
+            <button
               onclick="event.stopPropagation(); Studio.toggleAmbientPreview('${a.id}')"
               class="w-7 h-7 min-w-[28px] rounded-full border transition-all flex items-center justify-center text-[9px] ${isPlaying ? 'border-black bg-black text-white' : 'border-gray-200 hover:border-black text-gray-400 hover:text-black'}"
               title="${isPlaying ? 'Hentikan Preview' : 'Dengarkan Preview'}"
-            >
-              ${isPlaying ? '⏸' : '▶'}
-            </button>
-          ` : `<div class="w-7"></div>`}
-          
-          <button 
+            >${isPlaying ? '⏸' : '▶'}</button>
+          ` : '<div class="w-7"></div>'}
+          <button
             onclick="Studio.onAmbientSelected('${a.id}')"
-            class="flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all text-left group ${isActive ? 'border-black bg-black text-white' : 'border-gray-200 hover:border-black text-gray-500 hover:text-black'}"
+            class="flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all text-left ${isActive ? 'border-black bg-black text-white' : 'border-gray-200 hover:border-black text-gray-500 hover:text-black'}"
           >
             <span class="text-xs">${a.emoji}</span>
             <span class="text-[9px] uppercase tracking-widest font-bold whitespace-nowrap">${a.label}</span>
             ${a.id === 'custom' && _state.customAmbientUrl ? `
-              <span 
+              <span
                 onclick="event.stopPropagation(); Studio.onRemoveCustomMusic(event)"
                 class="ml-1 w-4 h-4 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center text-[8px] transition-all"
                 title="Hapus Lagu"
@@ -819,7 +843,30 @@ const Studio = (() => {
           </button>
         </div>
       `;
-    }).join('');
+    };
+
+    // Mute button (Tanpa Suara)
+    const none = data.find(a => a.id === 'none');
+    if (muteWrap && none) {
+      const isActive = activeAmbientId === 'none';
+      muteWrap.innerHTML = `
+        <button
+          onclick="Studio.onAmbientSelected('none')"
+          class="flex items-center gap-2 px-4 py-2 rounded-full border transition-all active:scale-95 ${isActive ? 'border-red-500 bg-red-500 text-white shadow-md shadow-red-500/20' : 'border-red-100 bg-red-50 text-red-400 hover:bg-red-100'}"
+        >
+          <span class="text-xs">${none.emoji}</span>
+          <span class="text-[9px] uppercase tracking-widest font-bold">${none.label}</span>
+        </button>
+      `;
+    }
+
+    // Suasana tab (loop: true, skip 'none')
+    const suasana = data.filter(a => a.loop && a.id !== 'none');
+    if (suasanaPanel) suasanaPanel.innerHTML = suasana.map(renderCard).join('');
+
+    // Lagu tab (loop: false)
+    const lagu = data.filter(a => !a.loop);
+    if (laguPanel) laguPanel.innerHTML = lagu.map(renderCard).join('');
   };
 
   // ── Requirements UI Update ───────────────────────────────
@@ -855,6 +902,15 @@ const Studio = (() => {
     Preview.update(_state);
   };
 
+  // ── Section Toggle (Collapsible Accordion) ────────────────────
+  const toggleSection = (sectionId) => {
+    const body = document.getElementById(`section-body-${sectionId}`);
+    const btn = document.getElementById(`toggle-btn-${sectionId}`);
+    if (!body || !btn) return;
+    const isCollapsed = body.classList.toggle('collapsed');
+    btn.classList.toggle('collapsed', isCollapsed);
+  };
+
   // ── Public API ────────────────────────────────────────────
   return {
     init,
@@ -871,6 +927,8 @@ const Studio = (() => {
     openHintModal,
     closeHintModal,
     switchThemeTab,
+    switchAmbientTab,
+    toggleSection,
     getThemeConfig: (themeId) => {
       // Robust lookup: try direct ID match, then handle legacy IDs
       const legacyMap = {
