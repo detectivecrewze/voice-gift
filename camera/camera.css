@@ -1249,3 +1249,17 @@ body::after {
         opacity: 0.06 !important;
     }
 }
+
+/* Watermark: hidden on all touchscreen devices (mobile/tablet), any orientation */
+@media (hover: none) and (pointer: coarse) {
+    .watermark-badge {
+        display: none !important;
+    }
+}
+
+/* Watermark: hidden when phone/tablet is in landscape (width > 640 but still a small screen) */
+@media (max-width: 950px) and (orientation: landscape) {
+    .watermark-badge {
+        display: none !important;
+    }
+}
