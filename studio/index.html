@@ -93,60 +93,7 @@
         <p class="text-[10px] uppercase tracking-[0.4em] text-gray-400 mt-4">For you, Always.</p>
       </header>
 
-      <!-- 1. Gallery Section in a Box -->
-      <section class="section-card mb-12">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-          <div class="flex items-start gap-3 flex-1">
-            <div class="flex-1">
-              <h2 class="text-xs uppercase tracking-[0.3em] text-gray-600 font-bold mb-1">Galeri Kenangan</h2>
-              <p class="text-[8px] text-[#d4a373] uppercase tracking-[0.2em] font-bold">✨ Maksimal 15 Foto</p>
-            </div>
-            <button onclick="Studio.toggleSection('gallery')" id="toggle-btn-gallery" class="section-toggle-btn mt-1"
-              title="Sembunyikan / Tampilkan">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 9l6 6 6-6" />
-              </svg>
-            </button>
-          </div>
-          <div class="flex flex-wrap items-center gap-2 mt-2 sm:mt-0">
-            <button onclick="Studio.openHintModal()"
-              class="text-[9px] uppercase tracking-[0.2em] px-4 py-2 border border-gray-200 text-gray-600 rounded-full hover:border-black hover:text-black transition shadow-sm bg-white whitespace-nowrap flex items-center gap-1.5">
-              <span>💡</span> Panduan
-            </button>
-            <button id="btn-pick-photos"
-              class="text-[9px] uppercase tracking-[0.2em] px-4 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition shadow-sm whitespace-nowrap">
-              + Tambah Foto</button>
-          </div>
-          <input id="file-input-photos" type="file" multiple accept="image/*" class="hidden" />
-        </div>
-
-        <div class="section-body" id="section-body-gallery">
-          <div class="section-body-inner">
-            <div id="photo-dropzone"
-              class="border-2 border-dashed border-gray-100 rounded-2xl p-16 text-center transition-all hover:bg-white hover:border-[#d4a373] cursor-pointer bg-gray-50/50">
-              <p class="text-[9px] uppercase tracking-[0.3em] text-gray-500 font-medium">Letakkan foto anda di sini</p>
-            </div>
-
-            <!-- Reorder & Caption Hints -->
-            <div id="hints-container" class="mt-4 flex flex-col gap-2">
-              <p id="reorder-hint" class="hidden text-[10px] text-gray-400 italic">
-                * Tekan dan geser Tombol Garis 2 di foto untuk mengatur urutan.
-              </p>
-              <p id="caption-hint" class="hidden text-[10px] text-[#d4a373] italic font-medium">
-                * Menambahkan teks (caption) di setiap foto bersifat opsional. Boleh dikosongkan.
-              </p>
-            </div>
-
-            <div id="photo-grid" class="mt-8">
-              <!-- Photos rendered by uploader.js -->
-            </div>
-          </div>
-        </div>
-      </section>
-
-
-      <!-- 2. Format & Theme Selection -->
+      <!-- 1. Format & Theme Selection -->
       <section class="section-card mb-12 overflow-hidden">
         <div class="flex items-center justify-between mb-5">
           <h2 class="text-[10px] uppercase tracking-[0.4em] text-gray-400 font-bold mb-1">Format Kado</h2>
@@ -233,7 +180,59 @@
         </div><!-- end section-body-inner / section-body for format -->
       </section>
 
-      <!-- 2b. Ambient Atmosphere in a Box -->
+      <!-- 2. Gallery Section in a Box -->
+      <section class="section-card mb-12">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div class="flex items-start gap-3 flex-1">
+            <div class="flex-1">
+              <h2 class="text-xs uppercase tracking-[0.3em] text-gray-600 font-bold mb-1">Galeri Kenangan</h2>
+              <p class="text-[8px] text-[#d4a373] uppercase tracking-[0.2em] font-bold">✨ Maksimal 15 Foto</p>
+            </div>
+            <button onclick="Studio.toggleSection('gallery')" id="toggle-btn-gallery" class="section-toggle-btn mt-1"
+              title="Sembunyikan / Tampilkan">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 mt-2 sm:mt-0">
+            <button onclick="Studio.openHintModal()"
+              class="text-[9px] uppercase tracking-[0.2em] px-4 py-2 border border-gray-200 text-gray-600 rounded-full hover:border-black hover:text-black transition shadow-sm bg-white whitespace-nowrap flex items-center gap-1.5">
+              <span>💡</span> Panduan
+            </button>
+            <button id="btn-pick-photos"
+              class="text-[9px] uppercase tracking-[0.2em] px-4 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition shadow-sm whitespace-nowrap">
+              + Tambah Foto</button>
+          </div>
+          <input id="file-input-photos" type="file" multiple accept="image/*" class="hidden" />
+        </div>
+
+        <div class="section-body" id="section-body-gallery">
+          <div class="section-body-inner">
+            <div id="photo-dropzone"
+              class="border-2 border-dashed border-gray-100 rounded-2xl p-16 text-center transition-all hover:bg-white hover:border-[#d4a373] cursor-pointer bg-gray-50/50">
+              <p class="text-[9px] uppercase tracking-[0.3em] text-gray-500 font-medium">Letakkan foto anda di sini</p>
+            </div>
+
+            <!-- Reorder & Caption Hints -->
+            <div id="hints-container" class="mt-4 flex flex-col gap-2">
+              <p id="reorder-hint" class="hidden text-[10px] text-gray-400 italic">
+                * Tekan dan geser Tombol Garis 2 di foto untuk mengatur urutan.
+              </p>
+              <p id="caption-hint" class="hidden text-[10px] text-[#d4a373] italic font-medium">
+                * Menambahkan teks (caption) di setiap foto bersifat opsional. Boleh dikosongkan.
+              </p>
+            </div>
+
+            <div id="photo-grid" class="mt-8">
+              <!-- Photos rendered by uploader.js -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Ambient Atmosphere in a Box -->
       <section class="section-card mb-12">
         <div class="flex items-center justify-between mb-6">
           <div>
@@ -308,7 +307,7 @@
         </div><!-- end section-body-inner / section-body for ambient -->
       </section>
 
-      <!-- 3. Voice Studio in a Box -->
+      <!-- 4. Voice Studio in a Box -->
       <section class="section-card mb-24">
         <div class="flex items-center justify-between mb-8">
           <h2 class="text-xs uppercase tracking-[0.3em] text-gray-600 font-bold">Studio Suara</h2>
@@ -491,7 +490,7 @@
       </section>
 
 
-      <!-- 3b. Pesan Rahasia — hanya untuk Film Camera -->
+      <!-- 5. Pesan Rahasia — hanya untuk Film Camera -->
       <section id="section-pesan-rahasia" class="section-card mb-12 hidden">
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
@@ -595,7 +594,7 @@
         </div><!-- end section-body-inner / section-body for secret -->
       </section>
 
-      <!-- 4. Password Settings -->
+      <!-- 6. Password Settings -->
       <section class="section-card mb-12">
         <div class="flex items-center justify-between mb-8">
           <div>
