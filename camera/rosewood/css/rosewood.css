@@ -1601,6 +1601,38 @@ body::after {
     transform: rotateY(180deg);
 }
 
+/* ── FIX iOS Safari: backface-visibility on ALL front children ── */
+.polaroid-front,
+.polaroid-front *,
+.polaroid-front-photo-wrap,
+.polaroid-front-img {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* ── FIX iOS Safari: z-index swap on flip ── */
+.polaroid-front {
+    z-index: 2;
+}
+
+.polaroid-back {
+    z-index: 1;
+}
+
+.polaroid-flipper.flipped .polaroid-front {
+    z-index: 1;
+}
+
+.polaroid-flipper.flipped .polaroid-back {
+    z-index: 2;
+}
+
+/* ── FIX iOS Safari: opacity toggle (ultimate failsafe) ── */
+.polaroid-flipper.flipped .polaroid-front {
+    opacity: 0;
+    transition: opacity 0s 0.35s;
+}
+
 .polaroid-front,
 .polaroid-back {
     backface-visibility: hidden;
