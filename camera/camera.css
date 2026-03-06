@@ -1168,6 +1168,23 @@ body::after {
         gap: 14px;
     }
 
+    /* Card padding */
+    .password-card,
+    .error-container {
+        padding: 48px 24px 40px;
+        border-radius: 36px;
+        width: calc(100% - 32px);
+    }
+
+    .password-title {
+        font-size: 28px;
+        margin-bottom: 28px;
+    }
+
+    .password-field {
+        padding: 16px 16px;
+    }
+
     /* ── Lens: smaller so LCD gets more room ── */
     .lens-outer {
         width: 110px;
