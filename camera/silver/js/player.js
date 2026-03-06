@@ -828,6 +828,18 @@ const initPlayer = (config) => {
         backdrop?.addEventListener('click', (e) => { if (e.target === backdrop) closeModal(); });
     };
 
+    // ── Secret Preview Mode ────────────────────────────────────
+    // If ?previewSecret=true, skip all audio/slideshow and show polaroid directly
+    const _isPreviewSecret = new URLSearchParams(window.location.search).get('previewSecret') === 'true';
+    if (_isPreviewSecret) {
+        setupBokeh();
+        // Hide idle overlay immediately
+        if (idleOverlay) idleOverlay.classList.add('hidden');
+        // Trigger polaroid after a brief delay so the DOM is fully rendered
+        setTimeout(() => triggerPolaroid(config), 800);
+        return; // Skip all audio, countdown, and auto-play setup
+    }
+
     // visibilitychange: recover audio after tab-switch
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible' && isAutoPlaying) {

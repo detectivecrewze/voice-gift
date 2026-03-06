@@ -177,6 +177,15 @@
           <div id="theme-selector-camera" class="flex flex-wrap gap-3 mb-6">
             <!-- Rendered by JS -->
           </div>
+
+          <!-- Hint: Fitur Pesan Rahasia -->
+          <div class="mt-2 p-4 rounded-2xl bg-[#fdf9f4] border border-[#d4a373]/15">
+            <p class="text-[9px] text-gray-500 leading-relaxed italic">
+              <span class="font-bold text-[#d4a373] not-italic">✦ Fitur Eksklusif:</span> Template Film Camera memiliki
+              fitur <strong>Pesan Rahasia</strong> — kamu bisa menyisipkan satu foto spesial dan surat tulisan tangan
+              yang hanya muncul setelah voice note selesai diputar. Atur di bagian "Pesan Rahasia" di bawah.
+            </p>
+          </div>
         </div>
 
         <div class="pt-6 border-t border-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -463,6 +472,20 @@
             style="font-family: 'Caveat', cursive;"></textarea>
 
           <p class="text-[9px] text-gray-300 mt-2 italic">* Teks akan tampil dengan gaya tulisan tangan di polaroid</p>
+        </div>
+
+        <!-- Preview Polaroid Button -->
+        <div class="pt-6 border-t border-gray-50 mt-8">
+          <p class="text-[9px] text-gray-400 italic mb-4">Klik tombol di bawah untuk melihat tampilan polaroid (foto
+            rahasia + surat) secara langsung.</p>
+          <button onclick="Preview.openSecretPreview()"
+            class="group w-full sm:w-auto text-[9px] uppercase tracking-widest px-8 py-4 bg-gray-900 text-white rounded-full hover:bg-black transition-all font-bold flex items-center justify-center gap-3 shadow-xl shadow-black/10">
+            <span>📷 Lihat Preview Polaroid</span>
+            <svg class="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+          </button>
         </div>
       </section>
 

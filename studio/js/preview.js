@@ -63,11 +63,46 @@ const Preview = (() => {
     window.open(demoUrl, '_blank');
   };
 
+  const openSecretPreview = () => {
+    const state = Studio.getState();
+
+    // Validasi: minimal harus ada foto rahasia ATAU surat
+    if (!state.polaroid_photo && !state.polaroid_letter) {
+      Studio.showToast('Tambahkan foto rahasia atau tulis surat dulu sebelum preview. 📷');
+      return;
+    }
+
+    // Proteksi: minimal 1 foto di galeri utama (agar player tidak blank)
+    if (!state.photos || state.photos.length === 0) {
+      Studio.showToast('Tambahkan minimal 1 foto di Galeri Kenangan dulu. 📸');
+      return;
+    }
+
+    const token = Auth.getToken();
+    if (!token) {
+      Studio.showToast('Token tidak ditemukan, harap ulangi akses studio.');
+      return;
+    }
+
+    // Force save draft agar data terbaru tersimpan di server
+    Autosave.saveNow(state);
+
+    const themeConfig = Studio.getThemeConfig(state.theme);
+    const folder = themeConfig ? themeConfig.folder : 'gift';
+
+    Studio.showToast('Membuka Preview Polaroid...');
+    setTimeout(() => {
+      const previewUrl = `../${folder}/index.html?to=${token}&preview=true&previewSecret=true&t=${Date.now()}`;
+      window.open(previewUrl, '_blank');
+    }, 500);
+  };
+
   // Expose public API
   return {
     update,
     openPreview,
-    openDemo
+    openDemo,
+    openSecretPreview
   };
 
 })();
