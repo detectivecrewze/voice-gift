@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // studio.js — Main Controller (INIT TERAKHIR)
 // ============================================================
 // Bertanggung jawab untuk:
@@ -346,10 +346,6 @@ const Studio = (() => {
       // If the saved theme is a camera theme, auto-switch to camera tab
       if (state.theme && CAMERA_THEMES.some(t => t.id === state.theme)) {
         switchThemeTab('camera');
-      } else {
-        // Pastikan section polaroid tersembunyi jika theme bukan camera
-        const secretSection = document.getElementById('section-pesan-rahasia');
-        if (secretSection) secretSection.classList.add('hidden');
       }
       _updateRequirementsUI();
       _initInputs();
@@ -764,12 +760,6 @@ const Studio = (() => {
       } else {
         indicator.style.transform = 'translateX(0)';
       }
-    }
-
-    // Show/hide Pesan Rahasia section based on tab
-    const secretSection = document.getElementById('section-pesan-rahasia');
-    if (secretSection) {
-      secretSection.classList.toggle('hidden', tabId !== 'camera');
     }
 
     // Auto-select silver when switching to camera if no camera theme is active

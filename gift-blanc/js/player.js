@@ -1,4 +1,4 @@
-﻿const VoicePlayer = (() => {
+const VoicePlayer = (() => {
 
   // ── Module-level Singleton AudioContext ──────────────────────
   // Prevents AudioContext leak: browser limits ~6-20 contexts per tab.
@@ -19,7 +19,7 @@
 
   // FIX ROOT CAUSE: Terima audio element yang sudah di-preload dari handleAfterLoad
   // agar buffer yang sudah terkumpul tidak terbuang sia-sia saat membuat Audio() baru
-  const init = (voiceNote, containerEl, allPhotos, ambientId = 'none', customAmbientUrl = null, voiceVol = 1.0, ambientVol = 0.085, preloadedAudio = null) => {
+  const init = (voiceNote, containerEl, allPhotos, ambientId = 'none', customAmbientUrl = null, voiceVol = 1.0, ambientVol = 0.085, preloadedAudio = null, giftConfig = null) => {
     let audio;
     if (preloadedAudio) {
       audio = preloadedAudio;
@@ -212,7 +212,36 @@
         <div class="console-screw bottom-right"></div>
 
         <!-- Metallic Nameplate Plate (Aesthetic Only) -->
-        <div class="console-plate"></div>
+        <div class="console-plate" id="console-plate"></div>
+
+
+        <!-- Polaroid Modal (fixed overlay, flippable) -->
+        <div class="polaroid-modal-backdrop" id="polaroid-modal-backdrop">
+            <div class="polaroid-modal" id="polaroid-modal">
+                <div class="polaroid-flipper" id="polaroid-flipper">
+
+                    <!-- Front: photo -->
+                    <div class="polaroid-front">
+                        <div class="polaroid-front-photo-wrap">
+                            <img class="polaroid-front-img" id="polaroid-front-img" src="" alt="Memory" />
+                            <button class="polaroid-close" id="polaroid-close">✕</button>
+                        </div>
+                        <div class="polaroid-front-bottom">
+                            <span class="polaroid-flip-hint">flip to read</span>
+                        </div>
+                    </div>
+
+                    <!-- Back: letter -->
+                    <div class="polaroid-back" id="polaroid-back">
+                        <div class="polaroid-letter" id="polaroid-letter"></div>
+                        <div class="polaroid-back-scroll-hint" id="polaroid-scroll-hint">
+                            <span>scroll</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
         
         <div class="printer-viewport" id="viewport">
           <div class="light-leak-overlay"></div>
@@ -486,6 +515,14 @@
 
     setupBokeh();
 
+    // ── Secret Preview Mode ────────────────────────────────────
+    // If ?previewSecret=true, skip all audio/slideshow and show polaroid directly
+    const _isPreviewSecret = new URLSearchParams(window.location.search).get('previewSecret') === 'true';
+    if (_isPreviewSecret) {
+      setTimeout(() => triggerPolaroid(giftConfig), 800);
+      return; // Skip all audio, countdown, and auto-play setup
+    }
+
     if (audio.readyState >= 1) updateDuration();
     audio.addEventListener('loadedmetadata', updateDuration);
     audio.addEventListener('progress', updateDuration); // Bantu percepet kalkulasi
@@ -497,7 +534,11 @@
     });
 
     audio.addEventListener('ended', () => {
-      // Voice note plays once — do nothing when it ends.
+      // Voice note plays once. Trigger polaroid if data exists.
+      const hasPolaroid = !!(giftConfig && (giftConfig.polaroid_photo || giftConfig.polaroid_letter));
+      if (hasPolaroid) {
+        triggerPolaroid(giftConfig);
+      }
     });
 
     // ── Interaction Logic (Infinite) ──────────────────────────
@@ -1084,9 +1125,115 @@
       giftConfig.customAmbientUrl,
       giftConfig.voiceVolume,
       giftConfig.ambientVolume,
-      preloadedAudio
+      preloadedAudio,
+      giftConfig
     );
   };
+
+
+
+  // ── Polaroid Trigger ──────────────────────────────────────────
+  const triggerPolaroid = (cfg) => {
+    const photoUrl = cfg.polaroid_photo || null;
+    const letterText = cfg.polaroid_letter || null;
+    if (!photoUrl && !letterText) return;
+
+    const backdrop = document.getElementById('polaroid-modal-backdrop');
+    const frontImg = document.getElementById('polaroid-front-img');
+    const letterEl = document.getElementById('polaroid-letter');
+    const flipper = document.getElementById('polaroid-flipper');
+    const closeBtn = document.getElementById('polaroid-close');
+    const modal = document.getElementById('polaroid-modal');
+    if (!backdrop) return;
+
+    // Isi konten modal
+    if (frontImg && photoUrl) frontImg.src = photoUrl;
+    if (letterEl && letterText) letterEl.textContent = letterText;
+
+    // Step 1: Langsung buka modal dengan eject animation setelah 1.5s
+    setTimeout(() => {
+      backdrop.classList.add('visible');
+      modal.classList.remove('entering');
+      void modal.offsetWidth;
+      modal.classList.add('entering');
+
+      // Foto develop: gelap+blur → clear
+      if (frontImg) {
+        frontImg.classList.remove('developed');
+        setTimeout(() => frontImg.classList.add('developed'), 400);
+      }
+    }, 1500);
+
+    // ── Re-open via slot click ──
+    const slotLabel = document.getElementById('slot-reopen-label');
+
+    const openModal = () => {
+      backdrop.classList.add('visible');
+      modal.classList.remove('entering');
+      void modal.offsetWidth;
+      modal.classList.add('entering');
+      if (frontImg) {
+        frontImg.classList.remove('developed');
+        setTimeout(() => frontImg.classList.add('developed'), 400);
+      }
+    };
+
+    if (slotLabel) slotLabel.classList.add('is-ready');
+    const plate = document.getElementById('console-plate');
+    if (plate) {
+      plate.classList.add('slot-active');
+      plate.style.cursor = 'pointer';
+      plate.addEventListener('click', openModal);
+    }
+
+    // ── Tutup modal ──
+    const closeModal = () => {
+      backdrop.classList.remove('visible');
+      modal.classList.remove('entering');
+      flipper?.classList.remove('flipped');
+      if (closeBtn) {
+        closeBtn.style.opacity = '1';
+        closeBtn.style.pointerEvents = 'all';
+      }
+    };
+
+    // ── Scroll indicator ──
+    const polaroidBack = document.getElementById('polaroid-back');
+    const letterElScroll = document.getElementById('polaroid-letter');
+
+    const checkScroll = () => {
+      if (!polaroidBack || !letterElScroll) return;
+      const hasMore = letterElScroll.scrollHeight > letterElScroll.clientHeight + 10;
+      polaroidBack.classList.toggle('has-scroll', hasMore);
+      if (hasMore) {
+        const atBottom = letterElScroll.scrollTop + letterElScroll.clientHeight >= letterElScroll.scrollHeight - 20;
+        polaroidBack.classList.toggle('scrolled-to-bottom', atBottom);
+      } else {
+        polaroidBack.classList.remove('scrolled-to-bottom');
+      }
+    };
+
+    const ro = new ResizeObserver(() => { checkScroll(); });
+    if (polaroidBack) ro.observe(polaroidBack);
+    if (letterElScroll) ro.observe(letterElScroll);
+    setTimeout(checkScroll, 800);
+    setTimeout(checkScroll, 1500);
+    letterElScroll?.addEventListener('scroll', checkScroll, { passive: true });
+
+    flipper?.addEventListener('click', () => {
+      flipper.classList.toggle('flipped');
+      const isFlipped = flipper.classList.contains('flipped');
+      if (closeBtn) {
+        closeBtn.style.opacity = isFlipped ? '0' : '1';
+        closeBtn.style.pointerEvents = isFlipped ? 'none' : 'all';
+      }
+      setTimeout(checkScroll, 400);
+    });
+
+    closeBtn?.addEventListener('click', (e) => { e.stopPropagation(); closeModal(); });
+    backdrop?.addEventListener('click', (e) => { if (e.target === backdrop) closeModal(); });
+  };
+
 
   return { init, handleAfterLoad };
 

@@ -1358,3 +1358,347 @@ body::after {
   width: 0%;
   transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* ── Console-plate: glow saat polaroid aktif ── */
+.console-plate.slot-active {
+  border-color: rgba(122, 143, 184, 0.55);
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.08),
+    0 0 10px rgba(122, 143, 184, 0.35),
+    0 0 28px rgba(122, 143, 184, 0.2),
+    0 0 50px rgba(122, 143, 184, 0.08);
+  animation: plate-pulse 1.2s ease-in-out infinite;
+  pointer-events: all;
+  cursor: pointer;
+}
+
+@keyframes plate-pulse {
+  0%, 100% {
+    box-shadow:
+      0 2px 5px rgba(0, 0, 0, 0.5),
+      inset 0 1px 1px rgba(255, 255, 255, 0.08),
+      0 0 10px rgba(122, 143, 184, 0.35),
+      0 0 28px rgba(122, 143, 184, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 2px 5px rgba(0, 0, 0, 0.5),
+      inset 0 1px 1px rgba(255, 255, 255, 0.08),
+      0 0 18px rgba(122, 143, 184, 0.55),
+      0 0 45px rgba(122, 143, 184, 0.35),
+      0 0 70px rgba(122, 143, 184, 0.12);
+  }
+}
+
+/* Reopen label below console-plate */
+.slot-reopen-label {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 5.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: transparent;
+  pointer-events: none;
+  transition: color 0.6s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.slot-reopen-label.is-ready {
+  color: rgba(122, 143, 184, 0.22);
+}
+
+.music-box-container:hover .slot-reopen-label.is-ready {
+  color: rgba(122, 143, 184, 0.55);
+}
+
+/* ── Polaroid Modal ── */
+
+.polaroid-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border-radius: 52px;
+  z-index: 500;
+  background: rgba(10, 8, 6, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.polaroid-modal-backdrop.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+@media (max-width: 640px) {
+  .polaroid-modal-backdrop {
+    border-radius: 46px;
+  }
+}
+
+/* ── Memory Card ── */
+.polaroid-modal {
+  position: relative;
+  width: min(260px, 80vw);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: none;
+}
+
+@media (max-width: 640px) {
+  .polaroid-modal {
+    width: min(220px, 72vw);
+  }
+}
+
+@keyframes polaroid-eject {
+  0%   { transform: translateY(20px); opacity: 0; }
+  60%  { transform: translateY(-4px); opacity: 1; }
+  80%  { transform: translateY(2px); }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.polaroid-modal.entering {
+  opacity: 1;
+  transform: translateY(0);
+  animation: polaroid-eject 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Flipper — opacity swap, no 3D (iOS safe) ── */
+.polaroid-flipper {
+  width: 100%;
+  position: relative;
+  cursor: pointer;
+}
+
+.polaroid-flipper.flipped .polaroid-front {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.polaroid-flipper.flipped .polaroid-back {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── Shared card base ── */
+.polaroid-front,
+.polaroid-back {
+  background: #0a0d18;
+  border-radius: 12px;
+  border: 1px solid rgba(122, 143, 184, 0.12);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.8),
+    0 4px 16px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* ══════════════════════════════
+   FRONT
+   ══════════════════════════════ */
+.polaroid-front {
+  width: 100%;
+  overflow: hidden;
+  transition: opacity 0.25s ease;
+}
+
+.polaroid-front-photo-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  background: #0a0806;
+  border-radius: 12px 12px 0 0;
+}
+
+.polaroid-front-photo-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 55%,
+    rgba(10, 8, 6, 0.65) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+.polaroid-front-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: brightness(0.1) saturate(0);
+  transition: filter 2.5s ease;
+}
+
+.polaroid-front-img.developed {
+  filter: brightness(0.92) contrast(1.06) saturate(0.88);
+}
+
+.polaroid-front-bottom {
+  padding: 12px 16px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.polaroid-flip-hint {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(122, 143, 184, 0.45);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+/* ── Close button ── */
+.polaroid-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 9px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 20;
+}
+
+.polaroid-close:hover {
+  background: rgba(122, 143, 184, 0.3);
+  border-color: rgba(122, 143, 184, 0.5);
+  color: #fff;
+}
+
+.polaroid-flipper.flipped .polaroid-close {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+/* ══════════════════════════════
+   BACK
+   ══════════════════════════════ */
+.polaroid-back {
+  position: absolute;
+  inset: 0;
+  min-height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+/* Subtle ruled lines */
+.polaroid-back::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 27px,
+    rgba(122, 143, 184, 0.05) 27px,
+    rgba(122, 143, 184, 0.05) 28px
+  );
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 12px;
+}
+
+.polaroid-back::after {
+  display: none;
+}
+
+.polaroid-back-scroll-hint {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.polaroid-back-scroll-hint span {
+  font-family: var(--font-mono, monospace);
+  font-size: 5.5px;
+  letter-spacing: 0.18em;
+  color: rgba(122, 143, 184, 0.35);
+  text-transform: uppercase;
+}
+
+.polaroid-back-scroll-hint::after {
+  content: '∨';
+  font-size: 10px;
+  color: rgba(122, 143, 184, 0.3);
+  animation: scroll-bounce 1.4s ease-in-out infinite;
+  display: block;
+  line-height: 1;
+}
+
+@keyframes scroll-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(3px); }
+}
+
+.polaroid-back.has-scroll .polaroid-back-scroll-hint {
+  opacity: 1;
+}
+
+.polaroid-back.scrolled-to-bottom .polaroid-back-scroll-hint {
+  opacity: 0;
+}
+
+.polaroid-letter {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.8;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  position: relative;
+  z-index: 2;
+  padding: 18px 18px 32px 18px;
+  width: 100%;
+  flex: 1;
+  max-height: 320px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+.polaroid-letter::-webkit-scrollbar {
+  display: none;
+}
