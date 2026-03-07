@@ -710,6 +710,10 @@ body::after {
     padding: 40px 20px 145px;
   }
 
+  .console-plate {
+    top: 14px;
+  }
+
   .printer-viewport,
   .printer-photo {
     width: 200px;
@@ -1252,15 +1256,16 @@ body::after {
 /* ── Memory Card ── */
 .polaroid-modal {
   position: relative;
-  width: min(260px, 80vw);
+  width: min(320px, 80vw);
   opacity: 0;
   transform: translateY(20px);
   transition: none;
+  perspective: 1000px;
 }
 
 @media (max-width: 640px) {
   .polaroid-modal {
-    width: min(220px, 72vw);
+    width: min(280px, 72vw);
   }
 }
 
@@ -1277,17 +1282,21 @@ body::after {
   animation: polaroid-eject 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* ── Flipper — opacity swap, no 3D (iOS safe) ── */
 .polaroid-flipper {
   width: 100%;
   position: relative;
   cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.polaroid-flipper.flipped {
+  transform: rotateY(180deg);
 }
 
 .polaroid-flipper.flipped .polaroid-front {
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease;
 }
 
 .polaroid-flipper.flipped .polaroid-back {
@@ -1305,6 +1314,8 @@ body::after {
     0 24px 60px rgba(0, 0, 0, 0.8),
     0 4px 16px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* ══════════════════════════════
@@ -1359,13 +1370,15 @@ body::after {
 }
 
 .polaroid-flip-hint {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 9px;
-  font-weight: 500;
-  color: rgba(122, 138, 90, 0.45);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  font-family: var(--font-display), serif;
+  font-size: 11px;
+  font-style: italic;
+  font-weight: 400;
+  color: rgba(122, 138, 90, 0.6);
+  letter-spacing: 0.05em;
+  text-transform: lowercase;
   user-select: none;
+  opacity: 0.8;
 }
 
 /* ── Close button ── */
@@ -1394,12 +1407,6 @@ body::after {
   color: #fff;
 }
 
-.polaroid-flipper.flipped .polaroid-close {
-  opacity: 0 !important;
-  pointer-events: none !important;
-  visibility: hidden !important;
-}
-
 /* ══════════════════════════════
    BACK
    ══════════════════════════════ */
@@ -1413,20 +1420,13 @@ body::after {
   flex-direction: column;
   overflow: hidden;
   border-radius: 12px;
+  transform: rotateY(180deg);
 }
 
-/* Subtle ruled lines */
 .polaroid-back::before {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent,
-    transparent 27px,
-    rgba(122, 138, 90, 0.05) 27px,
-    rgba(122, 138, 90, 0.05) 28px
-  );
   pointer-events: none;
   z-index: 0;
   border-radius: 12px;
@@ -1484,7 +1484,7 @@ body::after {
 
 .polaroid-letter {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 15px;
+  font-size: 19px;
   font-style: italic;
   line-height: 1.8;
   color: var(--text);
