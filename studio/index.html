@@ -551,7 +551,14 @@
             <div>
               <div class="flex items-center justify-between mb-4">
                 <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold">Surat Tulisan Tangan</label>
-                <span id="polaroid-letter-count" class="text-[8px] text-gray-300 font-mono">0 / 800</span>
+                <div class="flex items-center gap-3">
+                  <button id="btn-open-ai-generator"
+                    class="flex items-center gap-1.5 text-[8px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full border border-[#d4a373]/40 text-[#b58756] bg-[#fdf9f4] hover:bg-[#d4a373]/10 hover:border-[#d4a373] transition-all"
+                    title="Buat pesan dengan bantuan AI">
+                    <span>✨</span> Buat dengan AI
+                  </button>
+                  <span id="polaroid-letter-count" class="text-[8px] text-gray-300 font-mono">0 / 800</span>
+                </div>
               </div>
 
               <textarea id="polaroid-letter-input"
@@ -785,6 +792,80 @@
   <div id="toast"
     class="hidden fixed left-1/2 -translate-x-1/2 z-[400] transition-all uppercase tracking-[0.2em] text-[9px]"></div>
 
+  <!-- ✨ AI Generator Modal -->
+  <div id="modal-ai-generator" class="hidden fixed inset-0 z-[450] flex items-end sm:items-center justify-center p-0 sm:p-6">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+    <div class="ai-modal-card relative w-full sm:max-w-md bg-[#fcfaf7] rounded-t-3xl sm:rounded-2xl shadow-2xl transition-all duration-250 scale-95 opacity-0 overflow-hidden">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
+        <div>
+          <h3 class="text-sm font-bold text-gray-800">✨ Tulis dengan AI</h3>
+          <p class="text-[9px] uppercase tracking-widest text-gray-400 mt-0.5">Untuk Pesan Rahasia Polaroid</p>
+        </div>
+        <button id="btn-ai-close" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-500 text-sm font-bold">✕</button>
+      </div>
+
+      <!-- View: Input -->
+      <div id="ai-view-input" class="px-6 py-6">
+        <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block mb-3">Instruksi untuk AI</label>
+        <textarea id="ai-prompt-input"
+          placeholder="Contoh: Buatkan pesan anniversary 2 tahun yang romantis dan hangat, untuk pacarku yang namanya Bintang..."
+          rows="4"
+          maxlength="500"
+          class="w-full resize-none border border-gray-200 rounded-xl p-4 text-[13px] leading-relaxed focus:outline-none focus:border-[#d4a373] transition-all bg-white text-gray-800 placeholder:text-gray-300"></textarea>
+        <p class="text-[9px] text-gray-300 mt-2 italic">Semakin detail instruksimu, semakin personal hasilnya.</p>
+        
+        <!-- Tone Selection -->
+        <div class="mt-4">
+          <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block mb-3">Pilih Gaya Bahasa</label>
+          <div class="flex flex-wrap gap-2" id="ai-tone-selector">
+            <button data-tone="romantis" class="px-4 py-2 text-[10px] rounded-full border border-[#d4a373] bg-[#d4a373] text-white font-bold transition-all">Romantis</button>
+            <button data-tone="lucu" class="px-4 py-2 text-[10px] rounded-full border border-gray-200 bg-white text-gray-500 font-bold transition-all hover:border-[#d4a373] hover:text-[#d4a373]">Lucu / Canda</button>
+            <button data-tone="santai" class="px-4 py-2 text-[10px] rounded-full border border-gray-200 bg-white text-gray-500 font-bold transition-all hover:border-[#d4a373] hover:text-[#d4a373]">Santai (Aku/Kamu)</button>
+            <button data-tone="tulus" class="px-4 py-2 text-[10px] rounded-full border border-gray-200 bg-white text-gray-500 font-bold transition-all hover:border-[#d4a373] hover:text-[#d4a373]">Formal & Tulus</button>
+          </div>
+        </div>
+
+        <p id="ai-error-msg" class="text-[9px] text-rose-500 mt-3 font-bold"></p>
+        <button id="btn-ai-generate"
+          class="mt-5 w-full py-3.5 text-[10px] uppercase tracking-widest font-bold bg-gray-900 text-white rounded-full hover:bg-black transition-all shadow-sm flex items-center justify-center gap-2">
+          <span>✨</span> Generate Pesan
+        </button>
+      </div>
+
+      <!-- View: Loading -->
+      <div id="ai-view-loading" class="hidden px-6 py-12 flex flex-col items-center justify-center text-center">
+        <div class="w-8 h-8 border-2 border-gray-100 border-t-[#d4a373] rounded-full animate-spin mb-5"></div>
+        <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">AI sedang menulis...</p>
+        <p class="text-[9px] text-gray-300 mt-1 italic">Sebentar ya, lagi merangkai kata-kata ✨</p>
+      </div>
+
+      <!-- View: Result -->
+      <div id="ai-view-result" class="hidden px-6 py-6">
+        <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block mb-3">Hasil dari AI :</label>
+        <div class="relative">
+          <div id="ai-result-text"
+            class="w-full p-4 bg-white border border-[#d4a373]/20 rounded-xl text-[14px] leading-relaxed text-gray-800 min-h-[100px] max-h-[280px] overflow-y-auto"
+            style="font-family: 'Caveat', cursive; white-space: pre-wrap;"></div>
+        </div>
+        <div class="flex gap-3 mt-5">
+          <button id="btn-ai-retry"
+            class="flex-1 py-3 text-[9px] uppercase tracking-widest font-bold border border-gray-200 rounded-full text-gray-600 hover:border-black hover:text-black transition-all">
+            Coba Lagi
+          </button>
+          <button id="btn-ai-apply"
+            class="flex-1 py-3 text-[9px] uppercase tracking-widest font-bold bg-[#d4a373] text-white rounded-full hover:bg-[#c4956a] transition-all shadow-sm">
+            ✓ Gunakan Pesan Ini
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- External Libraries for QR Code -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -798,6 +879,7 @@
   <script src="js/preview.js?v=2"></script>
   <script src="js/publisher.js?v=2"></script>
   <script src="js/studio.js?v=2"></script>
+  <script src="js/gemini.js?v=2"></script>
 
   <!-- Cloudflare Web Analytics -->
   <script defer src='https://static.cloudflareinsights.com/beacon.min.js'

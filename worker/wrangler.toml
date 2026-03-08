@@ -8,14 +8,14 @@
 #    wrangler secret put ADMIN_SECRET
 # ============================================================
 
-name = "for-you-always-api"
+name = "valentine-upload"
 main = "worker.js"
 compatibility_date = "2024-01-01"
 
 # R2 Bucket — Penyimpanan foto & audio
 [[r2_buckets]]
 binding = "BUCKET"
-bucket_name = "for-you-always-files"
+bucket_name = "valentine-upload"
 
 # KV Namespace — Database config studio & gift
 [[kv_namespaces]]

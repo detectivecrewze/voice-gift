@@ -295,6 +295,106 @@ var index_default = {
       });
     }
 
+    // ── POST /generate-ai — Proxy aman ke Google Gemini API ─
+    // API Key TIDAK pernah terekspos ke browser: hanya disimpan di Cloudflare Secret.
+    if (request.method === "POST" && url.pathname === "/generate-ai") {
+      try {
+        const apiKey = env.GEMINI_API_KEY;
+        if (!apiKey) {
+          return new Response(JSON.stringify({ error: "GEMINI_API_KEY belum dikonfigurasi di Cloudflare Secrets." }), {
+            status: 503,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const body = await request.json();
+        const userPrompt = body.prompt;
+        const requestedTone = body.tone || 'romantis'; // Default ke romantis jika kosong
+
+        if (!userPrompt || typeof userPrompt !== "string" || userPrompt.trim().length === 0) {
+          return new Response(JSON.stringify({ error: "Prompt tidak boleh kosong." }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        // Tentukan gaya bahasa berdasarkan pilihan user
+        let toneInstruction = "";
+        switch (requestedTone) {
+          case 'lucu':
+            toneInstruction = "Penulisan bergaya LUCU, SANTAI, dan BERCANDA. Gunakan bahasa gaul anak muda Indonesia, buat pembaca tersenyum atau tertawa kecil. Jangan terlalu serius atau baku.";
+            break;
+          case 'santai':
+            toneInstruction = "Penulisan bergaya SANTAI dan BERSAHABAT. Gunakan kata ganti 'aku' dan 'kamu'. Mengalir natural seperti ngobrol santai dengan teman dekat atau pacar di cafe.";
+            break;
+          case 'tulus':
+            toneInstruction = "Penulisan bergaya FORMAL TAPI TULUS. Gunakan bahasa Indonesia yang baik, sopan, namun tetap menyentuh hati dan sarat makna mendalam. Cocok untuk orang tua, guru, atau atasan.";
+            break;
+          case 'romantis':
+          default:
+            toneInstruction = "Penulisan bergaya ROMANTIS ANAK MUDA (usia SMA sampai 27 tahun). Gunakan bahasa gaul kasual sehari-hari tapi rapi (selalu gunakan 'Aku' dan 'Kamu'). Buat pesannya sangat manis, hangat, dan *green flag*, tapi JANGAN terlalu puitis, JANGAN kaku, dan JANGAN cringe/lebay. Bicara seperti pacar yang suportif.";
+            break;
+        }
+
+        const systemInstruction = `Kamu adalah penulis surat/pesan untuk kado digital "For You, Always".
+Tugasmu: Tuliskan pesan rahasia yang menyesuaikan dengan gaya berikut: [${toneInstruction}]
+ATURAN WAJIB:
+1. Panjang pesan harus berkisar antara 60 hingga 80 kata (sekitar 400-500 karakter).
+2. Tulis hanya dalam 1 PARAGRAF yang padat dan bermakna.
+3. DILARANG KERAS memotong tulisan di tengah kalimat! Pastikan surat diakhiri dengan tanda titik.
+4. Buang format markdown (tanpa asterisk, bold, atau pagar).
+5. Langsung isi pesan tanpa ada ucapan pengantar.`;
+
+        // Untuk API v1 stabil, gabungkan system instruction ke dalam pesan utama
+        const combinedPrompt = `${systemInstruction}\n\n[INSTRUKSI/TEMA DARI PENGGUNA:]\n${userPrompt.trim()}`;
+
+        const geminiPayload = {
+          contents: [{ 
+            role: "user", 
+            parts: [{ text: combinedPrompt }] 
+          }],
+          generationConfig: {
+            maxOutputTokens: 8192,
+            temperature: 0.85,
+            topP: 0.95
+          }
+        };
+
+        const geminiResponse = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${apiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(geminiPayload)
+          }
+        );
+
+        if (!geminiResponse.ok) {
+          const errText = await geminiResponse.text();
+          console.error("[Gemini API Error]", geminiResponse.status, errText);
+          // Mengembalikan raw error text dari Google agar kita tahu penyebab pastinya (invalid key, disabled api, dll)
+          return new Response(JSON.stringify({ error: `Gemini API (Status ${geminiResponse.status}): ${errText.substring(0, 100)}...` }), {
+            status: 502,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const geminiData = await geminiResponse.json();
+        const generatedText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+        return new Response(JSON.stringify({ success: true, text: generatedText.trim() }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+
+      } catch (error) {
+        console.error("[generate-ai] Error:", error);
+        return new Response(JSON.stringify({ error: error.message || "Gagal menghubungi AI." }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+    }
+
     // ── GET /{filename} — Proxy file lama dari R2 ───────────
     // Semua URL foto/audio customer lama yang masih pakai domain workers.dev
     // akan disajikan langsung oleh Worker untuk menghindari isu CORS/Cache saat redirect.
