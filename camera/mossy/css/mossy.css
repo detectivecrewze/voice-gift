@@ -1679,3 +1679,29 @@ body::after {
     width: 100%;
     height: auto;
 }
+
+/* ── Desktop Optimization: Scale up UI (Simulating 125% zoom) ── */
+@media (min-width: 1024px) {
+    .digicam-container, 
+    .password-card, 
+    .error-container {
+        transform: scale(1.22); /* Near 125% zoom */
+        transform-origin: center;
+        transition: transform 0.3s ease;
+    }
+    
+    /* Ensure no clipping when scaled */
+    .voice-section {
+        padding: 80px 0;
+    }
+    
+    .fullscreen-center {
+        padding: 50px;
+    }
+
+    /* Keep watermark approachable */
+    .watermark-badge {
+        top: 32px;
+        right: 32px;
+    }
+}
