@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Studio Curator — Voices, Always for you.</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- Dependencies -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+
+  <!-- Global App Config -->
+  <script>
+    window.APP_CONFIG = {
+      // Gunakan server Cloudflare yang sudah jalan (Valentine Upload)
+      apiBaseUrl: 'https://valentine-upload.aldoramadhan16.workers.dev'
+    };
+  </script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&display=swap">
+
+  <!-- Vercel Analytics -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+
+</head>
+
+<body class="bg-[#fcfaf7]">
+
+  <!-- Loading State -->
+  <div id="state-loading" class="fixed inset-0 z-[200] flex items-center justify-center bg-[#fcfaf7]">
+    <div class="text-center">
+      <div class="w-12 h-12 border-2 border-gray-100 border-t-[#d4a373] rounded-full animate-spin mx-auto mb-4"></div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div id="state-error" class="hidden fixed inset-0 z-[200] flex items-center justify-center bg-[#fcfaf7] p-8">
+    <div class="max-w-xs text-center">
+      <h2 class="text-2xl text-serif italic mb-2">Link tidak ditemukan</h2>
+      <p class="text-xs text-gray-500 leading-relaxed mb-8 uppercase tracking-widest">Silakan periksa kembali tautan
+        anda.</p>
+      <a href="/" class="text-[10px] uppercase tracking-widest border-b border-black pb-1">Beranda</a>
+    </div>
+  </div>
+
+  <!-- Published State -->
+  <div id="state-published" class="hidden fixed inset-0 z-[200] flex items-center justify-center bg-[#fcfaf7] p-8">
+    <div class="max-w-sm text-center">
+      <h2 class="text-2xl text-serif italic mb-2">Kado sudah dipublish</h2>
+      <p class="text-xs text-gray-500 mb-8 uppercase tracking-widest">Konten ini sudah tidak dapat diubah lagi.</p>
+      <a id="published-gift-link" href="#" class="btn-premium inline-block">Lihat Hasil</a>
+    </div>
+  </div>
+
+  <!-- Studio Password Gate -->
+  <div id="state-auth" class="hidden fixed inset-0 z-[300] flex items-center justify-center p-6">
+    <div class="absolute inset-0 bg-white/95 backdrop-blur-md"></div>
+    <div class="relative max-w-sm w-full text-center">
+      <h2 class="text-3xl text-serif italic mb-2">Restricted Studio</h2>
+      <p class="text-[10px] uppercase tracking-[0.3em] text-gray-400 mb-12">Project ini dilindungi password</p>
+
+      <div class="mb-12">
+        <input id="studio-pass-input" type="password" placeholder="••••••••"
+          class="w-full text-center text-sm border-b border-gray-100 bg-transparent py-3 focus:outline-none focus:border-black transition-all placeholder:text-gray-200"
+          autocomplete="off" />
+        <p id="studio-pass-error" class="text-[9px] text-rose-600 mt-2 hidden font-bold">Password salah.</p>
+      </div>
+
+      <button id="btn-unlock-studio" class="btn-premium w-full shadow-lg">Buka Editor</button>
+    </div>
+  </div>
+  <!-- Main Studio -->
+  <main id="state-studio" class="hidden">
+
+    <div id="editor-panel">
+
+      <header class="text-center mb-24">
+        <h1 class="text-4xl italic-title">Curation Studio</h1>
+        <p class="text-[10px] uppercase tracking-[0.4em] text-gray-400 mt-4">For you, Always.</p>
+      </header>
+
+      <!-- 1. Format & Theme Selection -->
+      <section class="section-card mb-12 overflow-hidden">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-[10px] uppercase tracking-[0.4em] text-gray-400 font-bold mb-1">Format Kado</h2>
+          <button onclick="Studio.toggleSection('format')" id="toggle-btn-format" class="section-toggle-btn"
+            title="Sembunyikan / Tampilkan">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+        </div>
+        <div class="section-body" id="section-body-format">
+          <div class="section-body-inner">
+
+            <!-- Premium Segmented Control (Apple-style) -->
+            <div class="relative flex p-1 bg-gray-100 rounded-xl mb-8 w-full max-w-sm mx-auto sm:mx-0">
+              <!-- Active Background Indicator -->
+              <div id="tab-active-indicator"
+                class="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-in-out transform translate-x-0">
+              </div>
+
+              <button id="tab-btn-musicbox" onclick="Studio.switchThemeTab('musicbox')"
+                class="relative z-10 flex-1 py-3 text-[10px] uppercase tracking-widest font-extrabold transition-all duration-300 text-black">
+                Music Box
+              </button>
+              <button id="tab-btn-camera" onclick="Studio.switchThemeTab('camera')"
+                class="relative z-10 flex-1 py-3 text-[10px] uppercase tracking-widest font-extrabold transition-all duration-300 text-gray-400">
+                Film Camera
+              </button>
+            </div>
+
+            <!-- Panel: Music Box Themes -->
+            <div id="tab-panel-musicbox" class="transition-all duration-300">
+              <div class="flex items-center gap-3 mb-5">
+                <span class="text-[8px] uppercase tracking-[0.3em] text-gray-400 font-bold whitespace-nowrap">Pilihan
+                  Tema
+                  Warna</span>
+                <div class="h-px flex-1 bg-gray-100"></div>
+              </div>
+              <div id="theme-selector-musicbox" class="flex flex-wrap gap-3 mb-6">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+
+            <!-- Panel: Camera Themes -->
+            <div id="tab-panel-camera" class="hidden transition-all duration-300">
+              <div class="flex items-center gap-3 mb-5">
+                <span class="text-[8px] uppercase tracking-[0.3em] text-gray-400 font-bold whitespace-nowrap">Model
+                  Lensa &
+                  Frame</span>
+                <div class="h-px flex-1 bg-gray-100"></div>
+              </div>
+              <div id="theme-selector-camera" class="flex flex-wrap gap-3 mb-6">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+
+            <div class="pt-6 border-t border-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p class="text-[9px] text-gray-400 italic">Klik tombol di bawah untuk melihat hasil visual kado kamu
+                secara
+                utuh.</p>
+              <button onclick="Preview.openDemo()"
+                class="group w-full sm:w-auto text-[9px] uppercase tracking-widest px-8 py-4 bg-gray-900 text-white rounded-full hover:bg-black transition-all font-bold flex items-center justify-center gap-3 shadow-xl shadow-black/10">
+                <span>Lihat Contoh Kado (Demo)</span>
+                <svg class="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                  </path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div><!-- end section-body-inner / section-body for format -->
+      </section>
+
+      <!-- 2. Gallery Section in a Box -->
+      <section class="section-card mb-12">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div class="flex items-start gap-3 flex-1">
+            <div class="flex-1">
+              <h2 class="text-xs uppercase tracking-[0.3em] text-gray-600 font-bold mb-1">Galeri Kenangan</h2>
+              <p class="text-[8px] text-[#d4a373] uppercase tracking-[0.2em] font-bold">✨ Maksimal 15 Foto</p>
+            </div>
+            <button onclick="Studio.toggleSection('gallery')" id="toggle-btn-gallery" class="section-toggle-btn mt-1"
+              title="Sembunyikan / Tampilkan">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 mt-2 sm:mt-0">
+            <button onclick="Studio.openHintModal()"
+              class="text-[9px] uppercase tracking-[0.2em] px-4 py-2 border border-gray-200 text-gray-600 rounded-full hover:border-black hover:text-black transition shadow-sm bg-white whitespace-nowrap flex items-center gap-1.5">
+              <span>💡</span> Panduan
+            </button>
+            <button id="btn-pick-photos"
+              class="text-[9px] uppercase tracking-[0.2em] px-4 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition shadow-sm whitespace-nowrap">
+              + Tambah Foto</button>
+          </div>
+          <input id="file-input-photos" type="file" multiple accept="image/*" class="hidden" />
+        </div>
+
+        <div class="section-body" id="section-body-gallery">
+          <div class="section-body-inner">
+            <div id="photo-dropzone"
+              class="border-2 border-dashed border-gray-100 rounded-2xl p-16 text-center transition-all hover:bg-white hover:border-[#d4a373] cursor-pointer bg-gray-50/50">
+              <p class="text-[9px] uppercase tracking-[0.3em] text-gray-500 font-medium">Letakkan foto anda di sini</p>
+            </div>
+
+            <!-- Reorder & Caption Hints -->
+            <div id="hints-container" class="mt-4 flex flex-col gap-2">
+              <p id="reorder-hint" class="hidden text-[10px] text-gray-400 italic">
+                * Tekan dan geser Tombol Garis 2 di foto untuk mengatur urutan.
+              </p>
+              <p id="caption-hint" class="hidden text-[10px] text-[#d4a373] italic font-medium">
+                * Menambahkan teks (caption) di setiap foto bersifat opsional. Boleh dikosongkan.
+              </p>
+            </div>
+
+            <div id="photo-grid" class="mt-8">
+              <!-- Photos rendered by uploader.js -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Ambient Atmosphere in a Box -->
+      <section class="section-card mb-12">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-xs uppercase tracking-[0.3em] text-gray-600 font-bold mb-1">Suasana Latar (Ambient)</h2>
+            <p class="text-[8px] text-[#d4a373] uppercase tracking-[0.2em] font-bold">✨ Suara yang menemaninya mendengar
+              pesanmu</p>
+          </div>
+          <button onclick="Studio.toggleSection('ambient')" id="toggle-btn-ambient" class="section-toggle-btn"
+            title="Sembunyikan / Tampilkan">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+        </div>
+        <div class="section-body" id="section-body-ambient">
+          <div class="section-body-inner">
+
+            <!-- Mute / Tanpa Suara row -->
+            <div class="mb-5">
+              <div id="ambient-mute-btn-wrap" class="inline-flex">
+                <!-- Rendered by studio.js -->
+              </div>
+            </div>
+
+            <!-- Tab Header -->
+            <div class="relative flex mb-5 bg-gray-100 rounded-full p-1 max-w-xs">
+              <div id="ambient-tab-indicator"
+                class="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-white rounded-full shadow-sm transition-transform duration-200">
+              </div>
+              <button id="ambient-tab-btn-suasana" onclick="Studio.switchAmbientTab('suasana')"
+                class="relative z-10 flex-1 text-[9px] uppercase tracking-widest font-bold py-2 px-4 rounded-full transition-colors text-black">
+                🌿 Suasana
+              </button>
+              <button id="ambient-tab-btn-lagu" onclick="Studio.switchAmbientTab('lagu')"
+                class="relative z-10 flex-1 text-[9px] uppercase tracking-widest font-bold py-2 px-4 rounded-full transition-colors text-gray-400">
+                🎶 Lagu
+              </button>
+            </div>
+
+            <!-- Tab: Suasana -->
+            <div id="ambient-tab-panel-suasana" class="flex flex-wrap gap-3 mb-4">
+              <!-- Rendered by studio.js -->
+            </div>
+
+            <!-- Tab: Lagu -->
+            <div id="ambient-tab-panel-lagu" class="hidden flex flex-wrap gap-3 mb-4">
+              <!-- Rendered by studio.js -->
+            </div>
+
+            <input id="file-input-music" type="file" accept="audio/mp3,audio/mpeg,audio/m4a" class="hidden" />
+            <div id="ambient-upload-hint"
+              class="hidden mt-4 p-4 rounded-2xl bg-white border border-gray-100 shadow-sm max-w-sm">
+              <div class="space-y-2">
+                <p class="text-[10px] text-gray-800 font-bold uppercase tracking-widest">Aturan Upload Musik Sendiri :
+                </p>
+                <p class="text-[9px] text-gray-500 leading-relaxed">
+                  Format: MP3/M4A. Maksimal 2x upload. Ukuran File maks 6MB.
+                  Gunakan <a href="https://www.freeconvert.com/mp3-compressor" target="_blank"
+                    class="text-black underline underline-offset-2 hover:opacity-70 transition-opacity font-bold">Compressor</a>
+                  jika ukuran terlalu besar.
+                </p>
+              </div>
+            </div>
+
+            <p class="text-[10px] text-gray-400 mt-3 italic leading-relaxed">
+              * Suasana & Musik diputar dengan volume rendah agar pesan suara utama terdengar jernih. <strong
+                class="not-italic font-semibold text-gray-500">Suara latar akan terus berputar (loop) tanpa
+                batas</strong> — bahkan setelah voice note selesai diputar — sampai penerima menutup halamannya sendiri.
+            </p>
+          </div>
+        </div><!-- end section-body-inner / section-body for ambient -->
+      </section>
+
+      <!-- 4. Voice Studio in a Box -->
+      <section class="section-card mb-24">
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="text-xs uppercase tracking-[0.3em] text-gray-600 font-bold">Studio Suara</h2>
+          <button onclick="Studio.toggleSection('voice')" id="toggle-btn-voice" class="section-toggle-btn"
+            title="Sembunyikan / Tampilkan">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+        </div>
+        <div class="section-body" id="section-body-voice">
+          <div class="section-body-inner">
+
+            <div id="voice-recorder-ui" class="py-12">
+              <!-- VOICE RECORDING MODE -->
+              <div id="voice-mode-container" class="animate-in fade-in duration-500">
+                <!-- Content is similar, but contained in section-card -->
+
+                <!-- IDLE -->
+                <div id="voice-state-idle" class="flex flex-col items-center">
+                  <button id="btn-start-record"
+                    class="w-16 h-16 rounded-full border border-gray-100 flex items-center justify-center transition-all hover:scale-105 active:scale-95 group">
+                    <div
+                      class="w-10 h-10 bg-black rounded-full transition-all group-hover:bg-[#d4a373] flex items-center justify-center">
+                      <span class="text-white text-xs">REC</span>
+                    </div>
+                  </button>
+                  <p class="text-[9px] uppercase tracking-[0.2em] text-gray-400 mt-8">Klik untuk merekam pesan</p>
+
+                  <div class="mt-12">
+                    <button id="btn-upload-audio"
+                      class="text-[10px] uppercase tracking-widest text-gray-500 hover:text-black font-bold">Atau upload
+                      file
+                      audio</button>
+                    <input id="file-input-audio" type="file" accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.wma"
+                      class="hidden" />
+                  </div>
+                </div>
+
+                <!-- RECORDING -->
+                <div id="voice-state-recording" class="hidden">
+                  <div class="waveform-container" id="waveform-bars"></div>
+                  <div class="flex flex-col items-center">
+                    <span id="record-timer" class="text-2xl font-light tracking-[0.2em] tabular-nums">0:00</span>
+                    <button id="btn-stop-record"
+                      class="mt-12 text-[9px] uppercase tracking-[0.3em] font-bold text-rose-500 flex items-center gap-2">
+                      <span class="w-1.5 h-1.5 bg-rose-500 rounded-full pulse-record"></span> Hentikan
+                    </button>
+                  </div>
+                </div>
+
+                <!-- PREVIEW -->
+                <div id="voice-state-preview" class="hidden flex flex-col items-center">
+                  <div class="waveform-container px-12 w-full">
+                    <div
+                      class="mb-4 flex justify-between text-[9px] uppercase tracking-widest text-[#d4a373] font-bold">
+                      <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-[#d4a373] rounded-full"></span>
+                        Rekaman Selesai</span>
+                      <span id="preview-time">0:00</span>
+                    </div>
+                    <div class="w-full h-0.5 bg-gray-100 rounded-full relative">
+                      <div id="preview-progress-fill" class="absolute h-full bg-black transition-all" style="width: 0%">
+                      </div>
+                    </div>
+                  </div>
+                  <p class="text-[8px] uppercase tracking-[0.2em] text-gray-400 mt-6 mb-2">Klik "Simpan" agar tidak
+                    hilang
+                  </p>
+                  <div class="flex items-center gap-12 mt-4">
+                    <button id="btn-preview-play"
+                      class="text-[10px] uppercase tracking-widest bg-gray-50 px-4 py-2 rounded">Putar</button>
+                    <button id="btn-rerecord"
+                      class="text-[10px] uppercase tracking-widest text-gray-500 font-medium">Ulang</button>
+                    <button id="btn-confirm-recording"
+                      class="text-[10px] uppercase tracking-widest font-bold text-[#d4a373] px-6 py-3 border border-[#d4a373] rounded-full hover:bg-[#d4a373]/5 transition-all">✓
+                      Simpan Rekaman</button>
+                  </div>
+
+                  <!-- Volume Controls for Preview -->
+                  <div class="mt-12 flex flex-col gap-6 w-full max-w-[280px]">
+                    <div class="space-y-3">
+                      <div
+                        class="flex justify-between items-center text-[8px] uppercase tracking-widest text-gray-400 font-bold">
+                        <span>Vol. Suara Utama</span>
+                        <span id="label-voice-vol">100%</span>
+                      </div>
+                      <input type="range" id="slider-voice-vol" min="0" max="1" step="0.05" value="1"
+                        class="volume-slider" />
+                    </div>
+                    <div class="space-y-3">
+                      <div
+                        class="flex justify-between items-center text-[8px] uppercase tracking-widest text-gray-400 font-bold">
+                        <span>Vol. Musik Latar</span>
+                        <span id="label-ambient-vol">10%</span>
+                      </div>
+                      <input type="range" id="slider-ambient-vol" min="0" max="0.5" step="0.01" value="0.1"
+                        class="volume-slider" />
+                    </div>
+
+                    <button id="btn-combined-preview"
+                      class="mt-4 flex items-center justify-center gap-2 py-3 px-6 rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-all group">
+                      <span class="text-xs group-hover:scale-110 transition-transform">🎧</span>
+                      <span class="text-[9px] uppercase tracking-widest font-bold text-gray-600">Dengarkan dengan Musik
+                        Latar</span>
+                    </button>
+
+                    <p class="text-[10px] text-gray-400 mt-4 italic text-center">
+                      * Rekomendasi: Vol. Suara Utama 80% & Vol. Musik Latar 10% agar pesan Anda terdengar jernih.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- SAVED -->
+                <div id="voice-state-saved"
+                  class="hidden flex flex-col items-center animate-in fade-in slide-in-from-bottom-2 duration-500">
+                  <div class="w-12 h-12 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-6">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </div>
+                  <p class="text-[10px] uppercase tracking-widest mb-4 font-bold text-green-600">Audio Berhasil
+                    Tersimpan! ✨
+                  </p>
+                  <div class="w-48 mb-6">
+                    <div class="flex justify-between text-[8px] text-gray-300 uppercase tracking-widest mb-2">
+                      <span>Siap Digunakan</span>
+                      <span id="saved-time">0:00</span>
+                    </div>
+                    <div class="w-full h-0.5 bg-gray-100 rounded-full relative">
+                      <div id="saved-progress-fill" class="absolute h-full bg-[#d4a373]" style="width: 0%"></div>
+                    </div>
+                  </div>
+                  <div class="flex gap-8">
+                    <button id="btn-saved-play"
+                      class="text-[9px] uppercase tracking-widest border border-gray-100 px-6 py-2 rounded-full hover:bg-white transition-all">Dengarkan</button>
+                    <button id="btn-delete-voice"
+                      class="text-[9px] uppercase tracking-widest text-gray-500 font-medium">Hapus
+                      & Rekam
+                      Ulang</button>
+                  </div>
+
+                  <!-- Volume Controls for Saved -->
+                  <div class="mt-12 flex flex-col gap-6 w-full max-w-[280px]">
+                    <div class="space-y-3">
+                      <div
+                        class="flex justify-between items-center text-[8px] uppercase tracking-widest text-gray-400 font-bold">
+                        <span>Vol. Suara Utama</span>
+                        <span id="label-voice-vol-saved">100%</span>
+                      </div>
+                      <input type="range" id="slider-voice-vol-saved" min="0" max="1" step="0.05" value="1"
+                        class="volume-slider" />
+                    </div>
+                    <div class="space-y-3">
+                      <div
+                        class="flex justify-between items-center text-[8px] uppercase tracking-widest text-gray-400 font-bold">
+                        <span>Vol. Musik Latar</span>
+                        <span id="label-ambient-vol-saved">10%</span>
+                      </div>
+                      <input type="range" id="slider-ambient-vol-saved" min="0" max="0.5" step="0.01" value="0.1"
+                        class="volume-slider" />
+                    </div>
+
+                    <button id="btn-combined-preview-saved"
+                      class="mt-4 flex items-center justify-center gap-2 py-3 px-6 rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-all group">
+                      <span class="text-xs group-hover:scale-110 transition-transform">🎧</span>
+                      <span class="text-[9px] uppercase tracking-widest font-bold text-gray-600">Dengarkan dengan Musik
+                        Latar</span>
+                    </button>
+
+                    <p class="text-[10px] text-gray-400 mt-4 italic text-center">
+                      * Rekomendasi: Vol. Suara Utama 80% & Vol. Musik Latar 10% agar pesan Anda terdengar jernih.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- end section-body-inner / section-body for voice -->
+      </section>
+
+
+      <!-- 5. Pesan Rahasia -->
+      <section id="section-pesan-rahasia" class="section-card mb-12">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
+          <div class="flex items-start gap-3 flex-1">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <h2 class="text-xs uppercase tracking-[0.3em] text-gray-600 font-bold">Pesan Rahasia</h2>
+                <span
+                  class="text-[8px] uppercase tracking-widest font-bold px-2 py-0.5 bg-black text-white rounded-full">✦
+                  Opsional</span>
+              </div>
+              <p class="text-[8px] text-[#d4a373] uppercase tracking-[0.2em] font-bold">✨ Muncul setelah voice note
+                selesai diputar</p>
+            </div>
+            <button onclick="Studio.toggleSection('secret')" id="toggle-btn-secret" class="section-toggle-btn mt-1"
+              title="Sembunyikan / Tampilkan">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="section-body" id="section-body-secret">
+          <div class="section-body-inner">
+
+            <!-- Info hint -->
+            <div class="mb-8 p-4 rounded-2xl bg-[#fdf9f4] border border-[#d4a373]/15">
+              <p class="text-[9px] text-gray-500 leading-relaxed italic">
+                Ini adalah fitur <strong>opsional</strong>. Setelah voice note selesai diputar, sebuah foto polaroid dan pesan rahasia akan muncul
+                khusus untuk penerima kado. Biarkan kosong jika tidak ingin menggunakan fitur ini.
+              </p>
+            </div>
+
+            <!-- Upload Foto Rahasia -->
+            <div class="mb-8">
+              <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block mb-4">Foto Rahasia (1
+                Foto)</label>
+
+              <!-- Empty state / dropzone -->
+              <div id="polaroid-photo-dropzone" class="relative cursor-pointer">
+                <div id="polaroid-photo-zone-empty"
+                  class="border-2 border-dashed border-gray-100 rounded-2xl p-10 text-center transition-all hover:border-[#d4a373] hover:bg-white bg-gray-50/50">
+                  <div class="text-2xl mb-3">📷</div>
+                  <p class="text-[9px] uppercase tracking-[0.2em] text-gray-400 font-medium">Klik atau seret foto ke
+                    sini
+                  </p>
+                  <p class="text-[8px] text-gray-300 mt-1">Foto ini tidak akan tampil di slideshow utama</p>
+                </div>
+
+                <!-- Preview state (hidden until upload) -->
+                <div id="polaroid-photo-preview-wrap" class="hidden relative">
+                  <div class="relative rounded-2xl overflow-hidden bg-white"
+                    style="aspect-ratio: 1/1; max-width: 200px;">
+                    <img id="polaroid-photo-preview" src="" alt="Foto Rahasia" class="w-full h-full object-cover" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                  </div>
+                  <button id="btn-remove-polaroid-photo"
+                    class="mt-3 text-[9px] uppercase tracking-widest text-gray-400 hover:text-red-500 font-bold transition-colors flex items-center gap-1">
+                    <span>✕</span> Hapus & Ganti Foto
+                  </button>
+                </div>
+              </div>
+
+              <input id="file-input-polaroid" type="file" accept="image/*" class="hidden" />
+            </div>
+
+            <!-- Textarea Surat -->
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold">Surat Tulisan Tangan</label>
+                <div class="flex items-center gap-3">
+                  <button id="btn-open-ai-generator"
+                    class="flex items-center gap-1.5 text-[8px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full border border-[#d4a373]/40 text-[#b58756] bg-[#fdf9f4] hover:bg-[#d4a373]/10 hover:border-[#d4a373] transition-all"
+                    title="Buat pesan dengan bantuan AI">
+                    <span>✨</span> Buat dengan AI
+                  </button>
+                  <span id="polaroid-letter-count" class="text-[8px] text-gray-300 font-mono">0 / 800</span>
+                </div>
+              </div>
+
+              <textarea id="polaroid-letter-input"
+                placeholder="Hei kamu,&#10;&#10;Aku mau bilang sesuatu yang selalu aku simpan..." maxlength="800"
+                rows="7"
+                class="w-full resize-none border border-gray-100 rounded-2xl p-5 text-[15px] leading-relaxed focus:outline-none focus:border-[#d4a373] transition-all bg-white text-gray-800 placeholder:text-gray-200"
+                style="font-family: 'Caveat', cursive;"></textarea>
+
+              <p class="text-[9px] text-gray-300 mt-2 italic">* Teks akan tampil dengan gaya tulisan tangan di polaroid
+              </p>
+            </div>
+
+            <!-- Preview Polaroid Button -->
+            <div class="pt-6 border-t border-gray-50 mt-8">
+              <p class="text-[9px] text-gray-400 italic mb-4">Klik tombol di bawah untuk melihat tampilan polaroid (foto
+                rahasia + surat) secara langsung.</p>
+              <button onclick="Preview.openSecretPreview()"
+                class="group w-full sm:w-auto text-[9px] uppercase tracking-widest px-8 py-4 bg-gray-900 text-white rounded-full hover:bg-black transition-all font-bold flex items-center justify-center gap-3 shadow-xl shadow-black/10">
+                <span>📷 Lihat Preview Polaroid</span>
+                <svg class="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3">
+                  </path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div><!-- end section-body-inner / section-body for secret -->
+      </section>
+
+      <!-- 6. Password Settings -->
+      <section class="section-card mb-12">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h2 class="text-xs uppercase tracking-[0.3em] text-gray-600 font-bold mb-1">Pengaturan Password</h2>
+            <p class="text-[8px] text-[#d4a373] uppercase tracking-[0.2em] font-bold">✨ Keamanan Kado & Editor</p>
+          </div>
+          <button onclick="Studio.toggleSection('password')" id="toggle-btn-password" class="section-toggle-btn"
+            title="Sembunyikan / Tampilkan">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+        </div>
+        <div class="section-body" id="section-body-password">
+          <div class="section-body-inner">
+
+            <div class="space-y-8 text-left">
+              <div class="space-y-4">
+                <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block ml-1">Password Kado
+                  (Untuk
+                  Penerima)</label>
+                <input id="input-gift-password" type="text" placeholder="Masukkan password baru..."
+                  class="input-minimal" autocomplete="off" />
+              </div>
+
+              <div class="space-y-4">
+                <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block ml-1">Password Editor
+                  (Studio)</label>
+                <input id="input-studio-password" type="text" placeholder="Ganti password masuk studio..."
+                  class="input-minimal" autocomplete="off" />
+              </div>
+            </div>
+          </div>
+        </div><!-- end section-body-inner / section-body for password -->
+      </section>
+
+      <!-- Floating Action -->
+      <div id="publish-container" class="text-center">
+        <div class="mb-4 space-x-4 flex justify-center items-center">
+          <span id="req-photo"
+            class="text-[8px] uppercase tracking-widest text-gray-600 font-bold flex items-center gap-1">📸 Foto min.
+            6</span>
+          <span id="req-voice"
+            class="text-[8px] uppercase tracking-widest text-gray-600 font-bold flex items-center gap-1">🎙️ Suara min.
+            1</span>
+        </div>
+        <button onclick="Preview.openPreview()"
+          class="w-full py-3 text-[9px] uppercase tracking-widest font-bold bg-gray-800 text-white rounded-full hover:bg-black transition-all shadow-sm mb-3">
+          Lihat Live Preview
+        </button>
+        <button id="btn-publish" class="btn-premium">Publikasikan Kado</button>
+        <div id="autosave-status"
+          class="text-[8px] uppercase tracking-[0.2em] text-gray-500 font-bold mt-4 opacity-0 transition-opacity">
+          Tersimpan
+          otomatis</div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Success Modal -->
+  <div id="modal-success" class="hidden fixed inset-0 z-[300] flex items-center justify-center p-6 overflow-y-auto">
+    <div class="absolute inset-0 bg-white/95 backdrop-blur-md"></div>
+    <div class="relative max-w-sm w-full text-center py-8">
+      <h2 class="text-3xl text-serif italic mb-2">Kado Tercipta</h2>
+      <p class="text-[10px] uppercase tracking-[0.3em] text-gray-600 font-bold mb-8">Siap untuk dikirimkan</p>
+
+      <!-- ═══ Aesthetic QR Code Polaroid Card ═══ -->
+      <div class="flex justify-center mb-8">
+        <div id="qr-export-container"
+          style="background: linear-gradient(160deg, #fffaf5 0%, #fff8f0 50%, #f5efe6 100%); padding: 28px 24px 20px; border-radius: 16px; border: 1px solid rgba(212,174,106,0.2); box-shadow: 0 20px 50px -15px rgba(0,0,0,0.12), 0 4px 12px rgba(212,174,106,0.08); position: relative; max-width: 220px; width: 100%;">
+          <!-- Top accent line -->
+          <div
+            style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 40px; height: 3px; background: linear-gradient(90deg, transparent, #d4a373, transparent); border-radius: 0 0 4px 4px;">
+          </div>
+          <!-- Title -->
+          <p
+            style="font-family: serif; font-style: italic; font-size: 22px; color: #1a1a1a; margin-bottom: 2px; letter-spacing: -0.02em;">
+            For You</p>
+          <p
+            style="font-size: 7px; text-transform: uppercase; letter-spacing: 0.35em; color: #d4a373; font-weight: 600; margin-bottom: 16px;">
+            ✦ scan to open your gift ✦</p>
+          <!-- QR Code -->
+          <div id="qr-code-box"
+            style="background: white; border-radius: 10px; padding: 10px; display: flex; justify-content: center; align-items: center; min-height: 148px; width: 148px; margin: 0 auto; border: 1px solid rgba(0,0,0,0.04); box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);">
+          </div>
+          <!-- Bottom branding -->
+          <p
+            style="font-size: 6px; text-transform: uppercase; letter-spacing: 0.4em; color: #c4b49a; margin-top: 14px; text-align: center;">
+            a memory to keep · voices.</p>
+        </div>
+      </div>
+
+      <!-- Download Barcode Button -->
+      <button id="btn-download-qr"
+        class="w-full mb-6 py-3.5 text-[9px] uppercase tracking-[0.2em] font-bold rounded-lg transition-all flex items-center justify-center gap-2"
+        style="background: linear-gradient(135deg, #d4a373 0%, #c4956a 100%); color: white; border: none; box-shadow: 0 4px 14px rgba(212,174,106,0.35);">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+        </svg>
+        Download Barcode
+      </button>
+
+      <div class="bg-white border border-gray-100 p-4 mb-6 rounded-lg">
+        <span id="modal-gift-url" class="text-[10px] font-mono text-gray-600 font-bold break-all select-all"></span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-8">
+        <button id="btn-copy-link"
+          class="text-[9px] uppercase tracking-widest font-bold border border-black py-3.5 rounded-lg hover:bg-black hover:text-white transition-all">Salin
+          Link</button>
+        <a id="btn-share-whatsapp" href="#" target="_blank"
+          class="text-[9px] uppercase tracking-widest font-bold bg-green-500 text-white py-3.5 rounded-lg flex items-center justify-center hover:bg-green-600 transition-all">WhatsApp</a>
+      </div>
+
+      <a id="btn-view-gift" href="#" target="_blank"
+        class="w-full inline-flex justify-center items-center py-4 text-[10px] uppercase tracking-widest font-extrabold bg-[#1a1a1a] text-white rounded-lg hover:bg-black transition-all shadow-md mt-2">
+        Lihat Hasil
+      </a>
+    </div>
+  </div>
+
+  <!-- Name Input Modal -->
+  <div id="modal-name" class="hidden fixed inset-0 z-[300] flex items-center justify-center p-6">
+    <div class="absolute inset-0 bg-white/95 backdrop-blur-md"></div>
+    <div class="relative max-w-sm w-full">
+      <h2 class="text-3xl text-serif italic mb-2 text-center">Publikasikan Kado</h2>
+      <p
+        class="text-[10px] uppercase tracking-[0.3em] text-gray-600 font-bold mb-4 text-center text-balance leading-relaxed">
+        Kado akan dipublish dengan nama link berikut:</p>
+      <p class="text-[9px] text-gray-500 mb-12 text-center hidden">(Ditetapkan otomatis)</p>
+
+      <div class="mb-10">
+        <input id="input-gift-name" type="text" readonly
+          class="input-minimal text-center lowercase pointer-events-none opacity-50" autocomplete="off" />
+        <p id="name-error" class="text-[9px] text-rose-500 mt-2 text-center hidden">Gunakan huruf, angka, dan tanda
+          hubung saja.</p>
+      </div>
+
+      <!-- Helper Hint for Recipient -->
+      <div class="border border-[#d4a373]/20 bg-[#fcfaf7] rounded-xl p-5 mb-6 text-center shadow-sm">
+        <h3 class="font-bold text-[#b58756] text-[9px] mb-2 uppercase tracking-[0.2em]">
+          Catatan Untuk Si Dia
+        </h3>
+        <p class="text-[9.5px] text-gray-500 leading-relaxed italic">
+          Untuk pengalaman terbaik, sangat disarankan membuka kado ini via <strong>Komputer / Laptop</strong>. Jika
+          menggunakan iPhone, usahakan akses via browser <strong>Google Chrome</strong>.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-4">
+        <button id="btn-confirm-name" class="btn-premium w-full text-center">Lanjutkan & Publish</button>
+        <button id="btn-cancel-name"
+          class="text-[10px] uppercase tracking-widest text-gray-600 font-bold py-2">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hint Modal -->
+  <div id="modal-hint" class="hidden fixed inset-0 z-[400] flex items-center justify-center p-6">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="Studio.closeHintModal()"></div>
+    <div
+      class="relative w-full max-w-sm max-h-[90vh] flex flex-col items-center animate-in fade-in zoom-in-95 duration-300">
+      <button onclick="Studio.closeHintModal()"
+        class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors bg-white/10 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20">
+        ✕
+      </button>
+      <div class="w-full bg-[#fcfaf7] rounded-2xl overflow-hidden shadow-2xl border border-white/20">
+        <div class="p-4 text-center border-b border-gray-100">
+          <h3 class="font-serif italic text-xl">Contoh Tampilan Galeri</h3>
+          <p class="text-[9px] uppercase tracking-widest text-gray-500 mt-1">Pada halaman kado nanti</p>
+        </div>
+        <div class="p-6 flex justify-center bg-gray-50">
+          <!-- TODO: Upload and use a real preview image of the polaroid design -->
+          <div
+            class="relative w-[240px] h-[240px] bg-[#080706] rounded-3xl overflow-hidden shadow-2xl border-[12px] border-black flex items-center">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10"></div>
+            <img src="../assets/1.jpg" class="w-full h-full object-cover filter sepia-[0.1]" alt="Preview">
+            <!-- Simulated Caption -->
+            <div class="absolute bottom-4 left-0 right-0 z-20 text-center px-4">
+              <p class="text-[10px] text-white/90 italic tracking-widest font-serif leading-relaxed text-shadow-md">
+                "Seperti waktu kita berteduh di bawah hujan..."
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 bg-white text-center">
+          <p class="text-[10px] text-gray-600 leading-relaxed italic">
+            Caption yang kamu tulis akan muncul dengan estetik seperti ini di dalam Memory Printer nanti.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"
+    class="hidden fixed left-1/2 -translate-x-1/2 z-[400] transition-all uppercase tracking-[0.2em] text-[9px]"></div>
+
+  <!-- ✨ AI Generator Modal -->
+  <div id="modal-ai-generator" class="hidden fixed inset-0 z-[450] flex items-end sm:items-center justify-center p-0 sm:p-6">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+    <div class="ai-modal-card relative w-full sm:max-w-md bg-[#fcfaf7] rounded-t-3xl sm:rounded-2xl shadow-2xl transition-all duration-250 scale-95 opacity-0 overflow-hidden">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
+        <div>
+          <h3 class="text-sm font-bold text-gray-800">✨ Tulis dengan AI</h3>
+          <p class="text-[9px] uppercase tracking-widest text-gray-400 mt-0.5">Untuk Pesan Rahasia Polaroid</p>
+        </div>
+        <button id="btn-ai-close" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-500 text-sm font-bold">✕</button>
+      </div>
+
+      <!-- View: Input -->
+      <div id="ai-view-input" class="px-6 py-6">
+        <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block mb-3">Instruksi untuk AI</label>
+        <textarea id="ai-prompt-input"
+          placeholder="Contoh: Buatkan pesan anniversary 2 tahun yang romantis dan hangat, untuk pacarku yang namanya Bintang..."
+          rows="4"
+          maxlength="500"
+          class="w-full resize-none border border-gray-200 rounded-xl p-4 text-[13px] leading-relaxed focus:outline-none focus:border-[#d4a373] transition-all bg-white text-gray-800 placeholder:text-gray-300"></textarea>
+        <p class="text-[9px] text-gray-300 mt-2 italic">Semakin detail instruksimu, semakin personal hasilnya.</p>
+        
+        <!-- Tone Selection -->
+        <div class="mt-4">
+          <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block mb-3">Pilih Gaya Bahasa</label>
+          <div class="flex flex-wrap gap-2" id="ai-tone-selector">
+            <button data-tone="romantis" class="px-4 py-2 text-[10px] rounded-full border border-[#d4a373] bg-[#d4a373] text-white font-bold transition-all">Romantis</button>
+            <button data-tone="lucu" class="px-4 py-2 text-[10px] rounded-full border border-gray-200 bg-white text-gray-500 font-bold transition-all hover:border-[#d4a373] hover:text-[#d4a373]">Lucu / Canda</button>
+            <button data-tone="santai" class="px-4 py-2 text-[10px] rounded-full border border-gray-200 bg-white text-gray-500 font-bold transition-all hover:border-[#d4a373] hover:text-[#d4a373]">Santai (Aku/Kamu)</button>
+            <button data-tone="tulus" class="px-4 py-2 text-[10px] rounded-full border border-gray-200 bg-white text-gray-500 font-bold transition-all hover:border-[#d4a373] hover:text-[#d4a373]">Formal & Tulus</button>
+          </div>
+        </div>
+
+        <p id="ai-error-msg" class="text-[9px] text-rose-500 mt-3 font-bold"></p>
+        <button id="btn-ai-generate"
+          class="mt-5 w-full py-3.5 text-[10px] uppercase tracking-widest font-bold bg-gray-900 text-white rounded-full hover:bg-black transition-all shadow-sm flex items-center justify-center gap-2">
+          <span>✨</span> Generate Pesan
+        </button>
+      </div>
+
+      <!-- View: Loading -->
+      <div id="ai-view-loading" class="hidden px-6 py-12 flex flex-col items-center justify-center text-center">
+        <div class="w-8 h-8 border-2 border-gray-100 border-t-[#d4a373] rounded-full animate-spin mb-5"></div>
+        <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold">AI sedang menulis...</p>
+        <p class="text-[9px] text-gray-300 mt-1 italic">Sebentar ya, lagi merangkai kata-kata ✨</p>
+      </div>
+
+      <!-- View: Result -->
+      <div id="ai-view-result" class="hidden px-6 py-6">
+        <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block mb-3">Hasil dari AI :</label>
+        <div class="relative">
+          <div id="ai-result-text"
+            class="w-full p-4 bg-white border border-[#d4a373]/20 rounded-xl text-[14px] leading-relaxed text-gray-800 min-h-[100px] max-h-[280px] overflow-y-auto"
+            style="font-family: 'Caveat', cursive; white-space: pre-wrap;"></div>
+        </div>
+        <div class="flex gap-3 mt-5">
+          <button id="btn-ai-retry"
+            class="flex-1 py-3 text-[9px] uppercase tracking-widest font-bold border border-gray-200 rounded-full text-gray-600 hover:border-black hover:text-black transition-all">
+            Coba Lagi
+          </button>
+          <button id="btn-ai-apply"
+            class="flex-1 py-3 text-[9px] uppercase tracking-widest font-bold bg-[#d4a373] text-white rounded-full hover:bg-[#c4956a] transition-all shadow-sm">
+            ✓ Gunakan Pesan Ini
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- External Libraries for QR Code -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- Scripts -->
+  <script src="../shared/ambient-data.js?v=2"></script>
+  <script src="js/auth.js?v=2"></script>
+  <script src="js/uploader.js?v=2"></script>
+  <script src="js/voice-recorder.js?v=2"></script>
+  <script src="js/autosave.js?v=2"></script>
+  <script src="js/preview.js?v=2"></script>
+  <script src="js/publisher.js?v=2"></script>
+  <script src="js/studio.js?v=2"></script>
+  <script src="js/gemini.js?v=2"></script>
+
+  <!-- Cloudflare Web Analytics -->
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+    data-cf-beacon='{"token": "f1a9652a5cd742ebb421410de70c8527"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+
+</html>

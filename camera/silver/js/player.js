@@ -883,21 +883,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Default test config
-    giftConfig = {
-        photos: [
-            'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=400&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1503803548695-c2a7b4a5b875?q=80&w=400&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1516589091380-5d8e87df6999?q=80&w=400&auto=format&fit=crop'
-        ],
-        message: '',
-        ambient: 'none',
-        voiceNote: null,
-        polaroid_photo: 'https://images.unsplash.com/photo-1516589091380-5d8e87df6999?q=80&w=600&auto=format&fit=crop',
-        polaroid_letter: 'Hei kamu,\n\nAku selalu ingat momen ini. Terima kasih sudah ada di sini, selalu.\n\nSemua hal kecil yang kita lakukan bersama — itu yang paling aku syukuri.\n\nSelalu milikmu,\n— Aku'
-    };
-
-    if (giftIdParam) {
+    // ── STANDALONE CONFIG: Jika ada config.js DAN tidak ada ?to= ──
+    // ?to= SELALU jadi prioritas utama (existing flow tidak terganggu)
+    if (!giftIdParam && window.STANDALONE_CONFIG) {
+        console.log('[Camera] Standalone mode detected — using config.js');
+        giftConfig = window.STANDALONE_CONFIG;
+        const isPreview = params.get('preview') === 'true';
+        if (giftConfig.password && !isPreview) {
+            showState('password');
+        } else {
+            handleAfterLoad();
+        }
+    } else if (giftIdParam) {
         // Cek mode preview dari studio
         if (giftIdParam === 'for-preview') {
             try {
@@ -907,32 +904,42 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (previewConfig && previewConfig.photos && previewConfig.photos.length > 0) {
                         giftConfig = previewConfig;
                         handleAfterLoad();
-                        return;
                     }
                 }
             } catch (e) {
                 console.warn('[Camera] Could not read preview config from sessionStorage:', e);
             }
-            // Fallback ke default config jika tidak ada sessionStorage
-            handleAfterLoad();
-            return;
-        }
-
-        showState('loading');
-        const fetched = await loadGift(giftIdParam);
-        if (fetched) {
-            giftConfig = fetched;
-            const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
-            if (giftConfig.password && !isPreview) {
-                showState('password');
-            } else {
-                handleAfterLoad();
-            }
+            if (!giftConfig || giftConfig === defaultTestConfig) handleAfterLoad();
         } else {
-            showState('error');
+            showState('loading');
+            const fetched = await loadGift(giftIdParam);
+            if (fetched) {
+                giftConfig = fetched;
+                const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
+                if (giftConfig.password && !isPreview) {
+                    showState('password');
+                } else {
+                    handleAfterLoad();
+                }
+            } else {
+                showState('error');
+            }
         }
     } else {
-        // Preview mode / default config (no ?to=)
+        // Default test config (no ?to=, no standalone)
+        giftConfig = {
+            photos: [
+                'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=400&auto=format&fit=crop',
+                'https://images.unsplash.com/photo-1503803548695-c2a7b4a5b875?q=80&w=400&auto=format&fit=crop',
+                'https://images.unsplash.com/photo-1516589091380-5d8e87df6999?q=80&w=400&auto=format&fit=crop'
+            ],
+            message: '',
+            ambient: 'none',
+            voiceNote: null,
+            polaroid_photo: 'https://images.unsplash.com/photo-1516589091380-5d8e87df6999?q=80&w=600&auto=format&fit=crop',
+            polaroid_letter: 'Hei kamu,\n\nAku selalu ingat momen ini. Terima kasih sudah ada di sini, selalu.\n\nSemua hal kecil yang kita lakukan bersama — itu yang paling aku syukuri.\n\nSelalu milikmu,\n— Aku'
+        };
+        // Preview mode / default config
         handleAfterLoad();
     }
 

@@ -81,8 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // 1. Create New Project
-    btnCreate?.addEventListener('click', async () => {
+    // 1. Create New Project (Reguler & Premium)
+    const btnCreatePremium = document.getElementById('btn-create-premium');
+
+    const handleCreateProject = async (isPremium, btnEl) => {
         const customName = document.getElementById('input-new-token')?.value.trim();
         const studioPass = document.getElementById('input-studio-pass')?.value.trim();
         const giftPass = document.getElementById('input-gift-pass')?.value.trim();
@@ -104,9 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // ── INITIAL PERSISTENCE ──────────────────────────────
-        btnCreate.innerText = 'Mengecek...';
-        btnCreate.style.opacity = '0.5';
-        btnCreate.disabled = true;
+        const originalText = btnEl.innerText;
+        btnEl.innerText = 'Mengecek...';
+        btnEl.style.opacity = '0.5';
+        btnEl.disabled = true;
 
         try {
             // ── DUPLICATE CHECK: Cek apakah nama sudah ada ──────────────────
@@ -117,15 +120,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (existingData && !existingData.error) {
                     // Project SUDAH ADA → Block dan beritahu user
                     alert(`Nama project "${finalId}" sudah digunakan!\n\nGunakan section "Update Password Project" di bawah untuk mengganti password project yang sudah ada.`);
-                    btnCreate.innerText = 'Buat Project Sekarang';
-                    btnCreate.style.opacity = '1';
-                    btnCreate.disabled = false;
+                    btnEl.innerText = originalText;
+                    btnEl.style.opacity = '1';
+                    btnEl.disabled = false;
                     return;
                 }
             }
 
             // Project TIDAK ADA → Lanjut create baru
-            btnCreate.innerText = 'Menyimpan...';
+            btnEl.innerText = 'Menyimpan...';
 
             // Initial state - REVISED: Include mandatory IDs and default values
             const initialState = {
@@ -140,7 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 studioPassword: studioPass || null,
                 password: giftPass || null,
                 status: 'draft',
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                isPremium: isPremium
             };
 
             const response = await fetch(`${API_BASE_URL}/save-config?id=${finalId}`, {
@@ -160,9 +164,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Delay to ensure KV propagation
         setTimeout(() => {
-            window.location.href = `../studio/${finalId}`;
+            if (isPremium) {
+                window.location.href = `../studio-premium/${finalId}`;
+            } else {
+                window.location.href = `../studio/${finalId}`;
+            }
         }, 600);
-    });
+    };
+
+    btnCreate?.addEventListener('click', () => handleCreateProject(false, btnCreate));
+    btnCreatePremium?.addEventListener('click', () => handleCreateProject(true, btnCreatePremium));
 
     // 2. Access Existing Project
     formAccess?.addEventListener('submit', (e) => {

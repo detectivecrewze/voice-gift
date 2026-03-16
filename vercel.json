@@ -5,6 +5,10 @@
             "destination": "/studio/index.html"
         },
         {
+            "source": "/studio-premium/(.*)",
+            "destination": "/studio-premium/index.html"
+        },
+        {
             "source": "/gift/(.*)",
             "destination": "/gift/index.html"
         },

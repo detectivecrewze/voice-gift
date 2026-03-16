@@ -62,6 +62,24 @@ const initGiftPage = async () => {
   const toId = urlParams.get('to');
   const queryId = urlParams.get('id');
 
+  // ── STANDALONE CONFIG: Jika ada config.js DAN tidak ada ?to= ──
+  // ?to= SELALU jadi prioritas utama (existing flow tidak terganggu)
+  if (!toId && !queryId && window.STANDALONE_CONFIG) {
+    console.log('[Gift] Standalone mode detected — using config.js');
+    const gift = window.STANDALONE_CONFIG;
+
+    const isPreview = urlParams.get('preview') === 'true';
+    const isProtected = !isPreview && gift.password && String(gift.password).trim().length > 0;
+
+    if (isProtected) {
+      _setupPasswordGate(null, gift);
+      showState('state-password');
+    } else {
+      _renderGift(gift);
+    }
+    return;
+  }
+
   // Fallback ke path-based ID jika query param kosong
   const pathParts = window.location.pathname.split('/').filter(Boolean);
   let pathId = null;
@@ -191,7 +209,23 @@ const _setupPasswordGate = (giftId, partialGift) => {
     btn.disabled = true;
 
     try {
-      // Re-fetch with ID — with timeout protection
+      // ── STANDALONE MODE: Cek password secara lokal ──
+      if (!giftId && window.STANDALONE_CONFIG) {
+        if (partialGift.password === password) {
+          _renderGift(partialGift);
+        } else {
+          if (input) {
+            input.classList.add('shake');
+            setTimeout(() => input.classList.remove('shake'), 400);
+            input.value = '';
+            input.focus();
+          }
+          if (errorMsg) errorMsg.classList.remove('hidden');
+        }
+        return;
+      }
+
+      // ── ONLINE MODE: Re-fetch with ID — with timeout protection ──
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 detik
       const urlParams = new URLSearchParams(window.location.search);

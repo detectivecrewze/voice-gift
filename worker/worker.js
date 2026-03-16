@@ -72,7 +72,6 @@ var index_default = {
     }
 
     // ── POST /presign — Generate nama file unik ───────────
-    // Worker hanya buat key — browser upload langsung ke R2
     if (request.method === 'POST' && url.pathname === '/presign') {
       try {
         const { filename, contentType } = await request.json();
@@ -105,7 +104,6 @@ var index_default = {
           });
         }
 
-        // Gembok: cek ukuran file maksimal 10MB
         const contentLength = parseInt(request.headers.get('Content-Length') || '0');
         if (contentLength > 10 * 1024 * 1024) {
           return new Response(JSON.stringify({ error: 'File terlalu besar. Maksimal 10MB.' }), {
@@ -295,13 +293,94 @@ var index_default = {
       });
     }
 
-    // ── POST /generate-ai — Proxy aman ke Google Gemini API ─
-    // API Key TIDAK pernah terekspos ke browser: hanya disimpan di Cloudflare Secret.
+    // ── POST /submit-premium — Terima order premium, kirim notif ke Telegram ─
+    if (request.method === "POST" && url.pathname === "/submit-premium") {
+      try {
+        const body = await request.json();
+
+        // Strip field internal (tidak perlu di config.js)
+        const { id, studioPassword, ...configData } = body;
+
+        // Validasi minimal
+        if (!id) {
+          return new Response(JSON.stringify({ error: "Missing 'id' parameter." }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const BOT_TOKEN = env.TELEGRAM_BOT_TOKEN;
+        const CHAT_ID = env.TELEGRAM_CHAT_ID;
+
+        if (!BOT_TOKEN || !CHAT_ID) {
+          console.error("[submit-premium] TELEGRAM_BOT_TOKEN atau TELEGRAM_CHAT_ID belum dikonfigurasi.");
+          return new Response(JSON.stringify({ error: "Telegram belum dikonfigurasi di server." }), {
+            status: 503,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const TG_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+        const timestamp = new Date().toLocaleString('id-ID', {
+          timeZone: 'Asia/Jakarta',
+          dateStyle: 'short',
+          timeStyle: 'short'
+        });
+
+        // ── Pesan 1: Ringkasan Order ──
+        const msg1 =
+          `🎁 <b>ORDER VOICES PREMIUM BARU</b>\n\n` +
+          `👤 Penerima: <b>${configData.recipientName || '-'}</b>\n` +
+          `🎨 Tema: ${configData.theme || '-'} → folder: <code>${configData._meta?.theme_folder || 'gift'}</code>\n` +
+          `🔑 Gift ID: <code>${id}</code>\n` +
+          `🕐 Waktu: ${timestamp} WIB\n\n` +
+          `📸 Foto: ${configData.photos?.length || 0} foto\n` +
+          `🎵 Voice Note: ${configData.voiceNote?.url ? 'Ada ✅' : 'Tidak ada ❌'}\n` +
+          `🎼 Ambient: ${configData.ambient || 'none'}\n` +
+          `🔒 Password: ${configData.password ? 'Ada ✅' : 'Tidak ada'}\n\n` +
+          `─────────────────\nCek pesan berikutnya untuk config.js`;
+
+        await fetch(TG_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: CHAT_ID, text: msg1, parse_mode: 'HTML' })
+        });
+
+        // ── Pesan 2: Kirim config.js sebagai file download ──
+        const configContent = `window.STANDALONE_CONFIG = ${JSON.stringify(configData, null, 2)};`;
+        const fileName = `config-${id}.js`;
+        const fileCaption = `📋 config.js untuk ${id}\nTaruh di folder: ${configData._meta?.theme_folder || 'gift'}/\nRename jadi config.js lalu deploy ke Vercel.`;
+
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('caption', fileCaption);
+        formData.append('document', new Blob([configContent], { type: 'text/javascript' }), fileName);
+
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
+          method: 'POST',
+          body: formData
+        });
+
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+
+      } catch (error) {
+        console.error("[submit-premium] Error:", error);
+        return new Response(JSON.stringify({ error: error.message || "Gagal memproses order premium." }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+    }
+
+    // ── POST /generate-ai — Proxy aman ke Qwen AI API (Migrated from Gemini) ─
     if (request.method === "POST" && url.pathname === "/generate-ai") {
       try {
-        const apiKey = env.GEMINI_API_KEY;
+        const apiKey = env.QWEN_API_KEY;
         if (!apiKey) {
-          return new Response(JSON.stringify({ error: "GEMINI_API_KEY belum dikonfigurasi di Cloudflare Secrets." }), {
+          return new Response(JSON.stringify({ error: "QWEN_API_KEY belum dikonfigurasi di Cloudflare Secrets." }), {
             status: 503,
             headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
@@ -309,7 +388,7 @@ var index_default = {
 
         const body = await request.json();
         const userPrompt = body.prompt;
-        const requestedTone = body.tone || 'romantis'; // Default ke romantis jika kosong
+        const requestedTone = body.tone || 'romantis';
 
         if (!userPrompt || typeof userPrompt !== "string" || userPrompt.trim().length === 0) {
           return new Response(JSON.stringify({ error: "Prompt tidak boleh kosong." }), {
@@ -318,7 +397,6 @@ var index_default = {
           });
         }
 
-        // Tentukan gaya bahasa berdasarkan pilihan user
         let toneInstruction = "";
         switch (requestedTone) {
           case 'lucu':
@@ -345,42 +423,46 @@ ATURAN WAJIB:
 4. Buang format markdown (tanpa asterisk, bold, atau pagar).
 5. Langsung isi pesan tanpa ada ucapan pengantar.`;
 
-        // Untuk API v1 stabil, gabungkan system instruction ke dalam pesan utama
-        const combinedPrompt = `${systemInstruction}\n\n[INSTRUKSI/TEMA DARI PENGGUNA:]\n${userPrompt.trim()}`;
-
-        const geminiPayload = {
-          contents: [{ 
-            role: "user", 
-            parts: [{ text: combinedPrompt }] 
-          }],
-          generationConfig: {
-            maxOutputTokens: 8192,
-            temperature: 0.85,
-            topP: 0.95
-          }
+        const qwenPayload = {
+          model: "qwen-plus",
+          messages: [
+            { role: "system", content: systemInstruction },
+            { role: "user", content: `[INSTRUKSI/TEMA DARI PENGGUNA:]\n${userPrompt.trim()}` }
+          ],
+          temperature: 0.85,
+          top_p: 0.95
         };
 
-        const geminiResponse = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${apiKey}`,
+        // Tambahkan timeout protection (20 detik)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+        const qwenResponse = await fetch(
+          "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(geminiPayload)
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify(qwenPayload),
+            signal: controller.signal
           }
         );
 
-        if (!geminiResponse.ok) {
-          const errText = await geminiResponse.text();
-          console.error("[Gemini API Error]", geminiResponse.status, errText);
-          // Mengembalikan raw error text dari Google agar kita tahu penyebab pastinya (invalid key, disabled api, dll)
-          return new Response(JSON.stringify({ error: `Gemini API (Status ${geminiResponse.status}): ${errText.substring(0, 100)}...` }), {
+        clearTimeout(timeoutId);
+
+        if (!qwenResponse.ok) {
+          const errText = await qwenResponse.text();
+          console.error("[Qwen API Error]", qwenResponse.status, errText);
+          return new Response(JSON.stringify({ error: `Qwen AI (Status ${qwenResponse.status}): ${errText.substring(0, 150)}` }), {
             status: 502,
             headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
         }
 
-        const geminiData = await geminiResponse.json();
-        const generatedText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const qwenData = await qwenResponse.json();
+        const generatedText = qwenData?.choices?.[0]?.message?.content || "";
 
         return new Response(JSON.stringify({ success: true, text: generatedText.trim() }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" }
@@ -388,16 +470,13 @@ ATURAN WAJIB:
 
       } catch (error) {
         console.error("[generate-ai] Error:", error);
-        return new Response(JSON.stringify({ error: error.message || "Gagal menghubungi AI." }), {
+        return new Response(JSON.stringify({ error: error.name === 'AbortError' ? "AI terlalu lama merespons. Coba lagi sebentar lagi." : (error.message || "Gagal menghubungi AI.") }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       }
     }
 
-    // ── GET /{filename} — Proxy file lama dari R2 ───────────
-    // Semua URL foto/audio customer lama yang masih pakai domain workers.dev
-    // akan disajikan langsung oleh Worker untuk menghindari isu CORS/Cache saat redirect.
     if (request.method === "GET" && url.pathname !== "/") {
       const filename = url.pathname.substring(1);
       if (filename && !filename.includes("/") && !filename.includes("..")) {
@@ -411,7 +490,6 @@ ATURAN WAJIB:
           const headers = new Headers(corsHeaders);
           object.writeHttpMetadata(headers);
           headers.set("etag", object.httpEtag);
-          // Paksa cache browser selama 1 jam untuk performa
           headers.set("Cache-Control", "public, max-age=3600");
 
           return new Response(object.body, { headers });
@@ -422,7 +500,6 @@ ATURAN WAJIB:
       return new Response("File not found", { status: 404, headers: corsHeaders });
     }
 
-    // ── Default: API Info Page ──────────────────────────────
     return new Response(`
       <html>
         <head>
@@ -454,7 +531,6 @@ ATURAN WAJIB:
   }
 };
 
-// ── Admin: List Gifts ───────────────────────────────────────
 async function handleAdminListGifts(request, env, corsHeaders) {
   const authHeader = request.headers.get("Authorization");
   const secret = env.ADMIN_SECRET;
@@ -510,7 +586,6 @@ async function handleAdminListGifts(request, env, corsHeaders) {
 }
 __name(handleAdminListGifts, "handleAdminListGifts");
 
-// ── Admin: Delete Gifts ─────────────────────────────────────
 async function handleAdminDeleteGifts(request, env, corsHeaders) {
   const authHeader = request.headers.get("Authorization");
   const secret = env.ADMIN_SECRET;
