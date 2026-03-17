@@ -88,8 +88,8 @@ const Publisher = (() => {
       }
     };
 
-    // Bypass konfirmasi nama — langsung proses
-    _handlePublish();
+    // Tampilkan modal konfirmasi sebelum benar-benar publish
+    _toggleModal('modal-name', true);
   };
 
   // ── Handle Publish: POST ke Worker /submit-premium ────────
@@ -148,25 +148,12 @@ const Publisher = (() => {
     }
   };
 
-  // ── Modal Sukses (Sederhana, Tanpa QR/Link) ───────────────
+  // ── Modal Sukses (Disederhanakan) ─────────────────────────
   const _showSuccessModal = () => {
     const modal = document.getElementById('modal-success');
     if (modal) {
-      // Isi pesan konfirmasi sederhana di dalam modal
-      const urlDisplay = document.getElementById('modal-gift-url');
-      if (urlDisplay) {
-        urlDisplay.textContent = 'Data berhasil dikirim! 🎁';
-      }
-
-      // Sembunyikan elemen QR/link/share jika ada di HTML
-      ['qr-code-box', 'qr-export-container', 'btn-share-whatsapp', 'btn-view-gift', 'btn-copy-link', 'btn-download-qr'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-      });
-
       modal.classList.remove('hidden');
     } else {
-      // Fallback jika modal-success tidak ada
       Studio.showToast('Data berhasil dikirim! 🎁 Admin akan memproses kado kamu segera.');
     }
   };

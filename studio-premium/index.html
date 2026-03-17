@@ -509,7 +509,8 @@
             <!-- Info hint -->
             <div class="mb-8 p-4 rounded-2xl bg-[#fdf9f4] border border-[#d4a373]/15">
               <p class="text-[9px] text-gray-500 leading-relaxed italic">
-                Ini adalah fitur <strong>opsional</strong>. Setelah voice note selesai diputar, sebuah foto polaroid dan pesan rahasia akan muncul
+                Ini adalah fitur <strong>opsional</strong>. Setelah voice note selesai diputar, sebuah foto polaroid dan
+                pesan rahasia akan muncul
                 khusus untuk penerima kado. Biarkan kosong jika tidak ingin menggunakan fitur ini.
               </p>
             </div>
@@ -641,7 +642,7 @@
           class="w-full py-3 text-[9px] uppercase tracking-widest font-bold bg-gray-800 text-white rounded-full hover:bg-black transition-all shadow-sm mb-3">
           Lihat Live Preview
         </button>
-        <button id="btn-publish" class="btn-premium">Publikasikan Kado</button>
+        <button id="btn-publish" class="btn-premium">Publish VIP Config</button>
         <div id="autosave-status"
           class="text-[8px] uppercase tracking-[0.2em] text-gray-500 font-bold mt-4 opacity-0 transition-opacity">
           Tersimpan
@@ -653,79 +654,81 @@
   </main>
 
   <!-- Success Modal -->
-  <div id="modal-success" class="hidden fixed inset-0 z-[300] flex items-center justify-center p-6 overflow-y-auto">
-    <div class="absolute inset-0 bg-white/95 backdrop-blur-md"></div>
-    <div class="relative max-w-sm w-full text-center py-8">
-      <h2 class="text-3xl text-serif italic mb-2">Kado Tercipta</h2>
-      <p class="text-[10px] uppercase tracking-[0.3em] text-gray-600 font-bold mb-8">Siap untuk dikirimkan</p>
+  <div id="modal-success" class="hidden fixed inset-0 z-[300] flex items-center justify-center p-6">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+    <div class="relative w-full max-w-md bg-white rounded-[2.5rem] px-8 pt-10 pb-10 shadow-2xl overflow-hidden"
+      style="animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards;">
 
-      <!-- ═══ Aesthetic QR Code Polaroid Card ═══ -->
-      <div class="flex justify-center mb-8">
-        <div id="qr-export-container"
-          style="background: linear-gradient(160deg, #fffaf5 0%, #fff8f0 50%, #f5efe6 100%); padding: 28px 24px 20px; border-radius: 16px; border: 1px solid rgba(212,174,106,0.2); box-shadow: 0 20px 50px -15px rgba(0,0,0,0.12), 0 4px 12px rgba(212,174,106,0.08); position: relative; max-width: 220px; width: 100%;">
-          <!-- Top accent line -->
-          <div
-            style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 40px; height: 3px; background: linear-gradient(90deg, transparent, #d4a373, transparent); border-radius: 0 0 4px 4px;">
-          </div>
-          <!-- Title -->
-          <p
-            style="font-family: serif; font-style: italic; font-size: 22px; color: #1a1a1a; margin-bottom: 2px; letter-spacing: -0.02em;">
-            For You</p>
-          <p
-            style="font-size: 7px; text-transform: uppercase; letter-spacing: 0.35em; color: #d4a373; font-weight: 600; margin-bottom: 16px;">
-            ✦ scan to open your gift ✦</p>
-          <!-- QR Code -->
-          <div id="qr-code-box"
-            style="background: white; border-radius: 10px; padding: 10px; display: flex; justify-content: center; align-items: center; min-height: 148px; width: 148px; margin: 0 auto; border: 1px solid rgba(0,0,0,0.04); box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);">
-          </div>
-          <!-- Bottom branding -->
-          <p
-            style="font-size: 6px; text-transform: uppercase; letter-spacing: 0.4em; color: #c4b49a; margin-top: 14px; text-align: center;">
-            a memory to keep · voices.</p>
+      <!-- Checkmark Icon -->
+      <div class="flex justify-center mb-5">
+        <div class="w-16 h-16 rounded-full flex items-center justify-center" style="background: #d1fae5;">
+          <svg class="w-8 h-8" fill="none" stroke="#10b981" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
         </div>
       </div>
 
-      <!-- Download Barcode Button -->
-      <button id="btn-download-qr"
-        class="w-full mb-6 py-3.5 text-[9px] uppercase tracking-[0.2em] font-bold rounded-lg transition-all flex items-center justify-center gap-2"
-        style="background: linear-gradient(135deg, #d4a373 0%, #c4956a 100%); color: white; border: none; box-shadow: 0 4px 14px rgba(212,174,106,0.35);">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+      <!-- Title -->
+      <h2 class="text-serif italic text-center mb-1" style="font-size: 2rem; color: #1a1a1a;">Desain Terkirim!</h2>
+      <p class="text-[9px] uppercase tracking-[0.3em] text-center font-bold mb-6" style="color: #9ca3af;">
+        Kado VIP Sedang Diproses
+      </p>
+
+      <!-- Info Box -->
+      <div class="rounded-2xl p-5 mb-6" style="background: #faf7f2; border: 1px solid rgba(212,174,106,0.15);">
+        <p class="text-[12px] leading-relaxed" style="color: #6b7280;">
+          Terima kasih! Desain VIP Anda sedang kami hubungkan ke domain eksklusif Anda.
+          Admin akan segera memprosesnya dan menghubungi Anda.
+        </p>
+      </div>
+
+      <!-- WA Button -->
+      <a id="btn-contact-admin"
+        href="https://wa.me/6281381543981?text=Halo%20admin%2C%20saya%20sudah%20publish%20kado%20VIP%20saya"
+        target="_blank"
+        class="w-full flex items-center justify-center gap-3 py-4 rounded-xl mb-3 font-bold text-[11px] uppercase tracking-widest text-white transition-all hover:opacity-90"
+        style="background: #25d366;">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <path
+            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
         </svg>
-        Download Barcode
+        Kabari Admin di WhatsApp
+      </a>
+
+      <!-- Selesai Button -->
+      <button onclick="document.getElementById('modal-success').classList.add('hidden')"
+        class="w-full py-4 rounded-xl font-bold text-[11px] uppercase tracking-widest transition-all hover:bg-gray-100"
+        style="background: #f3f4f6; color: #374151;">
+        Selesai
       </button>
 
-      <div class="bg-white border border-gray-100 p-4 mb-6 rounded-lg">
-        <span id="modal-gift-url" class="text-[10px] font-mono text-gray-600 font-bold break-all select-all"></span>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3 mb-8">
-        <button id="btn-copy-link"
-          class="text-[9px] uppercase tracking-widest font-bold border border-black py-3.5 rounded-lg hover:bg-black hover:text-white transition-all">Salin
-          Link</button>
-        <a id="btn-share-whatsapp" href="#" target="_blank"
-          class="text-[9px] uppercase tracking-widest font-bold bg-green-500 text-white py-3.5 rounded-lg flex items-center justify-center hover:bg-green-600 transition-all">WhatsApp</a>
-      </div>
-
-      <a id="btn-view-gift" href="#" target="_blank"
-        class="w-full inline-flex justify-center items-center py-4 text-[10px] uppercase tracking-widest font-extrabold bg-[#1a1a1a] text-white rounded-lg hover:bg-black transition-all shadow-md mt-2">
-        Lihat Hasil
-      </a>
     </div>
   </div>
 
-  <!-- Name Input Modal -->
+  <style>
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+  </style>
+
+  <!-- Confirmation Modal (Are You Sure?) -->
   <div id="modal-name" class="hidden fixed inset-0 z-[300] flex items-center justify-center p-6">
     <div class="absolute inset-0 bg-white/95 backdrop-blur-md"></div>
     <div class="relative max-w-sm w-full">
-      <h2 class="text-3xl text-serif italic mb-2 text-center">Publikasikan Kado</h2>
+      <h2 class="text-3xl text-serif italic mb-2 text-center text-black">Sudah Selesai?</h2>
       <p
-        class="text-[10px] uppercase tracking-[0.3em] text-gray-600 font-bold mb-4 text-center text-balance leading-relaxed">
-        Kado akan dipublish dengan nama link berikut:</p>
-      <p class="text-[9px] text-gray-500 mb-12 text-center hidden">(Ditetapkan otomatis)</p>
-
-      <div class="mb-10">
+        class="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-bold mb-4 text-center text-balance leading-relaxed">
+        Apakah anda sudah yakin dengan desain kado ini?</p>
+      
+      <div class="mb-10 hidden">
         <input id="input-gift-name" type="text" readonly
           class="input-minimal text-center lowercase pointer-events-none opacity-50" autocomplete="off" />
         <p id="name-error" class="text-[9px] text-rose-500 mt-2 text-center hidden">Gunakan huruf, angka, dan tanda
@@ -793,11 +796,13 @@
     class="hidden fixed left-1/2 -translate-x-1/2 z-[400] transition-all uppercase tracking-[0.2em] text-[9px]"></div>
 
   <!-- ✨ AI Generator Modal -->
-  <div id="modal-ai-generator" class="hidden fixed inset-0 z-[450] flex items-end sm:items-center justify-center p-0 sm:p-6">
+  <div id="modal-ai-generator"
+    class="hidden fixed inset-0 z-[450] flex items-end sm:items-center justify-center p-0 sm:p-6">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
 
-    <div class="ai-modal-card relative w-full sm:max-w-md bg-[#fcfaf7] rounded-t-3xl sm:rounded-2xl shadow-2xl transition-all duration-250 scale-95 opacity-0 overflow-hidden">
+    <div
+      class="ai-modal-card relative w-full sm:max-w-md bg-[#fcfaf7] rounded-t-3xl sm:rounded-2xl shadow-2xl transition-all duration-250 scale-95 opacity-0 overflow-hidden">
 
       <!-- Header -->
       <div class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
@@ -805,27 +810,36 @@
           <h3 class="text-sm font-bold text-gray-800">✨ Tulis dengan AI</h3>
           <p class="text-[9px] uppercase tracking-widest text-gray-400 mt-0.5">Untuk Pesan Rahasia Polaroid</p>
         </div>
-        <button id="btn-ai-close" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-500 text-sm font-bold">✕</button>
+        <button id="btn-ai-close"
+          class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-500 text-sm font-bold">✕</button>
       </div>
 
       <!-- View: Input -->
       <div id="ai-view-input" class="px-6 py-6">
-        <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block mb-3">Instruksi untuk AI</label>
+        <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block mb-3">Instruksi untuk
+          AI</label>
         <textarea id="ai-prompt-input"
           placeholder="Contoh: Buatkan pesan anniversary 2 tahun yang romantis dan hangat, untuk pacarku yang namanya Bintang..."
-          rows="4"
-          maxlength="500"
+          rows="4" maxlength="500"
           class="w-full resize-none border border-gray-200 rounded-xl p-4 text-[13px] leading-relaxed focus:outline-none focus:border-[#d4a373] transition-all bg-white text-gray-800 placeholder:text-gray-300"></textarea>
         <p class="text-[9px] text-gray-300 mt-2 italic">Semakin detail instruksimu, semakin personal hasilnya.</p>
-        
+
         <!-- Tone Selection -->
         <div class="mt-4">
-          <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block mb-3">Pilih Gaya Bahasa</label>
+          <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block mb-3">Pilih Gaya
+            Bahasa</label>
           <div class="flex flex-wrap gap-2" id="ai-tone-selector">
-            <button data-tone="romantis" class="px-4 py-2 text-[10px] rounded-full border border-[#d4a373] bg-[#d4a373] text-white font-bold transition-all">Romantis</button>
-            <button data-tone="lucu" class="px-4 py-2 text-[10px] rounded-full border border-gray-200 bg-white text-gray-500 font-bold transition-all hover:border-[#d4a373] hover:text-[#d4a373]">Lucu / Canda</button>
-            <button data-tone="santai" class="px-4 py-2 text-[10px] rounded-full border border-gray-200 bg-white text-gray-500 font-bold transition-all hover:border-[#d4a373] hover:text-[#d4a373]">Santai (Aku/Kamu)</button>
-            <button data-tone="tulus" class="px-4 py-2 text-[10px] rounded-full border border-gray-200 bg-white text-gray-500 font-bold transition-all hover:border-[#d4a373] hover:text-[#d4a373]">Formal & Tulus</button>
+            <button data-tone="romantis"
+              class="px-4 py-2 text-[10px] rounded-full border border-[#d4a373] bg-[#d4a373] text-white font-bold transition-all">Romantis</button>
+            <button data-tone="lucu"
+              class="px-4 py-2 text-[10px] rounded-full border border-gray-200 bg-white text-gray-500 font-bold transition-all hover:border-[#d4a373] hover:text-[#d4a373]">Lucu
+              / Canda</button>
+            <button data-tone="santai"
+              class="px-4 py-2 text-[10px] rounded-full border border-gray-200 bg-white text-gray-500 font-bold transition-all hover:border-[#d4a373] hover:text-[#d4a373]">Santai
+              (Aku/Kamu)</button>
+            <button data-tone="tulus"
+              class="px-4 py-2 text-[10px] rounded-full border border-gray-200 bg-white text-gray-500 font-bold transition-all hover:border-[#d4a373] hover:text-[#d4a373]">Formal
+              & Tulus</button>
           </div>
         </div>
 
