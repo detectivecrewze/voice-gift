@@ -76,6 +76,7 @@ const Publisher = (() => {
 
       // Password
       password: state.password || null,
+      requestDomain: state.requestDomain || '',
 
       // Internal (akan di-strip oleh Worker sebelum dikirim ke Telegram)
       studioPassword: state.studioPassword || null,
@@ -94,6 +95,14 @@ const Publisher = (() => {
 
   // ── Handle Publish: POST ke Worker /submit-premium ────────
   const _handlePublish = async () => {
+    const state = Studio.getState();
+    
+    // [VALIDASI] Domain Vercel wajib diisi
+    if (!state.requestDomain || !state.requestDomain.trim()) {
+      Studio.showToast('Nama domain Vercel wajib diisi agar kado bisa diproses! 🌐');
+      return;
+    }
+
     if (!validatedPayload) return;
 
     _toggleModal('modal-name', false);
@@ -152,6 +161,17 @@ const Publisher = (() => {
   const _showSuccessModal = () => {
     const modal = document.getElementById('modal-success');
     if (modal) {
+      // Update WhatsApp link dengan data kustom
+      const state = Studio.getState();
+      const token = Auth.getToken();
+      const domainSuffix = state.requestDomain ? `%20.%20Domain%3A%20${state.requestDomain}.vercel.app` : '';
+      const waMessage = `Halo%20admin%2C%20saya%20sudah%20publish%20kado%20VIP%20saya.%0AID%3A%20${token}${domainSuffix}`;
+      
+      const waBtn = document.getElementById('btn-contact-admin');
+      if (waBtn) {
+        waBtn.href = `https://wa.me/6281381543981?text=${waMessage}`;
+      }
+
       modal.classList.remove('hidden');
     } else {
       Studio.showToast('Data berhasil dikirim! 🎁 Admin akan memproses kado kamu segera.');

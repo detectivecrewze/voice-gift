@@ -334,6 +334,7 @@ var index_default = {
           `👤 Penerima: <b>${configData.recipientName || '-'}</b>\n` +
           `🎨 Tema: ${configData.theme || '-'} → folder: <code>${configData._meta?.theme_folder || 'gift'}</code>\n` +
           `🔑 Gift ID: <code>${id}</code>\n` +
+          `🌐 Request Domain: <code>${configData.requestDomain || '-'}</code>\n` +
           `🕐 Waktu: ${timestamp} WIB\n\n` +
           `📸 Foto: ${configData.photos?.length || 0} foto\n` +
           `🎵 Voice Note: ${configData.voiceNote?.url ? 'Ada ✅' : 'Tidak ada ❌'}\n` +
@@ -350,7 +351,7 @@ var index_default = {
         // ── Pesan 2: Kirim config.js sebagai file download ──
         const configContent = `window.STANDALONE_CONFIG = ${JSON.stringify(configData, null, 2)};`;
         const fileName = `config-${id}.js`;
-        const fileCaption = `📋 config.js untuk ${id}\nTaruh di folder: ${configData._meta?.theme_folder || 'gift'}/\nRename jadi config.js lalu deploy ke Vercel.`;
+        const fileCaption = `📋 config.js untuk ${id}\n🌐 Domain: ${configData.requestDomain || '-'}.vercel.app\nTaruh di folder: ${configData._meta?.theme_folder || 'gift'}/\nRename jadi config.js lalu deploy ke Vercel.`;
 
         const formData = new FormData();
         formData.append('chat_id', CHAT_ID);

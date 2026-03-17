@@ -69,6 +69,7 @@ const Studio = (() => {
     studioPassword: null,
     polaroid_photo: null,
     polaroid_letter: '',
+    requestDomain: '',
   };
 
   // ── Ambient Preview State ───────────────────────────────────
@@ -377,7 +378,8 @@ const Studio = (() => {
   const _initInputs = () => {
     const inputs = {
       'input-gift-password': 'password',
-      'input-studio-password': 'studioPassword'
+      'input-studio-password': 'studioPassword',
+      'input-request-domain': 'requestDomain'
     };
 
     Object.entries(inputs).forEach(([id, key]) => {
