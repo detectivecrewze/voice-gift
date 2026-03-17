@@ -105,6 +105,9 @@ const Publisher = (() => {
 
     if (!validatedPayload) return;
 
+    // [PENTING] Update payload dengan domain yang baru diinput di modal
+    validatedPayload.requestDomain = state.requestDomain.trim();
+
     _toggleModal('modal-name', false);
 
     const btns = [document.getElementById('btn-publish'), document.getElementById('btn-publish-desktop')];
