@@ -391,7 +391,15 @@ const Studio = (() => {
 
       // Bind events
       el.addEventListener('input', (e) => {
-        _state[key] = e.target.value;
+        let val = e.target.value;
+
+        // Custom handling for domain request: no spaces, no emojis, only alphanumeric/hyphen
+        if (id === 'input-request-domain') {
+          val = val.toLowerCase().replace(/[^a-z0-9-]/g, '');
+          e.target.value = val;
+        }
+
+        _state[key] = val;
         _triggerSaveAndPreview();
       });
     });
