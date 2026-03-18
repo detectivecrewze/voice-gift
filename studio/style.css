@@ -525,3 +525,36 @@ section {
 .section-toggle-btn.collapsed svg {
   transform: rotate(-180deg);
 }
+/* -- Mobile Optimizations -- */
+@media (max-width: 640px) {
+  #editor-panel {
+    padding: 3rem 1rem;
+  }
+
+  .section-card {
+    padding: 2.25rem 1.25rem;
+    border-radius: 32px;
+    margin-bottom: 3rem;
+  }
+
+  /* Stack header controls vertically */
+  .section-card > .flex.items-center.justify-between {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1.25rem !important;
+  }
+
+  .italic-title {
+    font-size: 2.5rem;
+  }
+
+  .btn-premium {
+    padding: 1rem 2rem;
+    font-size: 0.7rem;
+  }
+
+  .section-toggle-btn {
+    width: 28px;
+    height: 28px;
+  }
+}
