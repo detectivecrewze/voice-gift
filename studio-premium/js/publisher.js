@@ -69,6 +69,7 @@ const Publisher = (() => {
       photos: state.photos,
       voiceNote: state.voiceNote,
       ambient: state.ambient,
+      customAmbientUrl: state.customAmbientUrl,
       ambientVolume: state.ambientVolume,
       voiceVolume: state.voiceVolume,
       polaroid_photo: state.polaroid_photo,
