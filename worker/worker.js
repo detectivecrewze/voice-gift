@@ -564,8 +564,12 @@ async function handleAdminListGifts(request, env, corsHeaders) {
             photosCount: config.photos?.length || 0,
             firstPhotoUrl: config.photos?.[0]?.url || null,
             hasVoice: !!(config.voiceNote?.url),
-            theme: config.theme || "rose",
+            theme: config.theme || config._meta?.theme_folder || "rose",
             ambient: config.ambient || "none",
+            musicMode: config.musicMode || "upload",
+            uplMusicTitle: config.uplMusicTitle || null,
+            libMusicTitle: config.libMusicTitle || null,
+            customAmbientUrl: config.customAmbientUrl || null,
           };
         }
       } catch (e) {

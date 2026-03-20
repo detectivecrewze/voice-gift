@@ -186,6 +186,49 @@
             filter: brightness(1.1);
         }
 
+        /* Theme Filter Pills */
+        .theme-pills-wrap {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+        .theme-pills-wrap::-webkit-scrollbar { display: none; }
+        .theme-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.04);
+            color: rgba(255,255,255,0.45);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 36px;
+        }
+        .theme-pill:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75); }
+        .theme-pill.active { background: #ff4d6d26; border-color: #ff4d6d88; color: #ff8fa3; }
+        .theme-pill .pill-count {
+            background: rgba(255,255,255,0.08);
+            border-radius: 999px;
+            padding: 1px 7px;
+            font-size: 9px;
+            color: rgba(255,255,255,0.3);
+            font-weight: 800;
+        }
+        .theme-pill.active .pill-count { background: rgba(255,77,109,0.15); color: #ff4d6d; }
+
+        /* Song Chart */
+        .song-chart-row { padding: 8px 0; }
+        .song-chart-row + .song-chart-row { border-top: 1px solid rgba(255,255,255,0.04); }
+
         /* Mobile Utility Classes */
         @media (max-width: 768px) {
             .mobile-stack {
@@ -212,6 +255,10 @@
             .glass-card {
                 padding: 1.25rem !important;
             }
+
+            /* Tabel horizontal scroll */
+            .glass-card.table-wrap { padding: 0 !important; border-radius: 20px; }
+            table thead th, table tbody td { font-size: 11px !important; padding: 14px 12px !important; }
         }
     </style>
 </head>
@@ -248,20 +295,6 @@
             </div>
 
             <div class="flex items-center gap-6 w-full md:w-1/2 justify-end mobile-wrap">
-                <div class="flex flex-col gap-2 w-full md:w-48 mobile-filter-unit">
-                    <label class="text-[10px] uppercase tracking-[0.2em] text-white/50 font-black ml-1">Theme
-                        Filter</label>
-                    <select id="filter-theme" class="px-5 py-4 cursor-pointer">
-                        <option value="all">Global Themes</option>
-                        <option value="original">Original</option>
-                        <option value="magenta">Magenta</option>
-                        <option value="rosewood">Rosewood</option>
-                        <option value="midnight">Midnight</option>
-                        <option value="mossy">Mossy</option>
-                        <option value="silver">Silver</option>
-                    </select>
-                </div>
-
                 <div class="flex flex-col gap-2 w-full md:w-44 mobile-filter-unit">
                     <label class="text-[10px] uppercase tracking-[0.2em] text-white/50 font-black ml-1">Content</label>
                     <select id="filter-voice" class="px-5 py-4 cursor-pointer">
@@ -272,8 +305,7 @@
                 </div>
 
                 <div class="flex flex-col gap-2 w-full md:w-48 mobile-filter-unit">
-                    <label
-                        class="text-[10px] uppercase tracking-[0.2em] text-white/50 font-black ml-1">Engagement</label>
+                    <label class="text-[10px] uppercase tracking-[0.2em] text-white/50 font-black ml-1">Engagement</label>
                     <select id="filter-status" class="px-5 py-4 cursor-pointer">
                         <option value="all">Active Spectrum</option>
                         <option value="active">High Activity</option>
@@ -281,6 +313,24 @@
                         <option value="never">Dormant (Never Opened)</option>
                     </select>
                 </div>
+            </div>
+        </div>
+
+        <!-- Theme Filter Pills -->
+        <div class="glass-card p-6 mb-8 relative z-10">
+            <p class="text-[10px] uppercase tracking-[0.3em] text-white/30 font-black mb-4">Filter Tema</p>
+            <div class="theme-pills-wrap" id="theme-pills">
+                <button class="theme-pill active" data-theme="all">All <span class="pill-count" id="pill-count-all">-</span></button>
+                <button class="theme-pill" data-theme="gift">Gift Original <span class="pill-count" id="pill-count-gift">0</span></button>
+                <button class="theme-pill" data-theme="gift-pinky">Gift Magenta <span class="pill-count" id="pill-count-gift-pinky">0</span></button>
+                <button class="theme-pill" data-theme="gift-beige">Gift Rosewood <span class="pill-count" id="pill-count-gift-beige">0</span></button>
+                <button class="theme-pill" data-theme="gift-blanc">Gift Midnight <span class="pill-count" id="pill-count-gift-blanc">0</span></button>
+                <button class="theme-pill" data-theme="gift-sage">Gift Mossy <span class="pill-count" id="pill-count-gift-sage">0</span></button>
+                <button class="theme-pill" data-theme="camera-silver">📷 Silver <span class="pill-count" id="pill-count-camera-silver">0</span></button>
+                <button class="theme-pill" data-theme="camera-midnight">📷 Midnight <span class="pill-count" id="pill-count-camera-midnight">0</span></button>
+                <button class="theme-pill" data-theme="camera-mossy">📷 Mossy <span class="pill-count" id="pill-count-camera-mossy">0</span></button>
+                <button class="theme-pill" data-theme="camera-rosewood">📷 Rosewood <span class="pill-count" id="pill-count-camera-rosewood">0</span></button>
+                <button class="theme-pill" data-theme="camera-magenta">📷 Magenta <span class="pill-count" id="pill-count-camera-magenta">0</span></button>
             </div>
         </div>
 
@@ -299,6 +349,12 @@
         </div>
 
         <!-- Summary Dashboard -->
+        <!-- Song Popularity Chart -->
+        <div id="song-chart-section" class="glass-card p-8 mb-8 hidden relative z-10">
+            <p class="text-[10px] uppercase tracking-[0.3em] text-white/30 font-black mb-6">🎵 Top 5 Lagu Populer</p>
+            <div id="song-chart-body" class="flex flex-col gap-0"></div>
+        </div>
+
         <div id="summary-section" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 hidden relative z-10 text-white">
             <div class="glass-card p-8 flex flex-col justify-center items-center text-center">
                 <span class="text-[9px] uppercase tracking-[0.2em] text-white/30 font-bold mb-2">Total Kado</span>
@@ -341,9 +397,6 @@
                         <th
                             class="p-6 text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold whitespace-nowrap">
                             Published</th>
-                        <th
-                            class="p-6 text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold whitespace-nowrap">
-                            Last Active</th>
                         <th
                             class="p-6 text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold whitespace-nowrap">
                             Actions</th>

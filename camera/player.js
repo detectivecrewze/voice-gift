@@ -183,7 +183,7 @@ const initPlayer = (config) => {
     let voiceGain = null;
 
     // SFX for countdown
-    const sfx = new Audio(AMBIENT_SOUNDS?.countdown || 'https://cdn.for-you-always.my.id/1772227895645-j1jcgl.mp3?v=2');
+    const sfx = new Audio((typeof AMBIENT_SOUNDS !== 'undefined' ? AMBIENT_SOUNDS?.countdown : null) || 'https://cdn.for-you-always.my.id/1772227895645-j1jcgl.mp3?v=2');
     sfx.volume = 0.3;
     sfx.crossOrigin = 'anonymous';
     sfx.preload = 'auto';

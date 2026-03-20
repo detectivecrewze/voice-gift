@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnBulkDelete = document.getElementById('btn-bulk-delete');
     const selectAllCheckbox = document.getElementById('select-all');
     const searchInput = document.getElementById('search-input');
-    const filterTheme = document.getElementById('filter-theme');
     const filterVoice = document.getElementById('filter-voice');
     const filterStatus = document.getElementById('filter-status');
 
@@ -70,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success) {
                 allGiftsRaw = data.gifts;
+                updatePillCounts(data.gifts);
                 renderSummary(data.gifts);
                 applyFilters(); // This will call renderTable internally
             } else {
@@ -110,31 +110,75 @@ document.addEventListener('DOMContentLoaded', () => {
             themeCounts[t] = (themeCounts[t] || 0) + 1;
         });
         const topTheme = Object.keys(themeCounts).reduce((a, b) => themeCounts[a] > themeCounts[b] ? a : b);
-
-        // Pretty name mapping
         const themeNames = {
             'rose': 'Original', 'original': 'Original', 'pinky': 'Magenta',
             'beige': 'Rosewood', 'rosewood': 'Rosewood',
             'blanc': 'Midnight', 'midnight': 'Midnight',
-            'sage': 'Mossy', 'mossy': 'Mossy'
+            'sage': 'Mossy', 'mossy': 'Mossy',
+            'silver': 'Silver', 'magenta': 'Magenta',
+            'gift': 'Gift-Original', 'gift-pinky': 'Gift-Pinky',
+            'gift-beige': 'Gift-Beige', 'gift-blanc': 'Gift-Blanc',
+            'gift-sage': 'Gift-Sage'
         };
         document.getElementById('stat-theme').innerText = themeNames[topTheme] || topTheme.toUpperCase();
 
-        // 4. Top Audio
-        const audioCounts = {};
+        // 4. Top Song (new logic — reads musicMode, libMusicTitle, uplMusicTitle)
+        const songCounts = {};
         gifts.forEach(g => {
-            const a = String(g.ambient || 'none').toLowerCase();
-            audioCounts[a] = (audioCounts[a] || 0) + 1;
+            let songLabel = null;
+            if (g.musicMode === 'library' && g.libMusicTitle) {
+                songLabel = g.libMusicTitle;
+            } else if (g.musicMode === 'upload' && g.uplMusicTitle) {
+                songLabel = g.uplMusicTitle;
+            } else if (g.ambient && g.ambient !== 'none' && g.ambient !== 'custom') {
+                songLabel = g.ambient;
+            }
+            if (songLabel) {
+                songCounts[songLabel] = (songCounts[songLabel] || 0) + 1;
+            }
         });
-        const topAudioRaw = Object.keys(audioCounts).reduce((a, b) => audioCounts[a] > audioCounts[b] ? a : b);
+        const topSongKeys = Object.keys(songCounts);
+        const topSong = topSongKeys.length > 0
+            ? topSongKeys.reduce((a, b) => songCounts[a] > songCounts[b] ? a : b)
+            : null;
+        document.getElementById('stat-audio').innerText = topSong
+            ? (topSong.length > 18 ? topSong.substring(0, 18) + '…' : topSong)
+            : 'Hening';
 
-        // Pretty audio mapping
-        const audioNames = {
-            'none': 'Hening', 'rain': 'Rain', 'cafe': 'Cafe', 'waves': 'Waves',
-            'fireplace': 'Fire', 'forest': 'Forest', 'nadin-ah': 'Nadin',
-            'daniel': 'Daniel', 'mitski': 'Mitski'
-        };
-        document.getElementById('stat-audio').innerText = audioNames[topAudioRaw] || topAudioRaw.toUpperCase();
+        // 5. Render Song Popularity Chart
+        renderSongChart(songCounts);
+    };
+
+    const renderSongChart = (songCounts) => {
+        const chartSection = document.getElementById('song-chart-section');
+        const chartBody = document.getElementById('song-chart-body');
+        if (!chartSection || !chartBody) return;
+
+        const sorted = Object.entries(songCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+        if (sorted.length === 0) {
+            chartSection.classList.add('hidden');
+            return;
+        }
+        chartSection.classList.remove('hidden');
+        const max = sorted[0][1];
+        chartBody.innerHTML = sorted.map(([title, count], i) => {
+            const pct = Math.round((count / max) * 100);
+            const rankColors = ['#ff4d6d', '#ff8c69', '#ffc069', '#a78bfa', '#60d394'];
+            const color = rankColors[i] || '#ffffff40';
+            return `
+            <div class="song-chart-row flex items-center gap-4 group">
+                <span class="text-[10px] font-black text-white/30 w-5 shrink-0">#${i + 1}</span>
+                <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-[11px] font-semibold text-white/80 truncate pr-2">${title}</span>
+                        <span class="text-[10px] font-black shrink-0" style="color:${color}">${count}×</span>
+                    </div>
+                    <div class="w-full bg-white/5 rounded-full h-1.5">
+                        <div class="h-1.5 rounded-full transition-all duration-700" style="width:${pct}%;background:${color}"></div>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
     };
 
     const renderTable = (gifts) => {
@@ -153,59 +197,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
             }) : '-';
 
-            const GIFT_PAGE_THEME_FOLDERS = {
-                'rose': 'gift', 'original': 'gift', 'pinky': 'gift-pinky',
-                'beige': 'gift-beige', 'rosewood': 'gift-beige',
-                'blanc': 'gift-blanc', 'midnight': 'gift-blanc',
-                'sage': 'gift-sage', 'mossy': 'gift-sage'
-            };
-
+            // ── Theme badge ──
             let themeBadgeClass = 'bg-white/10 text-white/80';
-            let displayTheme = 'Original';
-
+            let displayTheme = gift.theme || 'Original';
             const theme = String(gift.theme || 'rose').toLowerCase();
-
-            if (theme === 'pinky') { themeBadgeClass = 'bg-pink-500/20 text-pink-400 border border-pink-500/30'; displayTheme = 'Magenta'; }
-            else if (theme === 'rose' || theme === 'original') { themeBadgeClass = 'bg-rose-500/20 text-rose-300 border border-rose-500/30'; displayTheme = 'Original'; }
-            else if (theme === 'beige' || theme === 'rosewood') { themeBadgeClass = 'bg-orange-500/20 text-orange-400 border border-orange-500/30'; displayTheme = 'Rosewood'; }
-            else if (theme === 'blanc' || theme === 'midnight') { themeBadgeClass = 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'; displayTheme = 'Midnight'; }
-            else if (theme === 'sage' || theme === 'mossy') { themeBadgeClass = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/20'; displayTheme = 'Mossy'; }
+            if (theme === 'pinky' || theme === 'gift-pinky') { themeBadgeClass = 'bg-pink-500/20 text-pink-400 border border-pink-500/30'; displayTheme = 'Gift Magenta'; }
+            else if (theme === 'rose' || theme === 'original' || theme === 'gift') { themeBadgeClass = 'bg-rose-500/20 text-rose-300 border border-rose-500/30'; displayTheme = 'Gift Original'; }
+            else if (theme === 'beige' || theme === 'rosewood' || theme === 'gift-beige') { themeBadgeClass = 'bg-orange-500/20 text-orange-400 border border-orange-500/30'; displayTheme = 'Gift Rosewood'; }
+            else if (theme === 'blanc' || theme === 'midnight' || theme === 'gift-blanc') { themeBadgeClass = 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'; displayTheme = 'Gift Midnight'; }
+            else if (theme === 'sage' || theme === 'mossy' || theme === 'gift-sage') { themeBadgeClass = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/20'; displayTheme = 'Gift Mossy'; }
+            else if (theme.includes('silver')) { themeBadgeClass = 'bg-slate-500/20 text-slate-300 border border-slate-500/30'; displayTheme = 'Cam Silver'; }
+            else if (theme.includes('midnight')) { themeBadgeClass = 'bg-indigo-600/20 text-indigo-200 border border-indigo-400/30'; displayTheme = 'Cam Midnight'; }
+            else if (theme.includes('mossy')) { themeBadgeClass = 'bg-green-600/20 text-green-300 border border-green-500/30'; displayTheme = 'Cam Mossy'; }
+            else if (theme.includes('rosewood')) { themeBadgeClass = 'bg-orange-600/20 text-orange-300 border border-orange-500/30'; displayTheme = 'Cam Rosewood'; }
+            else if (theme.includes('magenta')) { themeBadgeClass = 'bg-fuchsia-600/20 text-fuchsia-300 border border-fuchsia-500/30'; displayTheme = 'Cam Magenta'; }
             else { displayTheme = theme; }
 
-            const giftFolder = GIFT_PAGE_THEME_FOLDERS[theme] || 'gift';
-            const giftUrl = `${window.location.origin}/${giftFolder}/${gift.giftId}`;
-            const editorUrl = `../studio/index.html?token=${gift.giftId}`;
-            const productLabel = '📝 Gift Pages';
-            const productClass = 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
-
+            // ── Music / Audio badge (new musicMode-aware logic) ──
+            let sfxBadgeClass = 'text-white/20';
             let sfxText = 'Hening';
+            const musicMode = gift.musicMode || 'upload';
             const ambient = String(gift.ambient || 'none').toLowerCase();
-            if (ambient !== 'none') {
-                if (ambient === 'rain') sfxText = 'Rain';
-                else if (ambient === 'cafe') sfxText = 'Cafe';
-                else if (ambient === 'waves') sfxText = 'Waves';
-                else if (ambient === 'fireplace') sfxText = 'Fire';
-                else if (ambient === 'forest') sfxText = 'Forest';
-                else if (ambient === 'nadin-ah') sfxText = 'Nadin';
-                else if (ambient === 'daniel') sfxText = 'Daniel';
-                else if (ambient === 'mitski') sfxText = 'Mitski';
-                else if (ambient === 'custom') {
-                    const count = gift.customUploadCount || 0;
-                    sfxText = `<span class="text-emerald-400 font-bold">Custom Audio</span> <span class="text-[8px] opacity-50">(${count}/2)</span>`;
-                }
-                else sfxText = gift.ambient;
+
+            if (musicMode === 'library' && gift.libMusicTitle) {
+                sfxBadgeClass = 'text-green-400 font-bold';
+                sfxText = `🎵 ${gift.libMusicTitle}`;
+            } else if (musicMode === 'upload' && gift.uplMusicTitle) {
+                sfxBadgeClass = 'text-emerald-400 font-semibold';
+                sfxText = `⬆️ ${gift.uplMusicTitle}`;
+            } else if (musicMode === 'upload' && gift.customAmbientUrl) {
+                sfxBadgeClass = 'text-emerald-400/70';
+                sfxText = `⬆️ Custom Upload`;
+            } else if (ambient !== 'none') {
+                // Legacy fallback
+                const legacyMap = { rain: 'Rain', cafe: 'Cafe', waves: 'Waves', fireplace: 'Fire', forest: 'Forest', 'nadin-ah': 'Nadin', daniel: 'Daniel', mitski: 'Mitski' };
+                sfxText = legacyMap[ambient] || ambient;
+                if (sfxText !== 'Hening') sfxBadgeClass = 'text-yellow-400/70';
             }
 
-            const lastOpenedDate = gift.lastOpened ? new Date(gift.lastOpened).toLocaleString('id-ID', {
-                day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-            }) : '<span class="text-white/20 italic">Belum dibuka</span>';
-
-            const isStale = gift.lastOpened && (new Date() - new Date(gift.lastOpened)) > (30 * 24 * 60 * 60 * 1000);
+            const giftUrl = `${window.location.origin}/${theme.includes('camera') ? theme : ('gift' + (theme === 'rose' || theme === 'original' ? '' : '-' + theme.replace('gift-','')))}/${gift.giftId}`;
+            const editorUrl = `../studio/index.html?token=${gift.giftId}`;
 
             return `
-                <tr class="${isSelected ? 'bg-white/5' : ''} ${isStale ? 'opacity-40' : ''} transition-all border-b border-white/5 last:border-0 hover:bg-white/[0.03]">
+                <tr class="${isSelected ? 'bg-white/5' : ''} transition-all border-b border-white/5 last:border-0 hover:bg-white/[0.03]">
                     <td class="p-6" data-label="Select">
-                        <input type="checkbox" data-id="${gift.giftId}" ${isSelected ? 'checked' : ''} 
+                        <input type="checkbox" data-id="${gift.giftId}" ${isSelected ? 'checked' : ''}
                                 class="gift-checkbox rounded-md border-white/10 bg-white/5 text-[#ff4d6d] focus:ring-[#ff4d6d] cursor-pointer w-4 h-4">
                     </td>
                     <td class="p-6" data-label="Gift ID">
@@ -219,16 +255,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     </td>
                     <td class="p-6" data-label="Config">
                         <div class="flex flex-col gap-2 items-start">
-                            <span class="text-[8px] uppercase tracking-[0.2em] px-2.5 py-1 rounded-lg font-bold ${productClass}">${productLabel}</span>
                             <span class="text-[9px] uppercase tracking-[0.1em] px-2.5 py-0.5 rounded-full font-bold ${themeBadgeClass}">${displayTheme}</span>
-                            <span class="text-[10px] text-white/30 font-medium flex items-center gap-1.5 mt-1">
-                                <span class="opacity-50">🎵</span> ${sfxText}
+                            <span class="text-[10px] ${sfxBadgeClass} font-medium flex items-center gap-1.5 mt-1 max-w-[140px] truncate">
+                                ${sfxText}
                             </span>
                         </div>
                     </td>
                     <td class="p-6" data-label="Media">
                         <div class="flex items-center gap-4">
-                            <!-- Thumbnail Preview -->
                             <div class="w-12 h-12 rounded-2xl overflow-hidden bg-white/5 flex-shrink-0 border border-white/10 shadow-lg">
                                 ${gift.firstPhotoUrl
                     ? `<img src="${gift.firstPhotoUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/80x80?text=?'">`
@@ -237,21 +271,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                             <div class="flex flex-col gap-1.5">
                                 <span class="text-[9px] bg-white/5 text-white/50 border border-white/5 px-2.5 py-1 rounded-lg w-fit font-bold">📸 ${gift.photosCount} PHOTOS</span>
-                                ${gift.hasVoice ? '<span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-lg w-fit font-extrabold tracking-tighter uppercase">🎙️ VOICE ID TRANSMITTED</span>' : ''}
+                                ${gift.hasVoice ? '<span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-lg w-fit font-extrabold tracking-tighter uppercase">🎙️ VOICE</span>' : ''}
                             </div>
                         </div>
                     </td>
                     <td class="p-6" data-label="Published">
                         <span class="text-[10px] text-white/40 font-mono tracking-tighter">${date}</span>
                     </td>
-                    <td class="p-6" data-label="Activity">
-                        <div class="flex flex-col">
-                            <span class="text-[10px] ${isStale ? 'text-rose-400 font-bold' : 'text-white/40'} font-mono">${lastOpenedDate}</span>
-                            ${isStale ? '<span class="text-[7px] uppercase tracking-[0.1em] text-rose-500/60 font-bold mt-1">Anomaly: Stale Content</span>' : ''}
-                        </div>
-                    </td>
                     <td class="p-6" data-label="Actions">
-                        <a href="${editorUrl}" target="_blank" 
+                        <a href="${editorUrl}" target="_blank"
                            class="text-[9px] font-bold tracking-[0.2em] bg-white/5 border border-white/10 text-white px-5 py-2.5 rounded-xl hover:bg-[#ff4d6d] hover:border-[#ff4d6d] transition-all whitespace-nowrap uppercase">
                            Configure
                         </a>
@@ -261,9 +289,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
     };
 
+    let _activePillTheme = 'all';
+
+    // ── Pill count helper ────────────────────────────────────────
+    const updatePillCounts = (gifts) => {
+        // Build a canonical theme key for each gift
+        const themeKey = (gift) => {
+            const t = String(gift.theme || 'rose').toLowerCase();
+            if (t === 'rose' || t === 'original') return 'gift';
+            if (t === 'pinky') return 'gift-pinky';
+            if (t === 'beige' || t === 'rosewood') return 'gift-beige';
+            if (t === 'blanc' || t === 'midnight') return 'gift-blanc';
+            if (t === 'sage' || t === 'mossy') return 'gift-sage';
+            // camera themes from _meta theme_folder or raw theme value
+            if (t.includes('silver')) return 'camera-silver';
+            if (t.includes('midnight')) return 'camera-midnight';
+            if (t.includes('mossy')) return 'camera-mossy';
+            if (t.includes('rosewood')) return 'camera-rosewood';
+            if (t.includes('magenta')) return 'camera-magenta';
+            return 'gift'; // default fallback
+        };
+
+        const counts = {};
+        gifts.forEach(g => {
+            const k = themeKey(g);
+            counts[k] = (counts[k] || 0) + 1;
+        });
+
+        document.getElementById('pill-count-all').textContent = gifts.length;
+        const pillKeys = ['gift', 'gift-pinky', 'gift-beige', 'gift-blanc', 'gift-sage',
+            'camera-silver', 'camera-midnight', 'camera-mossy', 'camera-rosewood', 'camera-magenta'];
+        pillKeys.forEach(k => {
+            const el = document.getElementById(`pill-count-${k}`);
+            if (el) el.textContent = (counts[k] || 0);
+        });
+    };
+
+    // ── Theme pill → themeKey mapper (same logic as updatePillCounts) ──
+    const giftThemeKey = (gift) => {
+        const t = String(gift.theme || 'rose').toLowerCase();
+        if (t === 'rose' || t === 'original') return 'gift';
+        if (t === 'pinky') return 'gift-pinky';
+        if (t === 'beige' || t === 'rosewood') return 'gift-beige';
+        if (t === 'blanc' || t === 'midnight') return 'gift-blanc';
+        if (t === 'sage' || t === 'mossy') return 'gift-sage';
+        if (t.includes('silver')) return 'camera-silver';
+        if (t.includes('midnight')) return 'camera-midnight';
+        if (t.includes('mossy')) return 'camera-mossy';
+        if (t.includes('rosewood')) return 'camera-rosewood';
+        if (t.includes('magenta')) return 'camera-magenta';
+        return 'gift';
+    };
+
     const applyFilters = () => {
         const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
-        const themeFilter = filterTheme ? filterTheme.value : 'all';
         const voiceFilter = filterVoice ? filterVoice.value : 'all';
         const statusFilter = filterStatus ? filterStatus.value : 'all';
 
@@ -272,42 +351,33 @@ document.addEventListener('DOMContentLoaded', () => {
             const matchesSearch = gift.giftId.toLowerCase().includes(query) ||
                 (gift.recipientName || '').toLowerCase().includes(query);
 
-            // 2. Theme Filter
-            let matchesTheme = true;
-            if (themeFilter !== 'all') {
-                const themeVal = String(gift.theme || 'rose').toLowerCase();
-                const themeMap = {
-                    'rose': 'original', 'original': 'original',
-                    'pinky': 'magenta',
-                    'beige': 'rosewood', 'rosewood': 'rosewood',
-                    'blanc': 'midnight', 'white': 'midnight', 'midnight': 'midnight',
-                    'sage': 'mossy', 'mossy': 'mossy'
-                };
-                matchesTheme = themeMap[themeVal] === themeFilter;
-            }
+            // 2. Theme Filter via pills
+            const matchesTheme = _activePillTheme === 'all' || giftThemeKey(gift) === _activePillTheme;
 
             // 3. Voice Filter
             let matchesVoice = true;
             if (voiceFilter === 'voice') matchesVoice = gift.hasVoice;
             else if (voiceFilter === 'no-voice') matchesVoice = !gift.hasVoice;
 
-            // 4. Activity Status Filter
+            // 4. Activity Status Filter (lastOpened intentionally not tracked — KV write cost)
             let matchesStatus = true;
-            if (statusFilter !== 'all') {
-                const now = new Date();
-                const lastOpened = gift.lastOpened ? new Date(gift.lastOpened) : null;
-                const daysDiff = lastOpened ? (now - lastOpened) / (1000 * 60 * 60 * 24) : null;
-
-                if (statusFilter === 'active') matchesStatus = (lastOpened && daysDiff <= 30);
-                else if (statusFilter === 'stale') matchesStatus = (lastOpened && daysDiff > 30);
-                else if (statusFilter === 'never') matchesStatus = !lastOpened;
-            }
 
             return matchesSearch && matchesTheme && matchesVoice && matchesStatus;
         });
 
         renderTable(filtered);
     };
+
+    // ── Theme pill click ─────────────────────────────────────────
+    document.getElementById('theme-pills')?.addEventListener('click', (e) => {
+        const pill = e.target.closest('.theme-pill');
+        if (!pill) return;
+        document.querySelectorAll('.theme-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        _activePillTheme = pill.dataset.theme;
+        applyFilters();
+    });
+
     // ── Interaction Logic ──
 
     selectAllCheckbox.addEventListener('change', (e) => {
@@ -379,7 +449,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnRefresh) btnRefresh.addEventListener('click', fetchGifts);
 
     if (searchInput) searchInput.addEventListener('input', applyFilters);
-    if (filterTheme) filterTheme.addEventListener('change', applyFilters);
     if (filterVoice) filterVoice.addEventListener('change', applyFilters);
     if (filterStatus) filterStatus.addEventListener('change', applyFilters);
 

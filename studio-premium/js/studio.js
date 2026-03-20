@@ -72,28 +72,68 @@ const Studio = (() => {
     requestDomain: '',
   };
 
-  // ── Ambient Preview State ───────────────────────────────────
-  let _previewAudio = null;
-  let _previewCtx = null;
-  let _previewGain = null;
-  let _previewSource = null;
-  let _currentPreviewId = null;
+  // ── Music State ──────────────────────────────────────────
+  let _musicUploading = false;
+  let _musicMode = 'library'; // 'library' | 'upload'
+  
+  // Library State
+  let _libMusicTitle = '';
+  let _libMusicArtist = '';
+  let _libMusicCoverUrl = null;
+  let _libMusicUrl = null;
+  
+  // Upload State
+  let _uplMusicTitle = '';
+  let _uplMusicUrl = null;
 
-  // ── Ambient Preview Functions ───────────────────────────────
-  const stopAmbientPreview = () => {
-    if (_previewGain && _previewCtx) {
-      _previewGain.gain.setTargetAtTime(0, _previewCtx.currentTime, 0.2);
+  // ── Music Preview State ───────────────────────────────────
+  let _previewAudio = null;
+  let _currentPreviewId = null;
+  let _kurasiData = [];
+  let _kurasiFetched = false;
+  const KURASI_URL = './playlist.json';
+  const MAX_MUSIC_SIZE = 10 * 1024 * 1024; // 10MB
+
+  // ── Music Preview Functions ───────────────────────────────
+  const stopMusicPreview = () => {
+    if (_previewAudio) {
+      _previewAudio.pause();
+      _previewAudio.currentTime = 0;
+      _previewAudio = null;
     }
-    setTimeout(() => {
-      if (_previewAudio) {
-        _previewAudio.pause();
-        _previewAudio.currentTime = 0;
-        _previewAudio = null;
+    _currentPreviewId = null;
+    _renderMusicTrack();
+  };
+
+  const playMusicPreview = (url, id) => {
+    if (_currentPreviewId === id && _previewAudio) {
+      stopMusicPreview();
+      return;
+    }
+    if (_previewAudio) { _previewAudio.pause(); _previewAudio = null; }
+    _previewAudio = new Audio(url);
+    _previewAudio.volume = 0.5;
+    _currentPreviewId = id;
+    _previewAudio.play().catch(() => {});
+    _previewAudio.addEventListener('ended', () => { _currentPreviewId = null; _renderMusicTrack(); });
+    _renderMusicTrack();
+  };
+
+  let _kurasiFetchPromise = null;
+
+  const fetchKurasiData = () => {
+    if (_kurasiFetchPromise) return _kurasiFetchPromise;
+    _kurasiFetchPromise = (async () => {
+      try {
+        const res = await fetch(KURASI_URL + '?t=' + Date.now());
+        if (res.ok) _kurasiData = await res.json();
+      } catch (e) {
+        console.warn('[Studio] Gagal fetch kurasi:', e);
+        _kurasiData = [];
       }
-      _currentPreviewId = null;
-      // Re-render to update icons
-      _renderAmbients(_state.ambient);
-    }, 300);
+      _kurasiFetched = true;
+    })();
+    return _kurasiFetchPromise;
   };
 
   // ── Combined Mixer (Voice + Ambient) ───────────────────────
@@ -137,7 +177,7 @@ const Studio = (() => {
       if (_isPlaying) { stop(); return; }
 
       const voiceUrl = VoiceRecorder.getActiveAudioUrl();
-      let ambientUrl = AMBIENT_SOUNDS[_state.ambient];
+      let ambientUrl = (typeof AMBIENT_SOUNDS !== 'undefined') ? AMBIENT_SOUNDS[_state.ambient] : null;
       if (_state.ambient === 'custom') ambientUrl = _state.customAmbientUrl;
 
       // Skenario 1: Gak ada suara
@@ -247,81 +287,17 @@ const Studio = (() => {
     return { play, stop, updateLiveVolume };
   })();
 
-  const playAmbientPreview = (ambientId) => {
-    // If already playing this, stop it
-    if (_currentPreviewId === ambientId && _previewAudio) {
-      stopAmbientPreview();
-      return;
-    }
-
-    // Stop any existing preview
-    if (_previewAudio) {
-      stopAmbientPreview();
-    }
-
-    // Check if valid sound (Custom or Preset)
-    let soundUrl = AMBIENT_SOUNDS[ambientId];
-    if (ambientId === 'custom') {
-      soundUrl = _state.customAmbientUrl;
-    }
-
-    if (!soundUrl) {
-      if (ambientId === 'custom') {
-        showToast('Pilih file musik dulu ya!');
-      }
-      return;
-    }
-
-    // Initialize AudioContext if needed
-    if (!_previewCtx) {
-      _previewCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (_previewCtx.state === 'suspended') {
-      _previewCtx.resume();
-    }
-
-    // Create audio element
-    _previewAudio = new Audio();
-    _previewAudio.crossOrigin = 'anonymous';
-    _previewAudio.src = soundUrl;
-
-    // Check if it's a song (should not loop)
-    const isSong = ['nadin-ah', 'daniel', 'mitski', 'feast-nina', 'feast-tarot', 'custom'].includes(ambientId);
-    _previewAudio.loop = !isSong;
-
-    // Setup Web Audio nodes
-    _previewSource = _previewCtx.createMediaElementSource(_previewAudio);
-    _previewGain = _previewCtx.createGain();
-    _previewGain.gain.setValueAtTime(0, _previewCtx.currentTime);
-
-    _previewSource.connect(_previewGain);
-    _previewGain.connect(_previewCtx.destination);
-
-    // Play with fade in
-    _previewAudio.play().then(() => {
-      _previewGain.gain.setTargetAtTime(0.085, _previewCtx.currentTime, 0.3);
-      _currentPreviewId = ambientId;
-      // Re-render to update icons
-      _renderAmbients(_state.ambient);
-    }).catch(err => {
-      console.warn('[Studio] Preview play failed:', err);
-    });
-
-    // Auto-stop after 15 seconds for songs
-    if (isSong) {
-      setTimeout(() => {
-        if (_currentPreviewId === ambientId) {
-          stopAmbientPreview();
-        }
-      }, 15000);
-    }
-  };
-
-  const toggleAmbientPreview = (ambientId) => {
-    if (_currentPreviewId === ambientId) {
-      stopAmbientPreview();
-    } else {
-      playAmbientPreview(ambientId);
+  // ── Legacy Ambient Converter ───────────────────────────────
+  const _convertLegacyAmbient = () => {
+    const aid = _state.ambient;
+    if (!aid || aid === 'none' || aid === 'custom') return;
+    if (typeof AMBIENT_SOUNDS !== 'undefined' && AMBIENT_SOUNDS[aid]) {
+      _state.customAmbientUrl = AMBIENT_SOUNDS[aid];
+      _state.ambient = 'custom';
+      _musicMode = 'upload';
+      _uplMusicTitle = (typeof AMBIENTS !== 'undefined' ? AMBIENTS : []).find(a => a.id === aid)?.label || aid;
+      _uplMusicArtist = 'Legacy Sound';
+      console.log('[Studio] Legacy ambient converted:', aid, '->', _state.customAmbientUrl);
     }
   };
 
@@ -335,6 +311,26 @@ const Studio = (() => {
       const savedConfig = Auth.getInitialConfig();
       if (savedConfig) {
         _state = { ..._state, ...savedConfig };
+        if (savedConfig.musicMode !== undefined) _musicMode = savedConfig.musicMode;
+        if (savedConfig.libMusicTitle !== undefined) _libMusicTitle = savedConfig.libMusicTitle;
+        if (savedConfig.libMusicArtist !== undefined) _libMusicArtist = savedConfig.libMusicArtist;
+        if (savedConfig.libMusicCoverUrl !== undefined) _libMusicCoverUrl = savedConfig.libMusicCoverUrl;
+        if (savedConfig.libMusicUrl !== undefined) _libMusicUrl = savedConfig.libMusicUrl;
+        if (savedConfig.uplMusicTitle !== undefined) _uplMusicTitle = savedConfig.uplMusicTitle;
+        if (savedConfig.uplMusicUrl !== undefined) _uplMusicUrl = savedConfig.uplMusicUrl;
+
+        // Backward compatibility for old drafts
+        if (savedConfig.musicTitle !== undefined && !savedConfig.libMusicTitle && !savedConfig.uplMusicTitle) {
+          if (savedConfig.musicMode === 'upload') {
+            _uplMusicTitle = savedConfig.musicTitle;
+            _uplMusicUrl = savedConfig.customAmbientUrl;
+          } else {
+            _libMusicTitle = savedConfig.musicTitle;
+            _libMusicArtist = savedConfig.musicArtist || '';
+            _libMusicCoverUrl = savedConfig.musicCoverUrl || null;
+            _libMusicUrl = savedConfig.customAmbientUrl;
+          }
+        }
       }
 
       // Init components
@@ -343,7 +339,9 @@ const Studio = (() => {
       VoiceRecorder.init(state.voiceNote);
       Publisher.init();
       _renderThemes(state.theme || 'rose');
-      _renderAmbients(state.ambient || 'none');
+      _convertLegacyAmbient();
+      fetchKurasiData();
+      _renderMusicTrack();
       // If the saved theme is a camera theme, auto-switch to camera tab
       if (state.theme && CAMERA_THEMES.some(t => t.id === state.theme)) {
         switchThemeTab('camera');
@@ -353,7 +351,7 @@ const Studio = (() => {
 
       // Setup Preview Iframe and Events
       Preview.update(state);
-      _initMusicUpload();
+      // Music upload is now handled inside _renderMusicTrack binding
       _initVolumeControls();
       _initPolaroidSection();
 
@@ -506,48 +504,24 @@ const Studio = (() => {
     _triggerImmediateSave(); // Save and sync to preview
   };
 
-  const onAmbientSelected = (ambientId) => {
-    // Handling for Custom Music Re-upload
-    if (ambientId === 'custom' && _state.customAmbientUrl) {
-      // If already active, ask if they want to CHANGE it
-      if (_state.ambient === 'custom') {
-        const confirmChange = confirm('Ganti lagu yang sudah ada dengan file baru?');
-        if (confirmChange) {
-          document.getElementById('file-input-music')?.click();
-        }
-        return;
-      }
-      // If not active, but already has a URL, just select it (don't ask)
-    }
-
-    if (ambientId === 'custom' && !_state.customAmbientUrl) {
-      document.getElementById('file-input-music')?.click();
-      return; // Wait for upload before selecting
-    }
-
-    if (_state.ambient === ambientId) return;
-
-    _state.ambient = ambientId;
-    _renderAmbients(ambientId);
+  // ── Music Selection Functions ──────────────────────────────
+  const onMusicSelected = (audioUrl, title, artist, coverUrl) => {
+    _state.ambient = 'custom';
+    _state.customAmbientUrl = audioUrl;
+    stopMusicPreview();
+    _renderMusicTrack();
     _triggerImmediateSave();
+    showToast(`"${title || 'Lagu'}" dipilih! 🎶`);
   };
 
-  const onRemoveCustomMusic = (e) => {
-    if (e) e.stopPropagation();
-    const confirmRemove = confirm('Hapus lagu custom ini?');
-    if (confirmRemove) {
-      _state.customAmbientUrl = null;
-      if (_state.ambient === 'custom') {
-        _state.ambient = 'none';
-      }
-      stopAmbientPreview();
-      _renderAmbients(_state.ambient);
-      _triggerImmediateSave();
-
-      const remaining = 5 - _state.customUploadCount;
-      alert(`Lagu dihapus. Kamu sudah menggunakan ${_state.customUploadCount} dari 5 kesempatan upload lagu sendiri.`);
-      showToast('Lagu berhasil dihapus. ✨');
-    }
+  const onMusicRemoved = () => {
+    if (!confirm('Hapus lagu ini?')) return;
+    _state.ambient = 'none';
+    _state.customAmbientUrl = null;
+    stopMusicPreview();
+    _renderMusicTrack();
+    _triggerImmediateSave();
+    showToast('Lagu dihapus. ✨');
   };
 
   // ── Polaroid Section Logic ────────────────────────────────
@@ -639,64 +613,49 @@ const Studio = (() => {
     }
   };
 
-  // ── Music Upload Logic ─────────────────────────────────────
-  const _initMusicUpload = () => {
-    const input = document.getElementById('file-input-music');
-    if (!input) return;
+  // ── Music Upload Handler ─────────────────────────────────────
+  const _handleMusicUpload = async (file) => {
+    if (!file) return;
+    if (file.size > MAX_MUSIC_SIZE) {
+      showToast('File musik terlalu besar! Maksimal 10MB.');
+      return;
+    }
+    showToast('Mengupload lagu... 🎶');
+    _musicUploading = true;
+    _renderMusicTrack();
 
-    input.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', 'audio');
 
-      // VALIDASI QUOTA: Maks 5x (Hidden limit, UI says 2x)
-      if (_state.customUploadCount >= 5) {
-        alert('Maaf, kamu sudah mencapai batas maksimal 2x upload lagu sendiri untuk kado ini.');
-        input.value = '';
-        return;
+    try {
+      const API_BASE_URL = window.APP_CONFIG?.apiBaseUrl || 'https://valentine-upload.aldoramadhan16.workers.dev';
+      const response = await fetch(`${API_BASE_URL}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (!response.ok) throw new Error('Upload gagal');
+      const result = await response.json();
+      if (result.success) {
+        _musicUploading = false;
+        _uplMusicUrl = result.url;
+        _uplMusicTitle = file.name.replace(/\.[^/.]+$/, '');
+        _musicMode = 'upload';
+        _renderMusicTrack();
+        _triggerImmediateSave();
+        showToast('Lagu berhasil diupload! 🎶');
+      } else {
+        throw new Error(result.error || 'Server error');
       }
-
-      // VALIDASI: Max 7MB
-      const MAX_SIZE = 7 * 1024 * 1024;
-      if (file.size > MAX_SIZE) {
-        alert('File musik terlalu besar (Maks 6MB). Silakan pilih file yang lebih kecil ya!');
-        input.value = '';
-        return;
-      }
-
-      // Mulai Upload
-      showToast('Sedang mengupload musik... 🎶');
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', 'audio'); // Same endpoint as voice
-
-      try {
-        const API_BASE_URL = 'https://valentine-upload.aldoramadhan16.workers.dev';
-        const response = await fetch(`${API_BASE_URL}/upload`, {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) throw new Error('Upload gagal');
-        const result = await response.json();
-
-        if (result.success) {
-          _state.customAmbientUrl = result.url;
-          _state.ambient = 'custom';
-          _state.customUploadCount = (_state.customUploadCount || 0) + 1;
-          _renderAmbients('custom');
-          _triggerImmediateSave();
-          showToast('Musik berhasil terpasang! ✨');
-        } else {
-          throw new Error(result.error || 'Server error');
-        }
-      } catch (err) {
-        console.error('[Studio] Music upload error:', err);
-        showToast('Gagal upload musik. Coba lagi.');
-      } finally {
-        input.value = '';
-      }
-    });
+    } catch (err) {
+      console.error('[Studio] Music upload error:', err);
+      _musicUploading = false;
+      _renderMusicTrack();
+      showToast('Gagal upload musik. Coba lagi.');
+    }
   };
+
+  // Music variables hoisted to top of file
 
   // ── Hint Modal Logic ────────────────────────────────────────
   const openHintModal = () => {
@@ -713,32 +672,7 @@ const Studio = (() => {
     }
   };
 
-  // ── Ambient Tab Switching ─────────────────────────────────
-  const _activeAmbientTab = { current: 'suasana' };
-
-  const switchAmbientTab = (tabId) => {
-    _activeAmbientTab.current = tabId;
-    const tabs = ['suasana', 'lagu'];
-    const indicator = document.getElementById('ambient-tab-indicator');
-    const uploadHint = document.getElementById('ambient-upload-hint');
-
-    tabs.forEach(id => {
-      const panel = document.getElementById(`ambient-tab-panel-${id}`);
-      const btn = document.getElementById(`ambient-tab-btn-${id}`);
-      if (!panel || !btn) return;
-      const isActive = id === tabId;
-      panel.classList.toggle('hidden', !isActive);
-      btn.classList.toggle('text-black', isActive);
-      btn.classList.toggle('text-gray-400', !isActive);
-    });
-
-    if (indicator) {
-      indicator.style.transform = tabId === 'lagu' ? 'translateX(100%)' : 'translateX(0)';
-    }
-
-    // Show upload hint only on the Lagu tab
-    if (uploadHint) uploadHint.classList.toggle('hidden', tabId !== 'lagu');
-  };
+  // ── (Old ambient tab switching removed — now handled by _renderMusicTrack) ──
 
   // ── Tab Switching ──────────────────────────────────────────
   const _activeTab = { current: 'musicbox' };
@@ -803,70 +737,204 @@ const Studio = (() => {
     if (camContainer) camContainer.innerHTML = (CAMERA_THEMES || []).map(renderThemeBtn).join('');
   };
 
-  const _renderAmbients = (activeAmbientId) => {
-    const muteWrap = document.getElementById('ambient-mute-btn-wrap');
-    const suasanaPanel = document.getElementById('ambient-tab-panel-suasana');
-    const laguPanel = document.getElementById('ambient-tab-panel-lagu');
-    if (!muteWrap && !suasanaPanel) return;
-
-    const data = (typeof AMBIENTS !== 'undefined' ? AMBIENTS : []);
-    if (data.length === 0) return;
-
-    // Helper: render one sound card
-    const renderCard = (a) => {
-      const isActive = a.id === activeAmbientId;
-      const isPlaying = _currentPreviewId === a.id;
-      const hasSound = (AMBIENT_SOUNDS[a.id]) || (a.id === 'custom' && _state.customAmbientUrl);
-
-      return `
-        <div class="inline-flex items-center gap-2">
-          ${hasSound ? `
-            <button
-              onclick="event.stopPropagation(); Studio.toggleAmbientPreview('${a.id}')"
-              class="w-7 h-7 min-w-[28px] rounded-full border transition-all flex items-center justify-center text-[9px] ${isPlaying ? 'border-black bg-black text-white' : 'border-gray-200 hover:border-black text-gray-400 hover:text-black'}"
-              title="${isPlaying ? 'Hentikan Preview' : 'Dengarkan Preview'}"
-            >${isPlaying ? '⏸' : '▶'}</button>
-          ` : '<div class="w-7"></div>'}
-          <button
-            onclick="Studio.onAmbientSelected('${a.id}')"
-            class="flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all text-left ${isActive ? 'border-black bg-black text-white' : 'border-gray-200 hover:border-black text-gray-500 hover:text-black'}"
-          >
-            <span class="text-xs">${a.emoji}</span>
-            <span class="text-[9px] uppercase tracking-widest font-bold whitespace-nowrap">${a.label}</span>
-            ${a.id === 'custom' && _state.customAmbientUrl ? `
-              <span
-                onclick="event.stopPropagation(); Studio.onRemoveCustomMusic(event)"
-                class="ml-1 w-4 h-4 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center text-[8px] transition-all"
-                title="Hapus Lagu"
-              >✕</span>
-            ` : ''}
-          </button>
-        </div>
-      `;
-    };
-
-    // Mute button (Tanpa Suara)
-    const none = data.find(a => a.id === 'none');
-    if (muteWrap && none) {
-      const isActive = activeAmbientId === 'none';
-      muteWrap.innerHTML = `
-        <button
-          onclick="Studio.onAmbientSelected('none')"
-          class="flex items-center gap-2 px-4 py-2 rounded-full border transition-all active:scale-95 ${isActive ? 'border-red-500 bg-red-500 text-white shadow-md shadow-red-500/20' : 'border-red-100 bg-red-50 text-red-400 hover:bg-red-100'}"
-        >
-          <span class="text-xs">${none.emoji}</span>
-          <span class="text-[9px] uppercase tracking-widest font-bold">${none.label}</span>
-        </button>
-      `;
+  // ── Render Music Track (New Song Library + Upload MP3 UI) ──
+  const _renderMusicTrack = () => {
+    // Sync active state based on mode
+    if (_musicMode === 'library') {
+      _state.customAmbientUrl = _libMusicUrl;
+      _state.ambient = _libMusicUrl ? 'custom' : 'none';
+    } else {
+      _state.customAmbientUrl = _uplMusicUrl;
+      _state.ambient = _uplMusicUrl ? 'custom' : 'none';
     }
 
-    // Suasana tab (loop: true, skip 'none')
-    const suasana = data.filter(a => a.loop && a.id !== 'none');
-    if (suasanaPanel) suasanaPanel.innerHTML = suasana.map(renderCard).join('');
+    const container = document.getElementById('music-track-container');
+    if (!container) return;
 
-    // Lagu tab (loop: false)
-    const lagu = data.filter(a => !a.loop);
-    if (laguPanel) laguPanel.innerHTML = lagu.map(renderCard).join('');
+    const hasLibAudio = !!_libMusicUrl;
+    const hasUplAudio = !!_uplMusicUrl;
+    const isLibraryMode = _musicMode === 'library';
+    const isPlaying = _currentPreviewId === 'current' && _previewAudio;
+
+    container.innerHTML = `
+      <div style="padding:24px;background:#fff;border:1px solid #f3f4f6;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+        <h3 style="font-size:10px;font-weight:700;color:#d4a373;text-transform:uppercase;letter-spacing:0.2em;margin-bottom:16px;">Lagu</h3>
+
+        <!-- Tab Bar -->
+        <div style="display:flex;background:#f9fafb;border-radius:8px;padding:4px;margin-bottom:20px;max-width:320px;">
+          <button id="music-tab-library" style="flex:1;padding:6px 8px;font-size:8px;text-transform:uppercase;letter-spacing:0.15em;font-weight:700;border:none;cursor:pointer;border-radius:6px;transition:all 0.2s;${isLibraryMode ? 'background:#fff;box-shadow:0 1px 2px rgba(0,0,0,0.06);color:#000;' : 'background:transparent;color:#9ca3af;'}">Song Library</button>
+          <button id="music-tab-upload" style="flex:1;padding:6px 8px;font-size:8px;text-transform:uppercase;letter-spacing:0.15em;font-weight:700;border:none;cursor:pointer;border-radius:6px;transition:all 0.2s;${!isLibraryMode ? 'background:#fff;box-shadow:0 1px 2px rgba(0,0,0,0.06);color:#000;' : 'background:transparent;color:#9ca3af;'}">Upload MP3</button>
+        </div>
+
+        <!-- SONG LIBRARY MODE -->
+        <div id="mode-library" style="${isLibraryMode ? '' : 'display:none;'}">
+          ${(isLibraryMode && hasLibAudio && _libMusicTitle) ? `
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fdf9f4;border:1px solid rgba(212,163,115,0.2);border-radius:12px;margin-bottom:12px;">
+            <div style="width:48px;height:48px;border-radius:8px;overflow:hidden;background:#f3f4f6;flex-shrink:0;">
+              ${_libMusicCoverUrl ? `<img src="${_libMusicCoverUrl}" style="width:100%;height:100%;object-fit:cover;">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:18px;">🎵</div>'}
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;">
+              <button id="btn-play-library-song" style="width:28px;height:28px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;flex-shrink:0;">
+                <span style="color:#fff;font-size:8px;margin-left:${_currentPreviewId === 'library' ? '0' : '2px'};">${_currentPreviewId === 'library' ? '⏸' : '▶'}</span>
+              </button>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <p style="font-size:11px;font-weight:700;color:#1f2937;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_libMusicTitle}</p>
+              <p style="font-size:9px;color:#9ca3af;margin-top:2px;">${_libMusicArtist || ''}</p>
+            </div>
+            <div style="display:flex;gap:8px;flex-shrink:0;">
+              <button id="btn-change-library" style="font-size:8px;text-transform:uppercase;letter-spacing:0.15em;font-weight:700;color:#d4a373;background:none;border:none;cursor:pointer;">Ganti</button>
+              <button id="btn-clear-library" style="font-size:8px;text-transform:uppercase;letter-spacing:0.15em;font-weight:700;color:#d1d5db;background:none;border:none;cursor:pointer;">✕</button>
+            </div>
+          </div>
+          ` : `
+          <div style="text-align:center;padding:24px;border:2px dashed #f3f4f6;border-radius:12px;background:rgba(249,250,251,0.5);margin-bottom:12px;">
+            <p style="font-size:9px;text-transform:uppercase;letter-spacing:0.2em;color:#9ca3af;font-weight:700;margin-bottom:12px;">Belum ada lagu dipilih</p>
+            <button id="btn-open-library" style="font-size:8px;text-transform:uppercase;letter-spacing:0.15em;font-weight:700;background:#000;color:#fff;padding:8px 20px;border:none;border-radius:8px;cursor:pointer;">Pilih dari Song Library</button>
+          </div>
+          `}
+        </div>
+
+        <!-- UPLOAD MP3 MODE -->
+        <div id="mode-upload" style="${!isLibraryMode ? '' : 'display:none;'}">
+          ${_musicUploading ? `
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0;text-align:center;">
+            <div style="width:32px;height:32px;border:2px solid #f3f4f6;border-top-color:#d4a373;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:12px;"></div>
+            <p style="font-size:8px;text-transform:uppercase;letter-spacing:0.15em;color:#d4a373;font-weight:700;">Mengupload lagu...</p>
+          </div>
+          ` : (!isLibraryMode && hasUplAudio) ? `
+          <!-- Audio Player -->
+          <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:#fdf9f4;border-radius:12px;margin-bottom:12px;border:1px solid rgba(212,163,115,0.2);">
+            <button id="btn-play-preview" style="width:28px;height:28px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;flex-shrink:0;">
+              <span style="color:#fff;font-size:8px;margin-left:${isPlaying ? '0' : '2px'};">${isPlaying ? '⏸' : '▶'}</span>
+            </button>
+            <div style="flex:1;height:4px;background:#e5e7eb;border-radius:9999px;overflow:hidden;">
+              <div id="audio-progress" style="height:100%;background:#d4a373;border-radius:9999px;width:0%;transition:width 0.1s;"></div>
+            </div>
+            <span id="audio-duration" style="font-size:9px;color:#9ca3af;font-family:monospace;flex-shrink:0;">--:--</span>
+            <button id="btn-remove-uploaded" style="font-size:10px;color:#ef4444;background:none;border:none;cursor:pointer;flex-shrink:0;margin-left:4px;" title="Hapus File Audio">✕</button>
+            <audio id="audio-player" style="display:none;" src="${_state.customAmbientUrl || ''}"></audio>
+          </div>
+
+          <!-- Re-upload -->
+          <div style="text-align:center;margin-top:16px;">
+            <button id="btn-reupload" style="font-size:8px;text-transform:uppercase;letter-spacing:0.15em;color:#9ca3af;font-weight:700;background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Ganti file MP3</button>
+            <input type="file" accept="audio/*,.mp3,.m4a,.wav" id="input-audio-upload" style="display:none;">
+          </div>
+          ` : `
+          <!-- Empty Upload State -->
+          <div id="audio-dropzone" style="border:2px dashed #f3f4f6;border-radius:12px;padding:32px 0;text-align:center;cursor:pointer;background:rgba(249,250,251,0.5);margin-bottom:8px;transition:all 0.2s;">
+            <div style="width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid #f3f4f6;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+              <svg style="width:16px;height:16px;color:#9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            </div>
+            <p style="font-size:9px;text-transform:uppercase;letter-spacing:0.2em;color:#6b7280;font-weight:700;">Klik untuk upload MP3</p>
+            <p style="font-size:8px;color:#d1d5db;margin-top:4px;">Maks 10MB</p>
+          </div>
+          <input type="file" accept="audio/*,.mp3,.m4a,.wav" id="input-audio-upload" style="display:none;">
+          `}
+
+          <div style="text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid #f3f4f6;display:${!_musicUploading ? 'block' : 'none'};">
+            <button type="button" onclick="event.stopPropagation(); window.openHintModal && window.openHintModal();" style="background:none;border:none;font-size:10px;color:#9ca3af;text-decoration:underline;cursor:pointer;">Penting: Aturan Upload</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Bind Events
+    document.getElementById('music-tab-library')?.addEventListener('click', () => { if (_musicMode === 'library') return; _musicMode = 'library'; _renderMusicTrack(); _triggerImmediateSave(); });
+    document.getElementById('music-tab-upload')?.addEventListener('click', () => { if (_musicMode === 'upload') return; _musicMode = 'upload'; _renderMusicTrack(); _triggerImmediateSave(); });
+    document.getElementById('btn-open-library')?.addEventListener('click', () => openLibraryModal());
+    document.getElementById('btn-change-library')?.addEventListener('click', () => openLibraryModal());
+    document.getElementById('btn-play-library-song')?.addEventListener('click', () => {
+      if (_libMusicUrl) playMusicPreview(_libMusicUrl, 'library');
+    });
+    document.getElementById('btn-clear-library')?.addEventListener('click', () => {
+      _libMusicUrl = null; _libMusicTitle = ''; _libMusicArtist = ''; _libMusicCoverUrl = null;
+      stopMusicPreview(); _renderMusicTrack(); _triggerImmediateSave();
+    });
+    const dropzone = document.getElementById('audio-dropzone');
+    const audioInput = document.getElementById('input-audio-upload');
+    dropzone?.addEventListener('click', () => audioInput?.click());
+    document.getElementById('btn-reupload')?.addEventListener('click', () => audioInput?.click());
+    audioInput?.addEventListener('change', (e) => { const f = e.target.files[0]; if (f) _handleMusicUpload(f); if (audioInput) audioInput.value = ''; });
+    document.getElementById('btn-remove-uploaded')?.addEventListener('click', () => {
+      if (!confirm('Hapus lagu yang sudah diupload?')) return;
+      _uplMusicUrl = null; _uplMusicTitle = '';
+      stopMusicPreview(); _renderMusicTrack(); _triggerImmediateSave();
+    });
+    // Title inputs removed
+    const player = document.getElementById('audio-player');
+    const plyBtn = document.getElementById('btn-play-preview');
+    const progressBar = document.getElementById('audio-progress');
+    const durationEl = document.getElementById('audio-duration');
+    if (player && plyBtn) {
+      player.addEventListener('loadedmetadata', () => { const m = Math.floor(player.duration / 60); const s = Math.floor(player.duration % 60).toString().padStart(2, '0'); if (durationEl) durationEl.textContent = `${m}:${s}`; });
+      player.addEventListener('timeupdate', () => { if (player.duration && progressBar) progressBar.style.width = (player.currentTime / player.duration * 100) + '%'; });
+      player.addEventListener('ended', () => {
+        plyBtn.innerHTML = '<span style="color:#fff;font-size:8px;margin-left:2px;">▶</span>';
+      });
+      plyBtn.addEventListener('click', () => {
+        if (!player.src) return;
+        if (player.paused) {
+          player.play();
+          plyBtn.innerHTML = '<span style="color:#fff;font-size:8px;margin-left:0;">⏸</span>';
+        } else {
+          player.pause();
+          plyBtn.innerHTML = '<span style="color:#fff;font-size:8px;margin-left:2px;">▶</span>';
+        }
+      });
+    }
+  };
+
+  // ── Song Library Modal ────────────────────────────────────
+  const openLibraryModal = () => {
+    const modal = document.getElementById('music-library-modal');
+    if (!modal) return;
+    modal.classList.remove('hidden'); modal.style.display = 'flex';
+    let selectedSong = null;
+    const closeModal = () => { modal.classList.add('hidden'); modal.style.display = 'none'; };
+    document.getElementById('library-modal-close')?.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    const confirmBtn = document.getElementById('library-confirm-btn');
+    confirmBtn?.addEventListener('click', () => {
+      if (!selectedSong) return;
+      _musicMode = 'library'; _libMusicTitle = selectedSong.title; _libMusicArtist = selectedSong.artist; _libMusicCoverUrl = selectedSong.coverUrl || null;
+      _libMusicUrl = selectedSong.audioUrl || null;
+      closeModal(); _renderMusicTrack(); _triggerImmediateSave();
+      showToast(`"${selectedSong.title}" dipilih! 🎶`);
+    });
+    const renderSongs = (songs) => {
+      const list = document.getElementById('library-songs-list');
+      if (!songs || songs.length === 0) { list.innerHTML = '<div style="text-align:center;padding:40px 0;font-size:9px;color:#9ca3af;">Playlist kosong</div>'; return; }
+      list.innerHTML = songs.map((song, i) => `
+        <div class="library-song-item" data-idx="${i}" style="display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;border-bottom:1px solid #fafafa;transition:background 0.15s;">
+          <div style="width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#f3f4f6;">
+            ${song.coverUrl ? `<img src="${song.coverUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:16px;\'>🎵</div>'">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:16px;">🎵</div>'}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <p style="font-size:11px;font-weight:700;color:#1f2937;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${song.title}</p>
+            <p style="font-size:9px;color:#9ca3af;margin-top:2px;">${song.artist}</p>
+          </div>
+          <div class="song-check" style="width:20px;height:20px;border-radius:50%;border:2px solid #e5e7eb;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;">
+            <span class="check-icon" style="font-size:8px;color:#fff;display:none;">✓</span>
+          </div>
+        </div>
+      `).join('');
+      list.querySelectorAll('.library-song-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const idx = parseInt(item.dataset.idx); selectedSong = songs[idx];
+          list.querySelectorAll('.library-song-item').forEach(el => {
+            el.style.background = ''; const chk = el.querySelector('.song-check'); if (chk) { chk.style.background = ''; chk.style.borderColor = '#e5e7eb'; }
+            const icon = el.querySelector('.check-icon'); if (icon) icon.style.display = 'none';
+          });
+          item.style.background = '#fdf9f4'; const chk = item.querySelector('.song-check');
+          if (chk) { chk.style.background = '#d4a373'; chk.style.borderColor = '#d4a373'; }
+          const icon = item.querySelector('.check-icon'); if (icon) icon.style.display = 'inline';
+          if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.style.opacity = '1'; }
+        });
+      });
+    };
+    fetchKurasiData().then(() => renderSongs(_kurasiData));
   };
 
   // ── Requirements UI Update ───────────────────────────────
@@ -893,13 +961,15 @@ const Studio = (() => {
 
   // ── Trigger autosave + preview sync ──────────────────────
   const _triggerSaveAndPreview = () => {
-    Autosave.trigger(() => ({ ..._state }));
-    Preview.update(_state);
+    const s = { ..._state, musicMode: _musicMode, libMusicTitle: _libMusicTitle, libMusicArtist: _libMusicArtist, libMusicCoverUrl: _libMusicCoverUrl, libMusicUrl: _libMusicUrl, uplMusicTitle: _uplMusicTitle, uplMusicUrl: _uplMusicUrl };
+    Autosave.trigger(() => s);
+    Preview.update(s);
   };
 
   const _triggerImmediateSave = () => {
-    Autosave.saveNow({ ..._state });
-    Preview.update(_state);
+    const s = { ..._state, musicMode: _musicMode, libMusicTitle: _libMusicTitle, libMusicArtist: _libMusicArtist, libMusicCoverUrl: _libMusicCoverUrl, libMusicUrl: _libMusicUrl, uplMusicTitle: _uplMusicTitle, uplMusicUrl: _uplMusicUrl };
+    Autosave.saveNow(s);
+    Preview.update(s);
   };
 
   // ── Section Toggle (Collapsible Accordion) ────────────────────
@@ -921,13 +991,11 @@ const Studio = (() => {
     onPolaroidLetterChanged,
     onPolaroidPhotoRemoved,
     onThemeSelected,
-    onAmbientSelected,
-    onRemoveCustomMusic,
-    toggleAmbientPreview,
+    onMusicSelected,
+    onMusicRemoved,
     openHintModal,
     closeHintModal,
     switchThemeTab,
-    switchAmbientTab,
     toggleSection,
     getThemeConfig: (themeId) => {
       // Robust lookup: try direct ID match, then handle legacy IDs
