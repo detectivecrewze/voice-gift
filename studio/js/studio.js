@@ -928,9 +928,16 @@ const Studio = (() => {
     modal.style.display = 'flex';
 
     let selectedSong = null;
+    let previewAudio = null;
+    let previewTimeout = null;
 
     // Close
-    const closeModal = () => { modal.classList.add('hidden'); modal.style.display = 'none'; };
+    const closeModal = () => { 
+        if (previewAudio) { previewAudio.pause(); previewAudio = null; }
+        if (previewTimeout) clearTimeout(previewTimeout);
+        modal.classList.add('hidden'); 
+        modal.style.display = 'none'; 
+    };
     document.getElementById('library-modal-close')?.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
@@ -958,11 +965,15 @@ const Studio = (() => {
       }
       list.innerHTML = songs.map((song, i) => `
         <div class="library-song-item" data-idx="${i}" style="display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;border-bottom:1px solid #fafafa;transition:background 0.15s;">
-          <div style="width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#f3f4f6;">
+          <div style="width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#f3f4f6;position:relative;">
             ${song.coverUrl
               ? `<img src="${song.coverUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:16px;\'>🎵</div>'">`
               : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:16px;">🎵</div>'
             }
+            <!-- Preview Button -->
+            <button class="btn-song-preview" data-url="${song.audioUrl}" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:8px;background:rgba(0,0,0,0.4);border:none;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:background 0.2s;">
+              <span class="preview-icon">▶</span>
+            </button>
           </div>
           <div style="flex:1;min-width:0;">
             <p style="font-size:11px;font-weight:700;color:#1f2937;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${song.title}</p>
@@ -973,6 +984,45 @@ const Studio = (() => {
           </div>
         </div>
       `).join('');
+
+      // Bind song preview
+      list.querySelectorAll('.btn-song-preview').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation(); // prevent selecting the song
+          const url = btn.dataset.url;
+          if (!url) return;
+          
+          const icon = btn.querySelector('.preview-icon');
+          const isPlaying = icon.textContent === '⏸';
+          
+          if (previewAudio) {
+            previewAudio.pause();
+            previewAudio = null;
+          }
+          if (previewTimeout) clearTimeout(previewTimeout);
+          
+          list.querySelectorAll('.preview-icon').forEach(ic => ic.textContent = '▶');
+          
+          if (!isPlaying) {
+             previewAudio = new Audio(url);
+             previewAudio.play().catch(err => console.warn('Preview blocked:', err));
+             icon.textContent = '⏸';
+             
+             previewTimeout = setTimeout(() => {
+                if (previewAudio) {
+                   previewAudio.pause();
+                   previewAudio = null;
+                }
+                icon.textContent = '▶';
+             }, 30000);
+
+             previewAudio.addEventListener('ended', () => {
+                icon.textContent = '▶';
+                previewAudio = null;
+             });
+          }
+        });
+      });
 
       // Bind song selection
       list.querySelectorAll('.library-song-item').forEach(item => {
