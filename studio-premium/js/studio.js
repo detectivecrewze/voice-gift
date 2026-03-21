@@ -774,8 +774,9 @@ const Studio = (() => {
               ${_libMusicCoverUrl ? `<img src="${_libMusicCoverUrl}" style="width:100%;height:100%;object-fit:cover;">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:18px;">🎵</div>'}
             </div>
             <div style="display:flex;align-items:center;justify-content:center;">
-              <button id="btn-play-library-song" style="width:28px;height:28px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;flex-shrink:0;">
-                <span style="color:#fff;font-size:8px;margin-left:${_currentPreviewId === 'library' ? '0' : '2px'};">${_currentPreviewId === 'library' ? '⏸' : '▶'}</span>
+              <button id="btn-play-library-song" style="width:28px;height:28px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;">
+                <img src="/assets/icons/play.svg" width="10" height="10" style="display:${_currentPreviewId === 'library' ? 'none' : 'block'}; margin-left:1px; filter:brightness(0) invert(1);">
+                <img src="/assets/icons/pause.svg" width="10" height="10" style="display:${_currentPreviewId === 'library' ? 'block' : 'none'}; filter:brightness(0) invert(1);">
               </button>
             </div>
             <div style="flex:1;min-width:0;">
@@ -805,8 +806,9 @@ const Studio = (() => {
           ` : (!isLibraryMode && hasUplAudio) ? `
           <!-- Audio Player -->
           <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:#fdf9f4;border-radius:12px;margin-bottom:12px;border:1px solid rgba(212,163,115,0.2);">
-            <button id="btn-play-preview" style="width:28px;height:28px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;flex-shrink:0;">
-              <span style="color:#fff;font-size:8px;margin-left:${isPlaying ? '0' : '2px'};">${isPlaying ? '⏸' : '▶'}</span>
+            <button id="btn-play-preview" style="width:28px;height:28px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;">
+              <img src="/assets/icons/play.svg" width="10" height="10" style="display:${isPlaying ? 'none' : 'block'}; margin-left:1px; filter:brightness(0) invert(1);">
+              <img src="/assets/icons/pause.svg" width="10" height="10" style="display:${isPlaying ? 'block' : 'none'}; filter:brightness(0) invert(1);">
             </button>
             <div style="flex:1;height:4px;background:#e5e7eb;border-radius:9999px;overflow:hidden;">
               <div id="audio-progress" style="height:100%;background:#d4a373;border-radius:9999px;width:0%;transition:width 0.1s;"></div>
@@ -917,8 +919,9 @@ const Studio = (() => {
           <div style="width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#f3f4f6;position:relative;">
             ${song.coverUrl ? `<img src="${song.coverUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:16px;\'>🎵</div>'">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:16px;">🎵</div>'}
             <!-- Preview Button -->
-            <button class="btn-song-preview" data-url="${song.audioUrl}" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:8px;background:rgba(0,0,0,0.4);border:none;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:background 0.2s;">
-              <span class="preview-icon">▶</span>
+            <button class="btn-song-preview" data-url="${song.audioUrl}" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:8px;background:transparent;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer; -webkit-tap-highlight-color:transparent;">
+              <img class="preview-icon svg-play" src="/assets/icons/play.svg" width="14" height="14" style="filter:brightness(0) invert(1); drop-shadow:0 0 4px rgba(0,0,0,0.5);">
+              <img class="preview-icon svg-pause" src="/assets/icons/pause.svg" width="14" height="14" style="display:none; filter:brightness(0) invert(1); drop-shadow:0 0 4px rgba(0,0,0,0.5);">
             </button>
           </div>
           <div style="flex:1;min-width:0;">
@@ -938,8 +941,9 @@ const Studio = (() => {
           const url = btn.dataset.url;
           if (!url) return;
           
-          const icon = btn.querySelector('.preview-icon');
-          const isPlaying = icon.textContent === '⏸';
+          const iconPlay = btn.querySelector('.svg-play');
+          const iconPause = btn.querySelector('.svg-pause');
+          const isPlaying = iconPause.style.display === 'block';
           
           if (previewAudio) {
             previewAudio.pause();
@@ -947,23 +951,29 @@ const Studio = (() => {
           }
           if (previewTimeout) clearTimeout(previewTimeout);
           
-          list.querySelectorAll('.preview-icon').forEach(ic => ic.textContent = '▶');
+          list.querySelectorAll('.btn-song-preview').forEach(b => {
+             b.querySelector('.svg-play').style.display = 'block';
+             b.querySelector('.svg-pause').style.display = 'none';
+          });
           
           if (!isPlaying) {
              previewAudio = new Audio(url);
              previewAudio.play().catch(err => console.warn('Preview blocked:', err));
-             icon.textContent = '⏸';
+             iconPlay.style.display = 'none';
+             iconPause.style.display = 'block';
              
              previewTimeout = setTimeout(() => {
                 if (previewAudio) {
                    previewAudio.pause();
                    previewAudio = null;
                 }
-                icon.textContent = '▶';
+                iconPlay.style.display = 'block';
+                iconPause.style.display = 'none';
              }, 30000);
 
              previewAudio.addEventListener('ended', () => {
-                icon.textContent = '▶';
+                iconPlay.style.display = 'block';
+                iconPause.style.display = 'none';
                 previewAudio = null;
              });
           }
