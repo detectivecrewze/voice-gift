@@ -530,7 +530,7 @@ const Studio = (() => {
     // Restore letter
     if (letterEl && _state.polaroid_letter) {
       letterEl.value = _state.polaroid_letter;
-      if (charCount) charCount.textContent = `${_state.polaroid_letter.length} / 800`;
+      if (charCount) charCount.textContent = `${_state.polaroid_letter.length} / 1300`;
     }
 
     // Restore photo preview
@@ -543,9 +543,9 @@ const Studio = (() => {
     // Letter input handler
     if (letterEl) {
       letterEl.addEventListener('input', (e) => {
-        const text = e.target.value.slice(0, 800);
+        const text = e.target.value.slice(0, 1300);
         e.target.value = text;
-        if (charCount) charCount.textContent = `${text.length} / 800`;
+        if (charCount) charCount.textContent = `${text.length} / 1300`;
         Studio.onPolaroidLetterChanged(text);
       });
     }
