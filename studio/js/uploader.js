@@ -123,14 +123,17 @@ const Uploader = (() => {
   const _handleFiles = async (files) => {
     const uploadQueue = [];
 
-    for (const file of files) {
-      // Cek batas maksimum
-      const successCount = _photos.filter(p => p.status === 'success' || p.status === 'uploading').length;
-      if (successCount + uploadQueue.length >= MAX_PHOTOS) {
-        Studio.showToast(`Batas maksimal foto tercapai. Silakan hapus foto untuk menambah yang baru.`);
-        break;
-      }
+    // Hitung sebelum loop
+    const currentCount = _photos.filter(p => p.status === 'success' || p.status === 'uploading').length;
+    const remainingSlots = MAX_PHOTOS - currentCount;
 
+    // Potong files yang melebihi sisa slot
+    const filesToProcess = files.slice(0, remainingSlots);
+    if (files.length > remainingSlots) {
+      Studio.showToast(`Hanya ${remainingSlots} foto yang bisa ditambahkan. Batas maksimal ${MAX_PHOTOS} foto.`);
+    }
+
+    for (const file of filesToProcess) {
       // Cek tipe file
       const isImage = file.type.startsWith('image/');
       const isHeic = file.name.toLowerCase().endsWith('.heic') || file.type === 'image/heic';

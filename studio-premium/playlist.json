@@ -115,8 +115,48 @@
     "title": "Nina",
     "artist": "Feast",
     "genre": "Indonesia",
-    "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1773962649863-9dacr.jpg",
+    "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774158788615-2n0t3.jpg",
     "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1773962625538-3w9uhn.mp3",
     "audioName": "Feast - Nina (Official Lyric Video).mp3"
+  },
+  {
+    "title": "Risk it all",
+    "artist": "Bruno Mars",
+    "genre": "Indonesia",
+    "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774158856951-epywyr.jpg",
+    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774158821062-h4yb4li.mp3",
+    "audioName": "Bruno Mars - Risk It All (Lyrics).mp3"
+  },
+  {
+    "title": "Ada Titik Titik Di Ujung Doa",
+    "artist": "Sal Priadi",
+    "genre": "Indonesia",
+    "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774158997768-k4dxgw.jpg",
+    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774158958814-4qvoh.mp3",
+    "audioName": "Sal Priadi - Ada Titik Titik Di Ujung Doa (Lyric Video).mp3"
+  },
+  {
+    "title": "SEGALANYA ITU KAMU",
+    "artist": "David Bayu",
+    "genre": "Indonesia",
+    "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774159199143-o5biiq.jpg",
+    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774159153442-rdfg39.mp3",
+    "audioName": "DAVID BAYU - SEGALANYA ITU KAMU (OFFICIAL VIDEO).mp3"
+  },
+  {
+    "title": "Love.",
+    "artist": "Wave To Earth",
+    "genre": "Indonesia",
+    "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774159618163-5etb3.jpg",
+    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774159574041-hgcl59.mp3",
+    "audioName": "wave to earth - love. (Official Lyric Video).mp3"
+  },
+  {
+    "title": "Bad.",
+    "artist": "Wave To Earth",
+    "genre": "Indonesia",
+    "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774159677599-ax3ei.jpg",
+    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774159640361-m4gs6f.mp3",
+    "audioName": "wave to earth - bad (Official Lyric Video).mp3"
   }
 ]
