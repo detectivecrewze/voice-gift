@@ -73,7 +73,7 @@ const Studio = (() => {
     customAmbientUrl: null,
     customUploadCount: 0,
     voiceVolume: 1.0,      // Default 100%
-    ambientVolume: 0.1,    // Default 10% (background)
+    ambientVolume: 0.25,   // Default 25% (background)
     password: null,
     studioPassword: null,
     polaroid_photo: null,
@@ -346,7 +346,7 @@ const Studio = (() => {
       // Init components
       const state = Studio.getState();
       Uploader.init(state.photos || []);
-      VoiceRecorder.init(state.voiceNote);
+      VoiceRecorder.init(state.voiceNote, state.silentDuration);
       Publisher.init();
       _renderThemes(state.theme || 'rose');
       _convertLegacyAmbient();
@@ -1113,7 +1113,16 @@ const Studio = (() => {
   // ── Public API ────────────────────────────────────────────
   return {
     init,
-    getState: () => ({ ..._state }),
+    getState: () => ({
+      ..._state,
+      musicMode: _musicMode,
+      libMusicTitle: _libMusicTitle,
+      libMusicArtist: _libMusicArtist,
+      libMusicCoverUrl: _libMusicCoverUrl,
+      libMusicUrl: _libMusicUrl,
+      uplMusicTitle: _uplMusicTitle,
+      uplMusicUrl: _uplMusicUrl
+    }),
     onPhotosChanged,
     onVoiceNoteChanged,
     onPolaroidPhotoUploaded,

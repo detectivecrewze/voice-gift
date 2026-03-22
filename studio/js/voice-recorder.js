@@ -66,11 +66,11 @@ const VoiceRecorder = (() => {
   };
 
   // ── Init ─────────────────────────────────────────────────
-  const init = (savedVoiceNote = null) => {
+  const init = (savedVoiceNote = null, silentDuration = null) => {
     _bindEvents();
 
     // Jika ada voice note yang sudah tersimpan sebelumnya
-    if (savedVoiceNote?.url) {
+    if (savedVoiceNote?.url && !silentDuration) {
       _savedUrl = savedVoiceNote.url;
       _savedDuration = savedVoiceNote.duration;
       _savedMimeType = savedVoiceNote.mimeType;

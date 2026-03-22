@@ -653,7 +653,7 @@ const VoicePlayer = (() => {
       const viewport = document.getElementById('viewport');
       if (!viewport) { autoPlayLoop(); return; }
 
-      const sfx = new Audio('https://cdn.for-you-always.my.id/1772227895645-j1jcgl.mp3?v=2');
+      const sfx = new Audio('https://cdn.for-you-always.my.id/1772227895645-j1jcgl.mp3?v=3');
       sfx.volume = 0.3;
       sfx.crossOrigin = 'anonymous';
 
