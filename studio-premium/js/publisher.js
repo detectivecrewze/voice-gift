@@ -74,6 +74,7 @@ const Publisher = (() => {
       voiceVolume: state.voiceVolume,
       polaroid_photo: state.polaroid_photo,
       polaroid_letter: state.polaroid_letter,
+      silentDuration: state.silentDuration,
 
       // Password
       password: state.password || null,
