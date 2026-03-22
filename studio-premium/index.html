@@ -244,6 +244,16 @@
               <!-- studio.js will render the track UI here -->
             </div>
 
+            <!-- Slider Volume Musik Latar Tambahan -->
+            <div class="mt-6 pt-4 border-t border-gray-50">
+              <div class="flex justify-between items-center text-[8px] uppercase tracking-widest text-gray-400 font-bold mb-3">
+                <span>Vol. Musik Latar</span>
+                <span id="label-ambient-vol-music">10%</span>
+              </div>
+              <input type="range" id="slider-ambient-vol-music" min="0" max="0.5" step="0.01" value="0.1"
+                class="volume-slider w-full" />
+            </div>
+
           </div>
         </div>
       </section>
@@ -310,6 +320,24 @@
                       audio</button>
                     <input id="file-input-audio" type="file" accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.wma"
                       class="hidden" />
+                  </div>
+
+                  <!-- ── Tidak pakai rekaman? ── -->
+                  <div class="mt-10 mb-6 flex items-center gap-4 w-full max-w-xs">
+                    <div class="flex-1 h-px bg-gray-100"></div>
+                    <span class="text-[8px] uppercase tracking-[0.25em] text-gray-300 font-bold whitespace-nowrap">Tidak pakai rekaman?</span>
+                    <div class="flex-1 h-px bg-gray-100"></div>
+                  </div>
+                  <p class="text-[9px] text-gray-400 mb-4 text-center leading-relaxed">
+                    Tanpa rekaman suara? Pilih berapa lama sebelum <span class="text-[#d4a373] font-bold">Pesan Rahasia</span> muncul.
+                  </p>
+                  <div id="silent-duration-btns" class="flex flex-wrap gap-2 justify-center">
+                    <button data-dur="0"  class="silent-dur-btn px-4 py-2 text-[9px] uppercase tracking-widest rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-all font-bold">Tanpa Jeda</button>
+                    <button data-dur="10" class="silent-dur-btn px-4 py-2 text-[9px] uppercase tracking-widest rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-all font-bold">10 det</button>
+                    <button data-dur="15" class="silent-dur-btn px-4 py-2 text-[9px] uppercase tracking-widest rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-all font-bold">15 det</button>
+                    <button data-dur="30" class="silent-dur-btn px-4 py-2 text-[9px] uppercase tracking-widest rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-all font-bold">30 det</button>
+                    <button data-dur="45" class="silent-dur-btn px-4 py-2 text-[9px] uppercase tracking-widest rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-all font-bold">45 det</button>
+                    <button data-dur="60" class="silent-dur-btn px-4 py-2 text-[9px] uppercase tracking-widest rounded-full border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-all font-bold">60 det</button>
                   </div>
                 </div>
 

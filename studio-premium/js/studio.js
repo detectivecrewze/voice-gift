@@ -53,6 +53,15 @@ const CAMERA_THEMES = [
 // State ini adalah single source of truth untuk seluruh studio
 const Studio = (() => {
 
+  // ── Silent Audio URLs (Supabase CDN) ─────────────────────
+  const SILENT_AUDIO_URLS = {
+    10: 'https://bpahzgewtgfjwobjrpdk.supabase.co/storage/v1/object/public/assets/silent-10s.mp3',
+    15: 'https://bpahzgewtgfjwobjrpdk.supabase.co/storage/v1/object/public/assets/silent-15s.mp3',
+    30: 'https://bpahzgewtgfjwobjrpdk.supabase.co/storage/v1/object/public/assets/silent-30s.mp3',
+    45: 'https://bpahzgewtgfjwobjrpdk.supabase.co/storage/v1/object/public/assets/silent-45s.mp3',
+    60: 'https://bpahzgewtgfjwobjrpdk.supabase.co/storage/v1/object/public/assets/silent-60s.mp3',
+  };
+
   let _state = {
     occasion: 'romantic',
     theme: 'rose', // Default new gifts to original theme
@@ -70,6 +79,7 @@ const Studio = (() => {
     polaroid_photo: null,
     polaroid_letter: '',
     requestDomain: '',
+    silentDuration: null,
   };
 
   // ── Music State ──────────────────────────────────────────
@@ -112,7 +122,7 @@ const Studio = (() => {
     }
     if (_previewAudio) { _previewAudio.pause(); _previewAudio = null; }
     _previewAudio = new Audio(url);
-    _previewAudio.volume = 0.5;
+    _previewAudio.volume = _state.ambientVolume;
     _currentPreviewId = id;
     _previewAudio.play().catch(() => {});
     _previewAudio.addEventListener('ended', () => { _currentPreviewId = null; _renderMusicTrack(); });
@@ -354,6 +364,13 @@ const Studio = (() => {
       // Music upload is now handled inside _renderMusicTrack binding
       _initVolumeControls();
       _initPolaroidSection();
+      _initSilentAudio();
+
+      // Restore active silent duration button from saved state
+      if (_state.silentDuration) {
+        const savedBtn = document.querySelector(`.silent-dur-btn[data-dur="${_state.silentDuration}"]`);
+        if (savedBtn) savedBtn.classList.add('bg-black', 'text-white', 'border-black');
+      }
 
       const iframe = document.getElementById('preview-frame');
       if (iframe) {
@@ -409,7 +426,9 @@ const Studio = (() => {
       { sliderId: 'slider-voice-vol', labelId: 'label-voice-vol', key: 'voiceVolume', type: 'voice' },
       { sliderId: 'slider-ambient-vol', labelId: 'label-ambient-vol', key: 'ambientVolume', type: 'ambient' },
       { sliderId: 'slider-voice-vol-saved', labelId: 'label-voice-vol-saved', key: 'voiceVolume', type: 'voice' },
-      { sliderId: 'slider-ambient-vol-saved', labelId: 'label-ambient-vol-saved', key: 'ambientVolume', type: 'ambient' }
+      { sliderId: 'slider-ambient-vol-saved', labelId: 'label-ambient-vol-saved', key: 'ambientVolume', type: 'ambient' },
+      // -- Slider BARU di section Musik Latar --
+      { sliderId: 'slider-ambient-vol-music', labelId: 'label-ambient-vol-music', key: 'ambientVolume', type: 'ambient' }
     ];
 
     controls.forEach(c => {
@@ -435,12 +454,60 @@ const Studio = (() => {
         });
 
         CombinedMixer.updateLiveVolume(c.type, val);
+        if (c.type === 'ambient') {
+          if (_previewAudio) _previewAudio.volume = val;
+          const musicPlayer = document.getElementById('audio-player');
+          if (musicPlayer) musicPlayer.volume = val;
+        }
         _triggerSaveAndPreview();
       });
     });
 
     document.getElementById('btn-combined-preview')?.addEventListener('click', CombinedMixer.play);
     document.getElementById('btn-combined-preview-saved')?.addEventListener('click', CombinedMixer.play);
+  };
+
+  // ── Init: Silent Audio Duration Picker ────────────────────
+  const _initSilentAudio = () => {
+    const _resetSilentBtns = () => {
+      document.querySelectorAll('.silent-dur-btn').forEach(b => {
+        b.classList.remove('bg-black', 'text-white', 'border-black');
+      });
+    };
+
+    document.querySelectorAll('.silent-dur-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const dur = parseInt(btn.dataset.dur, 10);
+
+        // "Tanpa Jeda" → reset & hapus voice note jika dari silent
+        if (dur === 0) {
+          _resetSilentBtns();
+          _state.silentDuration = null;
+          if (_state.voiceNote?.url) {
+            onVoiceNoteChanged({ url: null, duration: null, mimeType: null });
+          }
+          return;
+        }
+
+        // Konfirmasi jika ada voice note existing yang bukan dari silent
+        if (_state.voiceNote?.url && _state.silentDuration === null) {
+          if (!confirm('Ini akan mengganti rekaman suara yang sudah ada. Lanjutkan?')) return;
+        }
+
+        const silentUrl = SILENT_AUDIO_URLS[dur];
+        if (!silentUrl) { showToast('Durasi tidak tersedia.'); return; }
+
+        // Set langsung tanpa upload
+        _state.silentDuration = dur;
+        onVoiceNoteChanged({ url: silentUrl, duration: dur, mimeType: 'audio/mpeg' });
+
+        // Update UI tombol
+        _resetSilentBtns();
+        btn.classList.add('bg-black', 'text-white', 'border-black');
+
+        showToast(`Siap! Pesan Rahasia akan muncul setelah ${dur} detik ✨`);
+      });
+    });
   };
 
   // ── Helper: Update karakter counter ──────────────────────
@@ -878,6 +945,7 @@ const Studio = (() => {
       plyBtn.addEventListener('click', () => {
         if (!player.src) return;
         if (player.paused) {
+          player.volume = _state.ambientVolume;
           player.play();
           plyBtn.innerHTML = '<span style="color:#fff;font-size:8px;margin-left:0;">⏸</span>';
         } else {
@@ -958,6 +1026,7 @@ const Studio = (() => {
           
           if (!isPlaying) {
              previewAudio = new Audio(url);
+             previewAudio.volume = _state.ambientVolume;
              previewAudio.play().catch(err => console.warn('Preview blocked:', err));
              iconPlay.style.display = 'none';
              iconPause.style.display = 'block';
