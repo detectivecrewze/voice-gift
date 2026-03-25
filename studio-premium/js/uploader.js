@@ -17,7 +17,7 @@
 // ============================================================
 
 const Uploader = (() => {
-  console.log('✅ Uploader Module Loaded - MAX_PHOTOS: 20 (v6)');
+  console.log('✅ Uploader Module Loaded - MAX_PHOTOS: 20 (v7)');
 
 
   // ── Config ──────────────────────────────────────────────
