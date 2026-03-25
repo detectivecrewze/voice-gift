@@ -19,7 +19,7 @@
 const Uploader = (() => {
 
   // ── Config ──────────────────────────────────────────────
-  const MAX_PHOTOS = 15;
+  const MAX_PHOTOS = 20;
   const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
   const MAX_DIMENSION = 1080; // Reduced from 1600 for performance
   const QUALITY = 0.6;        // Reduced from 0.75 for speed
