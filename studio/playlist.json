@@ -16,6 +16,30 @@
     "audioName": "Gigi Perez - Sailor Song.m4a"
   },
   {
+    "title": "Semua Aku Dirayakan",
+    "artist": "Nadin Amizah",
+    "genre": "Indonesia",
+    "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774553222239-jk1brr.jpg",
+    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774553179591-lqro2.mp3",
+    "audioName": "Semua Aku Dirayakan - Nadin Amizah  Lirik Lagu.mp3"
+  },
+  {
+    "title": "AH",
+    "artist": "Nadin Amizah",
+    "genre": "Indonesia",
+    "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1773904041101-m1ymhh.jpg",
+    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1773903992490-jk4w6.mp3",
+    "audioName": "AH - Nadin Amizah.mp3"
+  },
+  {
+    "title": "Bertaut",
+    "artist": "Nadin Amizah",
+    "genre": "Indonesia",
+    "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1773962285511-u1zq3o.jpg",
+    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1773962352405-wsgbf9.mp3",
+    "audioName": "Nadin Amizah - Bertaut (Official Music Video).mp3"
+  },
+  {
     "title": "Ribuan Memori",
     "artist": "Lomba Sihir",
     "genre": "Indonesia",
@@ -30,14 +54,6 @@
     "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1773903958103-j1dclo.jpg",
     "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1773903949003-lgpiz9.mp3",
     "audioName": "Daniel Caesar - Who Knows.mp3"
-  },
-  {
-    "title": "AH",
-    "artist": "Nadin Amizah",
-    "genre": "Indonesia",
-    "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1773904041101-m1ymhh.jpg",
-    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1773903992490-jk4w6.mp3",
-    "audioName": "AH - Nadin Amizah.mp3"
   },
   {
     "title": "Baby I'm Yours",
@@ -96,14 +112,6 @@
     "audioName": "Frank Ocean - Ivy.mp3"
   },
   {
-    "title": "Bertaut",
-    "artist": "Nadin Amizah",
-    "genre": "Indonesia",
-    "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1773962285511-u1zq3o.jpg",
-    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1773962352405-wsgbf9.mp3",
-    "audioName": "Nadin Amizah - Bertaut (Official Music Video).mp3"
-  },
-  {
     "title": "From The Start",
     "artist": "Laufey",
     "genre": "Indonesia",
@@ -136,7 +144,7 @@
     "audioName": "Sal Priadi - Ada Titik Titik Di Ujung Doa (Lyric Video).mp3"
   },
   {
-    "title": "SEGALANYA ITU KAMU",
+    "title": "Segalanya Itu Kamu",
     "artist": "David Bayu",
     "genre": "Indonesia",
     "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774159199143-o5biiq.jpg",
@@ -156,7 +164,7 @@
     "artist": "Wave To Earth",
     "genre": "Indonesia",
     "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774466444707-y7abub.jpg",
-    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774159640361-m4gs6f.mp3",
+    "audioUrl": "",
     "audioName": "Bad."
   },
   {
@@ -166,5 +174,21 @@
     "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774466452672-dg6f6o.jpg",
     "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774466468443-al2iw.mp3",
     "audioName": "Sunsetz - Cigarettes After Sex.mp3"
+  },
+  {
+    "title": "I Thought I Saw Your Face Today",
+    "artist": "She & Him",
+    "genre": "Indonesia",
+    "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774553712339-faeddk.jpg",
+    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774553708544-temjzs.mp3",
+    "audioName": "She _ Him - I Thought I Saw Your Face Today (Official Lyric Video).mp3"
+  },
+  {
+    "title": "No Other Heart",
+    "artist": "Mac DeMarco",
+    "genre": "Indonesia",
+    "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774553415108-lg83p9.jpg",
+    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774553386253-ng31fg.mp3",
+    "audioName": "Mac DeMarco  No Other Heart (Official Audio).mp3"
   }
 ]
