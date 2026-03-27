@@ -159,6 +159,14 @@ Vercel Project Premium Template: fya-premium-kit
 - Room baru "Stargazing" — langit malam, bintang = kenangan, tap bintang → popup cerita + foto
 - Diputuskan di-revert karena hasil visual kurang memuaskan
 
+### 🎟️ Automated Premium Bundling System (BARU — March 27)
+- **Token-based Access:** Customer membeli token (misal kuota 5 kado) untuk login ke portal mandiri di `/bundle`.
+- **Self-Service Dashboard:** Customer bisa membuat, menamai (slugify otomatis), dan mengamankan link kado mereka sendiri sebelum masuk ke Studio. URL otomatis dipesan dan "dikunci" agar tidak bisa direbut orang lain.
+- **Premium UI & UX:** Layar konfirmasi berbasis *glassmorphism modal*, SVG *premium icon*, dan flow yang tidak langsung melempar user ke studio tanpa opsi menyalin link terlebih dahulu.
+- **Admin Ledger Dashboard (`/bundle/admin`):** Dashboard rahasia (berbasis password) khusus Admin untuk melihat semua token aktif, sisa kuota, dan link studio yang sudah dibuat oleh para customer.
+- **Reset & Refund Quota:** Fitur bagi admin untuk menghapus proyek kado yang salah ketik namanya oleh customer, dengan mekanisme yang secara otomatis mengembalikan kuota token tersebut (+1).
+- **Worker & Routing:** Endpoint menggunakan KV `ARCADE_DATA`  (Prefix: `BNDL_`). Routing bersih melalui `vercel.json` dan endpoint admin terlindungi oleh `ADMIN_SECRET`.
+
 ---
 
 ## 📁 Struktur File Penting
@@ -201,12 +209,18 @@ Vercel Project Premium Template: fya-premium-kit
 │       └── ... (file lainnya)
 ├── admin/
 │   ├── index.html               ← Admin dashboard
-│   └── songs.html               ← BARU (Song Library Manager)
+│   └── songs.html               ← (Song Library Manager)
+├── bundle/                      ← BARU (Premium Bundling Portal)
+│   ├── index.html               ← Customer portal login & dashboard
+│   ├── admin.html               ← Admin Ledger dashboard
+│   └── js/app.js                ← UI & API Logic
 ├── premium_kit/
 │   └── config.js                ← Template config deploy manual
 ├── generator/
+│   ├── index.html               
+│   └── generator.js             ← UPDATED (Bisa generate tiket Bundle)
 └── worker/
-    └── index.js                 ← Cloudflare Worker
+    └── worker.js                ← UPDATED (Bundle endpoints & security)
 ```
 
 ---
@@ -306,4 +320,4 @@ Dan copy `ambient-data.js` ke dalam tiap folder tema standalone.
 8. **Studio Premium sync** — beberapa perubahan studio regular belum di-sync ke premium
 9. **Marketing Deployment** — Strategi sudah siap (`marketing-strategy.md`), tinggal eksekusi.
 
-🚀 **Last Updated: March 19, 2026**
+🚀 **Last Updated: March 27, 2026**

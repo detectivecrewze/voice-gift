@@ -1,6 +1,18 @@
 {
     "rewrites": [
         {
+            "source": "/bundle/admin",
+            "destination": "/bundle/admin.html"
+        },
+        {
+            "source": "/bundle",
+            "destination": "/bundle/index.html"
+        },
+        {
+            "source": "/bundle/(.*)",
+            "destination": "/bundle/index.html"
+        },
+        {
             "source": "/studio/(.*)",
             "destination": "/studio/index.html"
         },

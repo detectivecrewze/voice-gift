@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bundle Studio | For You, Always</title>
+    <meta name="description" content="Masuk ke portal bundling kado Anda dan mulai buat kenangan indah.">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --cream: #faf8f4;
+            --cream-dark: #f0ece4;
+            --brown-light: #d4a373;
+            --brown: #b07860;
+            --brown-dark: #8b5e45;
+            --black: #111;
+            --gray-text: #6b6b6b;
+            --gray-light: #e8e4dc;
+            --red-soft: #e07070;
+            --green-soft: #6a9e7a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--cream);
+            background-image:
+                radial-gradient(at 0% 0%, hsla(35, 80%, 96%, 1) 0, transparent 60%),
+                radial-gradient(at 100% 100%, hsla(25, 60%, 93%, 1) 0, transparent 60%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        /* ── Grain Overlay ── */
+        .grain {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 999; opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        /* ── Main Container ── */
+        .container {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        /* ── Header ── */
+        .header { text-align: center; margin-bottom: 0.5rem; }
+        .header h1 {
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            font-size: 3.2rem;
+            color: var(--black);
+            line-height: 1;
+        }
+        .header p {
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--gray-text);
+            margin-top: 0.75rem;
+        }
+
+        /* ── Glass Panel ── */
+        .panel {
+            width: 100%;
+            background: rgba(255,255,255,0.65);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.85);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.06), 0 1px 0 rgba(255,255,255,0.9) inset;
+            border-radius: 16px;
+            padding: 2.5rem;
+        }
+
+        /* ── Typography ── */
+        .label {
+            display: block;
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--gray-text);
+            margin-bottom: 0.6rem;
+        }
+        .panel-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.4rem;
+            color: var(--black);
+            margin-bottom: 0.3rem;
+        }
+        .panel-subtitle {
+            font-size: 0.7rem;
+            color: var(--gray-text);
+            margin-bottom: 1.8rem;
+            line-height: 1.5;
+        }
+
+        /* ── Input ── */
+        .input-field {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1.5px solid var(--gray-light);
+            padding: 0.75rem 0;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            color: var(--black);
+            transition: border-color 0.3s ease;
+            outline: none;
+            text-align: center;
+        }
+        .input-field:focus { border-bottom-color: var(--black); }
+        .input-field::placeholder { color: #bbb; }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        /* ── Prefix Input ── */
+        .url-preview {
+            display: flex;
+            align-items: center;
+            border-bottom: 1.5px solid var(--gray-light);
+            transition: border-color 0.3s ease;
+            gap: 0;
+        }
+        .url-preview:focus-within { border-bottom-color: var(--black); }
+        .url-prefix {
+            font-size: 0.75rem;
+            color: var(--gray-text);
+            white-space: nowrap;
+            padding: 0.75rem 0;
+            font-weight: 500;
+        }
+        .url-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 0.75rem 0;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            color: var(--black);
+            font-weight: 600;
+            outline: none;
+            min-width: 0;
+        }
+        .url-input::placeholder { color: #bbb; font-weight: 400; }
+
+        /* ── Buttons ── */
+        .btn {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+        .btn-dark {
+            background: var(--black);
+            color: #fff;
+        }
+        .btn-dark:not(:disabled):hover {
+            background: #222;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--brown-light), var(--brown));
+            color: #fff;
+        }
+        .btn-gold:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(176,120,96,0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--black);
+            border: 1.5px solid var(--gray-light);
+        }
+        .btn-outline:not(:disabled):hover {
+            background: white;
+            border-color: var(--black);
+        }
+
+        /* ── Status / Alerts ── */
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            line-height: 1.5;
+            margin-top: 1rem;
+        }
+        .alert-error { background: #fef2f2; color: #c53030; border: 1px solid #fee2e2; }
+        .alert-success { background: #f0fdf4; color: #276749; border: 1px solid #dcfce7; }
+        .alert-info { background: #fefce8; color: #854d0e; border: 1px solid #fef9c3; }
+
+        .hidden { display: none !important; }
+
+        /* ── Quota Badge ── */
+        .quota-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--cream-dark);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .quota-text { font-size: 0.65rem; color: var(--gray-text); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+        .quota-count {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.6rem;
+            font-style: italic;
+            color: var(--black);
+        }
+        .quota-count span { font-size: 0.8rem; color: var(--gray-text); font-family: 'Inter', sans-serif; font-style: normal; }
+
+        /* ── Gift List ── */
+        .gift-list { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem; }
+        .gift-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--cream-dark);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            gap: 0.75rem;
+        }
+        .gift-item-left { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+        .gift-item-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--black);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .gift-item-status {
+            font-size: 0.62rem;
+            color: var(--gray-text);
+            letter-spacing: 0.05em;
+        }
+        .gift-item a {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--brown);
+            text-decoration: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: color 0.2s;
+        }
+        .gift-item a:hover { color: var(--brown-dark); }
+
+        .empty-list {
+            text-align: center;
+            padding: 1.5rem 0;
+            color: var(--gray-text);
+            font-size: 0.72rem;
+            font-style: italic;
+        }
+
+        /* ── Section divider ── */
+        .section-title {
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--gray-text);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        /* ── Availability indicator ── */
+        .avail-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.65rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+            min-height: 1.2rem;
+        }
+        .avail-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .avail-ok .avail-dot { background: var(--green-soft); }
+        .avail-ok { color: var(--green-soft); }
+        .avail-err .avail-dot { background: var(--red-soft); }
+        .avail-err { color: var(--red-soft); }
+        .avail-checking { color: var(--gray-text); }
+        .avail-checking .avail-dot { background: var(--gray-text); animation: pulse 1s infinite; }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* ── Loading Spinner ── */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle;
+            margin-right: 0.4rem;
+        }
+        .spinner-dark {
+            border: 2px solid rgba(0,0,0,0.15);
+            border-top-color: var(--black);
+        }
+
+        /* ── Animate ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-up { animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .delay-2 { animation-delay: 0.2s; opacity: 0; }
+        .delay-3 { animation-delay: 0.3s; opacity: 0; }
+
+        /* ── Modal ── */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(17,17,17,0.4); backdrop-filter: blur(6px);
+            z-index: 1000; display: flex; align-items: center; justify-content: center;
+            padding: 1rem; opacity: 1; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.hidden { opacity: 0; pointer-events: none; }
+        .modal-content { max-width: 380px; padding: 2rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+        .flex-gap { display: flex; gap: 0.5rem; width: 100%; }
+        .flex-1 { flex: 1; }
+
+        /* ── Footer ── */
+        .footer {
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #bbb;
+            text-align: center;
+            padding-top: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grain"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header animate-up">
+            <h1>Bundle Studio</h1>
+            <p>Portal Kado Eksklusif Anda</p>
+        </div>
+
+        <!-- ── VIEW 1: LOGIN ── -->
+        <div id="view-login" class="w-full" style="width:100%">
+            <div class="panel animate-up delay-1">
+                <p class="panel-title">Masuk dengan Token</p>
+                <p class="panel-subtitle">Masukkan kode token bundling yang sudah Anda terima. Token Anda berisi kuota untuk membuat beberapa link kado spesial.</p>
+
+                <div class="input-group">
+                    <label class="label" for="input-token">Kode Token Bundling</label>
+                    <input id="input-token" class="input-field" type="text" placeholder="BNDL-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false">
+                </div>
+
+                <button id="btn-login" class="btn btn-dark">Masuk Portal</button>
+                <div id="login-alert" class="hidden"></div>
+            </div>
+        </div>
+
+        <!-- ── VIEW 2: DASHBOARD ── -->
+        <div id="view-dashboard" class="hidden w-full" style="width:100%">
+
+            <!-- Quota Card -->
+            <div class="panel animate-up" id="quota-card">
+                <div class="quota-bar">
+                    <div>
+                        <div class="quota-text">Sisa Kuota Kado</div>
+                        <div id="token-display" style="font-size:0.6rem;color:var(--gray-text);margin-top:0.15rem;"></div>
+                    </div>
+                    <div class="quota-count" id="quota-display">— <span>/ 5</span></div>
+                </div>
+                <button id="btn-new-gift" class="btn btn-gold">✦ Buat Kado Baru</button>
+                <div id="quota-alert" class="hidden"></div>
+            </div>
+
+            <!-- My Gifts -->
+            <div class="panel animate-up delay-1" style="margin-top:1rem;">
+                <p class="section-title">Kado Saya</p>
+                <ul class="gift-list" id="gift-list">
+                    <li class="empty-list">Memuat daftar kado...</li>
+                </ul>
+            </div>
+
+            <!-- Logout -->
+            <button id="btn-logout" class="btn btn-outline animate-up delay-2" style="margin-top:0.5rem;">Keluar</button>
+        </div>
+
+        <!-- ── VIEW 3: CREATE FORM ── -->
+        <div id="view-create" class="hidden w-full" style="width:100%">
+            <div class="panel animate-up">
+                <p class="panel-title">Buat Link Kado Baru</p>
+                <p class="panel-subtitle">Pilih nama link yang unik dan bermakna. Nama ini akan menjadi bagian dari URL yang Anda bagikan ke penerima kado.</p>
+
+                <div class="input-group">
+                    <label class="label" for="input-gift-name">Pilih ID / Nama Kado Anda</label>
+                    <div class="url-preview">
+                        <span class="url-prefix">voice.for-you-always.my.id/.../</span>
+                        <input id="input-gift-name" class="url-input" type="text" placeholder="kado-spesial" autocomplete="off" spellcheck="false">
+                    </div>
+                    <div id="avail-status" class="avail-indicator"></div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:0.6rem;margin-top:1rem;">
+                    <button id="btn-claim" class="btn btn-gold" disabled>Pesan Link Ini</button>
+                    <button id="btn-cancel-create" class="btn btn-outline">Kembali</button>
+                </div>
+
+                <div id="create-alert" class="hidden"></div>
+            </div>
+        </div>
+
+        <!-- ── VIEW 4: SUCCESS ── -->
+        <div id="view-success" class="hidden w-full" style="width:100%">
+            <div class="panel animate-up text-center">
+                <svg style="width: 4.5rem; height: 4.5rem; color: var(--green-soft); margin: 0 auto 1rem auto;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="panel-title">Kado Berhasil Dibuat!</p>
+                <p class="panel-subtitle">Nama link eksklusif Anda sudah terkunci. Anda bisa langsung masuk Studio untuk mengedit kadonya sekarang atau nanti.</p>
+                
+                <div style="margin: 1.5rem 0; padding: 1.25rem; background: var(--cream-dark); border-radius: 8px;">
+                    <p style="font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gray-text); font-weight: 700; margin-bottom: 0.5rem;">Link Studio Kado Anda</p>
+                    <p id="success-gift-url" style="color: var(--black); font-family: monospace; font-size: 0.9rem; word-break: break-all; margin-bottom: 1.5rem; font-weight: 700;">Loading...</p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                        <button id="btn-copy-success" class="btn btn-outline" style="background:#fff;">Salin Link</button>
+                        <button id="btn-open-success" class="btn btn-gold">Buka Studio Sekarang →</button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem;">
+                    <button id="btn-success-back" class="btn btn-outline">Kembali ke Dashboard</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer animate-up delay-3">© 2026 For You, Always</div>
+    </div>
+
+        <!-- ── MODAL KONFIRMASI ── -->
+        <div id="confirm-modal" class="modal-overlay hidden">
+            <div class="panel modal-content animate-up text-center">
+                <svg style="width: 3.5rem; height: 3.5rem; color: var(--brown); margin: 0 auto 1rem auto;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <p class="panel-title">Yakin dengan nama ini?</p>
+                <p class="panel-subtitle" style="margin-bottom: 1rem;">Pastikan nama kado Anda sudah benar. Setelah dipesan, Anda tidak dapat mengubah nama link-nya lagi.</p>
+                
+                <div style="margin: 1rem 0; padding: 1.25rem; background: var(--cream-dark); border-radius: 8px;">
+                    <p style="font-size: 0.55rem; letter-spacing: 0.2rem; text-transform: uppercase; color: var(--gray-text); font-weight: 700; margin-bottom: 0.4rem;">Nama yang dipilih:</p>
+                    <p id="confirm-gift-name" style="color: var(--black); font-size: 1.1rem; word-break: break-all; font-weight: 700;">...</p>
+                </div>
+
+                <div class="flex-gap" style="margin-top: 1.5rem;">
+                    <button id="btn-modal-cancel" class="btn btn-outline flex-1">Batal</button>
+                    <button id="btn-modal-confirm" class="btn btn-gold flex-1">Lanjutkan</button>
+                </div>
+            </div>
+        </div>
+
+    <script src="/bundle/js/app.js?v=2"></script>
+</body>
+</html>

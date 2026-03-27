@@ -17,10 +17,36 @@ var index_default = {
       return new Response(null, { headers: corsHeaders });
     }
 
+    // ── SECURITY: Origin Validation Helper ────────────────────
+    // Mengizinkan request HANYA dari domain resmi atau *.vercel.app
+    // (untuk kado premium yang di-deploy di domain unik customer)
+    const isAllowedOrigin = (req) => {
+      const origin = req.headers.get("Origin") || "";
+      const allowed = [
+        "https://arcade.for-you-always.my.id",
+        "https://for-you-always.my.id",
+        "https://voice.for-you-always.my.id",
+        "https://valentine-site-sigma.vercel.app",
+        "http://localhost:5500",
+        "http://127.0.0.1:5500",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
+      ];
+      // Izinkan semua *.vercel.app untuk kado premium customer
+      if (origin.endsWith(".vercel.app")) return true;
+      return allowed.includes(origin);
+    };
+
     const url = new URL(request.url);
 
     // ── POST /upload ────────────────────────────────────────
     if (request.method === "POST" && url.pathname === "/upload") {
+      // FIX 5: Hanya izinkan upload dari domain resmi
+      if (!isAllowedOrigin(request)) {
+        return new Response(JSON.stringify({ error: "Akses ditolak." }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
       try {
         const formData = await request.formData();
         const file = formData.get("file");
@@ -73,6 +99,12 @@ var index_default = {
 
     // ── POST /presign — Generate nama file unik ───────────
     if (request.method === 'POST' && url.pathname === '/presign') {
+      // FIX 5: Hanya izinkan presign dari domain resmi
+      if (!isAllowedOrigin(request)) {
+        return new Response(JSON.stringify({ error: "Akses ditolak." }), {
+          status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
       try {
         const { filename, contentType } = await request.json();
         if (!filename || !contentType) {
@@ -96,6 +128,12 @@ var index_default = {
 
     // ── PUT /upload-direct/:key — Browser upload langsung ke R2 ──
     if (request.method === 'PUT' && url.pathname.startsWith('/upload-direct/')) {
+      // FIX 5: Hanya izinkan direct upload dari domain resmi
+      if (!isAllowedOrigin(request)) {
+        return new Response(JSON.stringify({ error: "Akses ditolak." }), {
+          status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
       try {
         const key = url.pathname.replace('/upload-direct/', '');
         if (!key || key.includes('..') || key.includes('/')) {
@@ -129,6 +167,16 @@ var index_default = {
 
     // ── GET /get-config ─────────────────────────────────────
     if (request.method === "GET" && url.pathname === "/get-config") {
+      // FIX 2: Hanya izinkan dari domain resmi atau *.vercel.app (kado premium)
+      // JALUR PINTAS BROWSER: Abaikan pengecekan Origin jika membawa ?pwd= rahasia Admin
+      const pwd = url.searchParams.get("pwd");
+      const isOwnerBypass = pwd && env.ADMIN_SECRET && (pwd === env.ADMIN_SECRET);
+
+      if (!isOwnerBypass && !isAllowedOrigin(request)) {
+        return new Response(JSON.stringify({ error: "Akses ditolak." }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
       const id = url.searchParams.get("id");
       if (!id) {
         return new Response(JSON.stringify({ error: "Missing 'id' parameter" }), {
@@ -162,6 +210,12 @@ var index_default = {
 
     // ── POST /save-config ───────────────────────────────────
     if (request.method === "POST" && url.pathname === "/save-config") {
+      // FIX 3: Hanya izinkan dari domain resmi atau *.vercel.app
+      if (!isAllowedOrigin(request)) {
+        return new Response(JSON.stringify({ error: "Akses ditolak." }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
       const id = url.searchParams.get("id");
       if (!id) {
         return new Response(JSON.stringify({ error: "Missing 'id' parameter" }), {
@@ -265,6 +319,19 @@ var index_default = {
 
     // ── GET /list-configs ───────────────────────────────────
     if (request.method === "GET" && url.pathname === "/list-configs") {
+      // FIX 1: Wajib pakai ADMIN_SECRET
+      // JALUR PINTAS BROWSER: Bisa menggunakan Header Authorization ATAU ?pwd= di URL
+      const authHeader = request.headers.get("Authorization");
+      const pwd = url.searchParams.get("pwd");
+      const secret = env.ADMIN_SECRET;
+      
+      const isAuthenticated = secret && (authHeader === `Bearer ${secret}` || pwd === secret);
+
+      if (!isAuthenticated) {
+        return new Response(JSON.stringify({ success: false, error: "Akses ditolak." }), {
+          status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
       try {
         const list = await env.VALENTINE_DATA.list();
         const ids = list.keys.map((k) => k.name);
@@ -281,6 +348,17 @@ var index_default = {
 
     // ── GET /debug ──────────────────────────────────────────
     if (url.pathname === "/debug") {
+      // FIX 4: Wajib pakai ADMIN_SECRET. Jika salah, tampilkan 404
+      // JALUR PINTAS BROWSER: Bisa menggunakan Header Authorization ATAU ?pwd= di URL
+      const authHeader = request.headers.get("Authorization");
+      const pwd = url.searchParams.get("pwd");
+      const secret = env.ADMIN_SECRET;
+      
+      const isAuthenticated = secret && (authHeader === `Bearer ${secret}` || pwd === secret);
+
+      if (!isAuthenticated) {
+        return new Response("Not found", { status: 404, headers: corsHeaders });
+      }
       const debug = {
         hasBucket: !!env.BUCKET,
         hasKV: !!env.VALENTINE_DATA,
@@ -291,6 +369,290 @@ var index_default = {
       return new Response(JSON.stringify(debug, null, 2), {
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // ── BUNDLE SYSTEM ──────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════
+
+    // ── POST /api/bundle/create-token  (Admin Only) ──────────
+    if (request.method === "POST" && url.pathname === "/api/bundle/create-token") {
+      try {
+        const authHeader = request.headers.get("Authorization");
+        const secret = env.GENERATOR_SECRET;
+        if (!secret || authHeader !== `Bearer ${secret}`) {
+          return new Response(JSON.stringify({ success: false, error: "Akses ditolak." }), {
+            status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const body = await request.json();
+        const limit = parseInt(body.limit || 5);
+        const note  = body.note || "";
+
+        // Generate unique token: BNDL-XXXX (random 6 chars)
+        const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        let code = "BNDL-";
+        for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+
+        const tokenKey = `bundle_token:${code}`;
+
+        // Make sure it's unique (very unlikely collision but check anyway)
+        const existing = await env.VALENTINE_DATA.get(tokenKey);
+        if (existing) {
+          return new Response(JSON.stringify({ success: false, error: "Coba lagi, token collision." }), {
+            status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const tokenData = {
+          token: code,
+          max_limit: limit,
+          used: 0,
+          created_gifts: [],
+          note,
+          created_at: new Date().toISOString()
+        };
+
+        await env.VALENTINE_DATA.put(tokenKey, JSON.stringify(tokenData));
+
+        return new Response(JSON.stringify({ success: true, token: code, data: tokenData }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, error: err.message }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+    }
+
+    // ── GET /api/bundle/admin/list  (Admin Master Ledger) ────
+    if (request.method === "GET" && url.pathname === "/api/bundle/admin/list") {
+      try {
+        const authHeader = request.headers.get("Authorization");
+        const secret = env.ADMIN_SECRET;
+        if (!secret || authHeader !== `Bearer ${secret}`) {
+          return new Response(JSON.stringify({ success: false, error: "Akses ditolak." }), {
+            status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const list = await env.VALENTINE_DATA.list({ prefix: "bundle_token:" });
+        const tokens = [];
+
+        for (const keyObj of list.keys) {
+          const raw = await env.VALENTINE_DATA.get(keyObj.name);
+          if (raw) {
+            try {
+              tokens.push(JSON.parse(raw));
+            } catch(e) {}
+          }
+        }
+
+        // Urutkan dari yang terbaru dibuat ke yang paling lama (menurun)
+        tokens.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+        tokens.reverse();
+
+        return new Response(JSON.stringify({ success: true, tokens }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, error: err.message }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+    }
+
+    // ── POST /api/bundle/admin/delete-gift  (Admin Revoke/Reset) ──
+    if (request.method === "POST" && url.pathname === "/api/bundle/admin/delete-gift") {
+      try {
+        const authHeader = request.headers.get("Authorization");
+        const secret = env.ADMIN_SECRET;
+        if (!secret || authHeader !== `Bearer ${secret}`) {
+          return new Response(JSON.stringify({ success: false, error: "Akses ditolak." }), {
+            status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const { token, giftId } = await request.json();
+        if (!token || !giftId) {
+          return new Response(JSON.stringify({ success: false, error: "Token dan giftId wajib disertakan." }), {
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const tokenKey = `bundle_token:${token.trim().toUpperCase()}`;
+        const rawToken = await env.VALENTINE_DATA.get(tokenKey);
+
+        if (!rawToken) {
+          return new Response(JSON.stringify({ success: false, error: "Token tidak ditemukan." }), {
+            status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const tokenData = JSON.parse(rawToken);
+
+        // Hapus dari daftar created_gifts jika ada, dan kembalikan kuota
+        const giftIndex = (tokenData.created_gifts || []).indexOf(giftId);
+        if (giftIndex !== -1) {
+          tokenData.created_gifts.splice(giftIndex, 1);
+          tokenData.used = Math.max(0, tokenData.used - 1); // kembalikan kuota
+          await env.VALENTINE_DATA.put(tokenKey, JSON.stringify(tokenData));
+        }
+
+        // Hapus kado secara permanen dari database
+        await env.VALENTINE_DATA.delete(giftId);
+
+        return new Response(JSON.stringify({ success: true, message: `Kado dihapus dan kuota dikembalikan.` }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, error: err.message }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+    }
+
+    // ── POST /api/bundle/login  (Customer) ───────────────────
+    if (request.method === "POST" && url.pathname === "/api/bundle/login") {
+      try {
+        const { token } = await request.json();
+        if (!token) {
+          return new Response(JSON.stringify({ success: false, error: "Token wajib diisi." }), {
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const tokenKey = `bundle_token:${token.trim().toUpperCase()}`;
+        const raw = await env.VALENTINE_DATA.get(tokenKey);
+
+        if (!raw) {
+          return new Response(JSON.stringify({ success: false, error: "Token tidak ditemukan. Periksa kembali kode Anda." }), {
+            status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const data = JSON.parse(raw);
+
+        return new Response(JSON.stringify({ success: true, data }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, error: err.message }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+    }
+
+    // ── GET /api/bundle/check-name  (Public availability check) ──
+    if (request.method === "GET" && url.pathname === "/api/bundle/check-name") {
+      try {
+        const name = url.searchParams.get("name")?.toLowerCase().trim();
+        if (!name || name.length < 2) {
+          return new Response(JSON.stringify({ available: false, error: "Nama terlalu pendek." }), {
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        // Validate slug: only lowercase letters, numbers, hyphens
+        if (!/^[a-z0-9][a-z0-9\-]*[a-z0-9]$/.test(name)) {
+          return new Response(JSON.stringify({ available: false, error: "Nama hanya boleh huruf kecil, angka, dan strip." }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        // Block reserved names
+        const reserved = ["studio", "gift", "gift-beige", "gift-blanc", "gift-pinky", "gift-sage", "bundle", "generator", "camera", "admin", "api", "index"];
+        if (reserved.includes(name)) {
+          return new Response(JSON.stringify({ available: false, error: "Nama ini adalah nama sistem dan tidak bisa digunakan." }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        // Check if gift ID already exists in KV
+        const existing = await env.VALENTINE_DATA.get(name);
+        return new Response(JSON.stringify({ available: !existing }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ available: false, error: err.message }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+    }
+
+    // ── POST /api/bundle/claim-link  (Cut quota + reserve gift ID) ──
+    if (request.method === "POST" && url.pathname === "/api/bundle/claim-link") {
+      try {
+        const body = await request.json();
+        const { token, giftId } = body;
+
+        if (!token || !giftId) {
+          return new Response(JSON.stringify({ success: false, error: "Token dan giftId wajib diisi." }), {
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const cleanId  = giftId.toLowerCase().trim();
+        const tokenKey = `bundle_token:${token.trim().toUpperCase()}`;
+
+        // Validate slug
+        if (!/^[a-z0-9][a-z0-9\-]*[a-z0-9]$/.test(cleanId) || cleanId.length < 2) {
+          return new Response(JSON.stringify({ success: false, error: "Nama link tidak valid." }), {
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        // Load token record
+        const rawToken = await env.VALENTINE_DATA.get(tokenKey);
+        if (!rawToken) {
+          return new Response(JSON.stringify({ success: false, error: "Token tidak valid." }), {
+            status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const tokenData = JSON.parse(rawToken);
+
+        // Check quota
+        if (tokenData.used >= tokenData.max_limit) {
+          return new Response(JSON.stringify({ success: false, error: "Kuota kado Anda sudah habis." }), {
+            status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        // CRITICAL: Check gift ID availability (atomic-ish — best effort on KV)
+        const existingGift = await env.VALENTINE_DATA.get(cleanId);
+        if (existingGift) {
+          return new Response(JSON.stringify({ success: false, error: `Nama "${cleanId}" sudah dipakai orang lain. Silakan pilih nama lain.` }), {
+            status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        // Reserve the gift ID with an empty shell (prevent race conditions)
+        const emptyGift = {
+          recipientName: "",
+          status: "draft",
+          photos: [],
+          createdAt: new Date().toISOString(),
+          _bundle: token.trim().toUpperCase(),
+          _meta: { theme: "classic", theme_folder: "gift" }
+        };
+        await env.VALENTINE_DATA.put(cleanId, JSON.stringify(emptyGift));
+
+        // Deduct quota from token record
+        tokenData.used += 1;
+        tokenData.created_gifts = tokenData.created_gifts || [];
+        tokenData.created_gifts.push(cleanId);
+        await env.VALENTINE_DATA.put(tokenKey, JSON.stringify(tokenData));
+
+        return new Response(JSON.stringify({ success: true, giftId: cleanId, data: tokenData }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, error: err.message }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
     }
 
     // ── POST /submit-premium — Terima order premium, kirim notif ke Telegram ─

@@ -159,9 +159,32 @@
                 </button>
             </div>
 
-            <p class="text-[8px] text-[#d4a373] uppercase tracking-[0.2em] mt-8 font-bold animate-pulse">
-                ✨ Limit: Maksimal 12-15 foto per project
-            </p>
+            <!-- Bundle Token Generator -->
+            <div style="border-top: 1px solid rgba(0,0,0,0.07); margin-top: 2rem; padding-top: 2rem;">
+                <p class="text-[11px] text-black font-bold uppercase tracking-widest mb-4">🎟 Generate Tiket Bundling</p>
+                <div class="space-y-2 text-left mb-4">
+                    <label class="text-[9px] uppercase tracking-widest text-gray-500 font-bold block ml-1">Kuota Kado (default: 5)</label>
+                    <input id="input-bundle-limit" type="number" value="5" min="1" max="20"
+                        class="w-full text-center text-sm border-b border-gray-300 bg-transparent py-2 focus:outline-none focus:border-black transition-all text-black">
+                </div>
+                <div class="space-y-2 text-left mb-4">
+                    <label class="text-[9px] uppercase tracking-widest text-gray-500 font-bold block ml-1">Catatan (nama pembeli, opsional)</label>
+                    <input id="input-bundle-note" type="text" placeholder="misal: Bella - order WA 12/3"
+                        class="w-full text-center text-sm border-b border-gray-300 bg-transparent py-2 focus:outline-none focus:border-black transition-all placeholder:text-gray-400 text-black">
+                </div>
+                <button id="btn-create-bundle" class="btn-premium w-full" style="background: #1a472a;">
+                    🎟 Generate Token Bundle
+                </button>
+                <div id="bundle-result" class="hidden mt-4 p-4 bg-white rounded-lg border border-gray-200 text-left">
+                    <p class="text-[9px] text-gray-500 uppercase tracking-widest mb-1">Token Berhasil Dibuat:</p>
+                    <p id="bundle-token-display" class="text-2xl font-bold text-black tracking-widest text-center py-2"></p>
+                    <p class="text-[8px] text-gray-400 text-center mt-1">Salin token di atas dan kirim ke pembeli.</p>
+                    <button id="btn-copy-bundle-token" class="w-full mt-3 text-[9px] uppercase tracking-widest py-2 border border-gray-300 rounded hover:bg-gray-50 transition-all">
+                        Salin Token
+                    </button>
+                </div>
+                <p id="bundle-error" class="hidden text-[9px] text-rose-500 mt-2 font-bold"></p>
+            </div>
         </div>
 
         <!-- Divider -->

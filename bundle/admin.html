@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bundle Ledger | Admin Dashboard</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:italic&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .serif-title {
+            font-family: 'Instrument Serif', serif;
+            font-weight: normal;
+        }
+        /* Loading Overlay */
+        #loading-overlay {
+            background-color: rgba(255,255,255,0.8);
+            backdrop-filter: blur(4px);
+        }
+        /* Custom Table Scrollbar */
+        .table-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
+        .table-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .table-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .table-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col">
+
+    <!-- ── GATEWAY LOGIN ── -->
+    <div id="login-view" class="flex-1 flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm border border-slate-100 text-center">
+            <h1 class="text-4xl serif-title mb-1 text-slate-900">Ledger Admin</h1>
+            <p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-8">Sistem Pemantauan Token</p>
+            
+            <form id="login-form" class="space-y-4">
+                <input id="input-admin-pass" type="password" placeholder="Password Admin" required
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-center focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors">
+                <button type="submit" 
+                    class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-4 rounded-lg text-xs uppercase tracking-widest transition-colors shadow-md">
+                    Buka Brankas
+                </button>
+            </form>
+            <p id="login-error" class="text-xs text-rose-500 mt-4 hidden font-medium"></p>
+        </div>
+    </div>
+
+    <!-- ── DASHBOARD ── -->
+    <div id="dashboard-view" class="hidden flex-1 flex flex-col items-center py-8 px-4 w-full">
+        <div class="w-full max-w-5xl">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+                <div>
+                    <h1 class="text-4xl serif-title text-slate-900">Master Ledger</h1>
+                    <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 mt-1">Laporan Bundling Kado</p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="fetchLedgerData()" class="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-md text-xs font-bold uppercase tracking-wider hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2">
+                        <span>↻ Refresh</span>
+                    </button>
+                    <button id="btn-logout" class="px-4 py-2 bg-rose-50 text-rose-600 border border-rose-100 rounded-md text-xs font-bold uppercase tracking-wider hover:bg-rose-100 transition-colors shadow-sm">
+                        Keluar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Total Token</p>
+                    <p id="stat-total-tokens" class="text-3xl font-bold text-slate-800">0</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Total Kado Terjual</p>
+                    <p id="stat-total-capacity" class="text-3xl font-bold text-slate-800">0</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Kado Diredeem</p>
+                    <p id="stat-total-used" class="text-3xl font-bold text-indigo-600">0</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+                    <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Sisa Kuota Global</p>
+                    <p id="stat-total-sisa" class="text-3xl font-bold text-emerald-600">0</p>
+                </div>
+            </div>
+
+            <!-- Table Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
+                
+                <!-- Loader -->
+                <div id="loading-overlay" class="absolute inset-0 z-10 flex flex-col items-center justify-center hidden">
+                    <div class="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-3"></div>
+                    <p class="text-xs font-semibold text-slate-600 uppercase tracking-widest animate-pulse">Menarik Data...</p>
+                </div>
+
+                <div class="table-scroll overflow-x-auto w-full">
+                    <table class="w-full text-left border-collapse min-w-[800px]">
+                        <thead>
+                            <tr class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200">
+                                <th class="py-4 px-5">Tgl Dibuat</th>
+                                <th class="py-4 px-5">Kode Token</th>
+                                <th class="py-4 px-5">Pemilik / Catatan</th>
+                                <th class="py-4 px-5 text-center">Pemakaian</th>
+                                <th class="py-4 px-5">Status</th>
+                                <th class="py-4 px-5">Daftar Link Kado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledger-table-body" class="text-sm text-slate-700 divide-y divide-slate-100 bg-white">
+                            <!-- Rows injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="empty-state" class="hidden p-12 text-center text-slate-500">
+                    <p class="text-3xl mb-2">📄</p>
+                    <p class="font-medium text-sm">Belum ada token bundling yang dibuat.</p>
+                </div>
+            </div>
+
+            <!-- Hint -->
+            <p class="text-center text-[10px] text-slate-400 mt-6 font-medium tracking-widest uppercase">
+                Data ditarik secara live dari Cloudflare KV Store
+            </p>
+        </div>
+    </div>
+
+    <!-- ── SCRIPT ── -->
+    <script>
+        const API_BASE_URL = 'https://valentine-upload.aldoramadhan16.workers.dev';
+        
+        // DOM Elements
+        const viewLogin = document.getElementById('login-view');
+        const viewDash  = document.getElementById('dashboard-view');
+        const loginForm = document.getElementById('login-form');
+        const loginErr  = document.getElementById('login-error');
+        const btnLogout = document.getElementById('btn-logout');
+        
+        const loader = document.getElementById('loading-overlay');
+        const tBody  = document.getElementById('ledger-table-body');
+        const emptyState = document.getElementById('empty-state');
+
+        let adminSecret = sessionStorage.getItem('admin_master_secret') || null;
+
+        // Init
+        if (adminSecret) {
+            showDashboard();
+            fetchLedgerData();
+        }
+
+        // Login Submit
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pass = document.getElementById('input-admin-pass').value;
+            if (!pass) return;
+
+            loginForm.querySelector('button').textContent = "MEMERIKSA...";
+            
+            try {
+                // Test endpoint by listing bundle to check if pass is correct
+                // Since worker handleAdminListGifts / admin endpoints only verify authHeader !== `Bearer ${secret}`
+                const res = await fetch(`${API_BASE_URL}/api/bundle/admin/list`, {
+                    headers: { 'Authorization': `Bearer ${pass}` }
+                });
+
+                if (res.ok) {
+                    adminSecret = pass;
+                    sessionStorage.setItem('admin_master_secret', pass);
+                    showDashboard();
+                    fetchLedgerData(); // this first fetch is technically redundant but keeps logic clean
+                } else {
+                    loginErr.textContent = "Akses ditolak. Password salah.";
+                    loginErr.classList.remove('hidden');
+                }
+            } catch(e) {
+                loginErr.textContent = "Koneksi ke server gagal.";
+                loginErr.classList.remove('hidden');
+            } finally {
+                loginForm.querySelector('button').textContent = "Buka Brankas";
+            }
+        });
+
+        btnLogout.addEventListener('click', () => {
+            sessionStorage.removeItem('admin_master_secret');
+            adminSecret = null;
+            document.getElementById('input-admin-pass').value = '';
+            viewDash.classList.add('hidden');
+            viewLogin.classList.remove('hidden');
+        });
+
+        function showDashboard() {
+            viewLogin.classList.add('hidden');
+            viewDash.classList.remove('hidden');
+            viewDash.classList.add('flex');
+        }
+
+        function formatDate(dtStr) {
+            if (!dtStr) return '-';
+            const d = new Date(dtStr);
+            return new Intl.DateTimeFormat('id-ID', { 
+                day: '2-digit', month: 'short', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            }).format(d);
+        }
+
+        async function fetchLedgerData() {
+            loader.classList.remove('hidden');
+            loginErr.classList.add('hidden');
+            
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/bundle/admin/list`, {
+                    headers: { 'Authorization': `Bearer ${adminSecret}` }
+                });
+                
+                if (res.status === 401) {
+                    btnLogout.click(); // session expired/invalid
+                    return;
+                }
+
+                const json = await res.json();
+                if (json.success) {
+                    renderTable(json.tokens || []);
+                } else {
+                    alert("Error: " + json.error);
+                }
+            } catch (err) {
+                alert("Gagal menarik data dari server.");
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+
+        function renderTable(tokens) {
+            // Stats
+            let sumTokens = tokens.length;
+            let sumCapacity = 0;
+            let sumUsed = 0;
+
+            if (tokens.length === 0) {
+                tBody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                
+                tBody.innerHTML = tokens.map(t => {
+                    sumCapacity += parseInt(t.max_limit || 0);
+                    sumUsed += parseInt(t.used || 0);
+
+                    const sisa = t.max_limit - t.used;
+                    let statusBadge = '';
+                    if (sisa === 0) {
+                        statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 uppercase tracking-widest">Habis</span>`;
+                    } else {
+                        statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 uppercase tracking-widest">Aktif</span>`;
+                    }
+
+                    // Render gift list
+                    const gifts = t.created_gifts || [];
+                    const giftHTML = gifts.length > 0 
+                        ? `<ul class="space-y-1">` + gifts.map(g => `<li class="flex items-center gap-1 group/item"><span class="w-1.5 h-1.5 rounded-full bg-slate-200"></span><a href="https://voice.for-you-always.my.id/studio/${g}" target="_blank" class="text-xs text-indigo-600 hover:text-indigo-800 hover:underline font-medium">${g}</a><button onclick="deleteGift('${t.token}', '${g}')" class="opacity-0 group-hover/item:opacity-100 text-rose-500 hover:text-rose-700 ml-2 transition-opacity inline-flex items-center justify-center p-0.5 rounded hover:bg-rose-50" title="Hapus Permanen & Kembalikan Kuota"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></li>`).join('') + `</ul>`
+                        : `<span class="text-slate-400 text-xs italic">Belum buat kado</span>`;
+
+                    return `
+                        <tr class="hover:bg-slate-50 transition-colors group">
+                            <td class="py-4 px-5 text-xs text-slate-500 align-top">${formatDate(t.created_at)}</td>
+                            <td class="py-4 px-5 align-top">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono font-bold text-slate-800 text-sm bg-slate-100 px-2 py-1 rounded">${t.token}</span>
+                                    <button onclick="copyToken('${t.token}', this)" class="text-slate-400 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" title="Salin">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                    </button>
+                                </div>
+                            </td>
+                            <td class="py-4 px-5 align-top">
+                                <p class="text-sm font-medium text-slate-900">${t.note || '<span class="text-slate-300 italic">Tanpa nama</span>'}</p>
+                            </td>
+                            <td class="py-4 px-5 text-center align-top">
+                                <div class="flex flex-col border-r border-slate-100 last:border-0 px-2">
+                                    <span class="text-lg font-bold ${sisa===0?'text-slate-400':'text-slate-800'}">${t.used} <span class="text-xs text-slate-400 font-medium">/ ${t.max_limit}</span></span>
+                                </div>
+                            </td>
+                            <td class="py-4 px-5 align-top">
+                                ${statusBadge}
+                            </td>
+                            <td class="py-4 px-5 align-top">
+                                ${giftHTML}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            // Update Header Stats
+            document.getElementById('stat-total-tokens').textContent = sumTokens;
+            document.getElementById('stat-total-capacity').textContent = sumCapacity;
+            document.getElementById('stat-total-used').textContent = sumUsed;
+            document.getElementById('stat-total-sisa').textContent = (sumCapacity - sumUsed);
+        }
+
+        function copyToken(token, btn) {
+            navigator.clipboard.writeText(token);
+            const ori = btn.innerHTML;
+            btn.innerHTML = `<svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+            setTimeout(() => { btn.innerHTML = ori; }, 2000);
+        }
+
+        async function deleteGift(token, giftId) {
+            if (!confirm(`YAKIN RESET?\n\nAnda akan menghapus proyek "${giftId}" selamanya.\nKuota tiket ini untuk customer akan dikembalikan (+1).\n\nTindakan ini tidak bisa dibatalkan!`)) return;
+
+            loader.classList.remove('hidden');
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/bundle/admin/delete-gift`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${adminSecret}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token, giftId })
+                });
+
+                const json = await res.json();
+                if (json.success) {
+                    await fetchLedgerData();
+                } else {
+                    alert("Gagal mereset kado: " + json.error);
+                }
+            } catch (err) {
+                alert("Koneksi ke server gagal.");
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

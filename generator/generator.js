@@ -280,4 +280,69 @@ document.addEventListener('DOMContentLoaded', () => {
         btnUpdatePassword.style.opacity = '1';
         btnUpdatePassword.disabled = false;
     });
+
+    // ── 4. Generate Bundle Token (Admin) ─────────────────────
+    const btnCreateBundle    = document.getElementById('btn-create-bundle');
+    const bundleResult       = document.getElementById('bundle-result');
+    const bundleTokenDisplay = document.getElementById('bundle-token-display');
+    const btnCopyBundle      = document.getElementById('btn-copy-bundle-token');
+    const bundleError        = document.getElementById('bundle-error');
+
+    btnCreateBundle?.addEventListener('click', async () => {
+        const limit = parseInt(document.getElementById('input-bundle-limit')?.value || 5);
+        const note  = document.getElementById('input-bundle-note')?.value.trim() || '';
+
+        // Need the generator password that was already used to unlock, stored in sessionStorage
+        // We'll use the GENERATOR_SECRET via the worker - pass it as Bearer token
+        // Note: password is re-sent for the API call (user must know it)
+        const pass = prompt('Masukkan password generator untuk generate token:');
+        if (!pass) return;
+
+        btnCreateBundle.innerText = 'Membuat Token...';
+        btnCreateBundle.disabled = true;
+        bundleResult.classList.add('hidden');
+        bundleError.classList.add('hidden');
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/bundle/create-token`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${pass}`
+                },
+                body: JSON.stringify({ limit, note })
+            });
+
+            const json = await res.json();
+
+            if (json.success) {
+                bundleTokenDisplay.textContent = json.token;
+                bundleResult.classList.remove('hidden');
+                bundleError.classList.add('hidden');
+
+                // Store for copy
+                bundleResult.dataset.token = json.token;
+            } else {
+                bundleError.textContent = json.error || 'Gagal membuat token.';
+                bundleError.classList.remove('hidden');
+            }
+        } catch (err) {
+            bundleError.textContent = 'Tidak dapat terhubung ke server.';
+            bundleError.classList.remove('hidden');
+        } finally {
+            btnCreateBundle.innerText = '🎟 Generate Token Bundle';
+            btnCreateBundle.disabled = false;
+        }
+    });
+
+    btnCopyBundle?.addEventListener('click', () => {
+        const token = bundleResult?.dataset.token;
+        if (!token) return;
+        navigator.clipboard.writeText(token).then(() => {
+            btnCopyBundle.textContent = '✓ Tersalin!';
+            setTimeout(() => { btnCopyBundle.textContent = 'Salin Token'; }, 2000);
+        }).catch(() => {
+            prompt('Salin token ini:', token);
+        });
+    });
 });
