@@ -29,6 +29,7 @@
   <!-- Styles -->
   <link rel="stylesheet" href="style.css?v=5">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
   <!-- Vercel Analytics -->
   <script>
@@ -175,7 +176,7 @@
           <div class="flex items-start gap-3 flex-1">
             <div class="flex-1">
               <h2 class="text-xs uppercase tracking-[0.3em] text-gray-600 font-bold mb-1">Galeri Kenangan</h2>
-              <p class="text-[8px] text-[#d4a373] uppercase tracking-[0.2em] font-bold">✨ Maksimal 10 Foto</p>
+              <p class="text-[8px] text-[#d4a373] uppercase tracking-[0.2em] font-bold">✨ Maksimal 12 Foto</p>
             </div>
             <button onclick="Studio.toggleSection('gallery')" id="toggle-btn-gallery" class="section-toggle-btn mt-1"
               title="Sembunyikan / Tampilkan">
@@ -613,26 +614,34 @@
 
             <div class="space-y-8 text-left">
               <div class="space-y-4">
-                <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block ml-1">Password Kado
-                  (Untuk
-                  Penerima)</label>
-                <input id="input-gift-password" type="text" placeholder="Masukkan password baru..."
-                  class="input-minimal" autocomplete="off" />
-                <p class="text-[10px] text-gray-400 italic mt-2">Kosongkan jika tidak ingin menggunakan password</p>
+                <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block ml-1">Password Kado (Untuk Penerima)</label>
+                <div class="relative">
+                  <input id="input-gift-password" type="text" placeholder="Gunakan kata atau angka..."
+                    class="input-minimal w-full !font-sans !tracking-normal" autocomplete="off" />
+                  <div class="absolute right-0 top-1/2 -translate-y-1/2 px-3 py-1 bg-amber-50 rounded-full border border-amber-100 pointer-events-none">
+                    <span class="text-[7px] uppercase tracking-wider text-amber-600 font-bold">Tidak Pakai Spasi</span>
+                  </div>
+                </div>
+                <div class="flex items-start gap-2 mt-2">
+                  <span class="material-symbols-outlined text-[12px] text-amber-500 mt-0.5" style="font-variation-settings: 'FILL' 1;">info</span>
+                  <p class="text-[10px] text-gray-400 leading-relaxed italic">Bersifat <b>Opsional</b>. Biarkan kosong jika ingin kado langsung terbuka tanpa password.</p>
+                </div>
               </div>
 
               <div class="space-y-4">
                 <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block ml-1">Hint Password (Petunjuk untuk Penerima)</label>
-                <input id="input-gift-password-hint" type="text" placeholder="Contoh: nama hewan peliharaanku..." class="input-minimal" autocomplete="off" />
+                <input id="input-gift-password-hint" type="text" placeholder="Contoh: Tanggal jadian kita?" class="input-minimal !font-sans !tracking-normal" autocomplete="off" />
                 <p class="text-[10px] text-gray-400 italic mt-2">Petunjuk ini akan tampil di halaman kado saat penerima diminta memasukkan password.</p>
               </div>
 
               <div class="space-y-4">
-                <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block ml-1">Password Editor
-                  (Studio)</label>
-                <input id="input-studio-password" type="text" placeholder="Ganti password masuk studio..."
-                  class="input-minimal" autocomplete="off" />
-                <p class="text-[10px] text-gray-400 italic mt-2">Kosongkan jika tidak ingin menggunakan password</p>
+                <label class="text-[9px] uppercase tracking-widest text-gray-400 font-bold block ml-1">Password Editor (Studio)</label>
+                <input id="input-studio-password" type="text" placeholder="Ketik password editor di sini..."
+                  class="input-minimal w-full !font-sans !tracking-normal" autocomplete="off" />
+                <div class="flex items-start gap-2 mt-2">
+                  <span class="material-symbols-outlined text-[12px] text-amber-500 mt-0.5" style="font-variation-settings: 'FILL' 1;">lock_person</span>
+                  <p class="text-[10px] text-gray-400 leading-relaxed italic">Password untuk Anda masuk kembali ke editor ini. <span class="text-amber-600 font-bold italic underline">Jangan sampai lupa.</span></p>
+                </div>
               </div>
             </div>
           </div>

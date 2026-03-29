@@ -17,11 +17,11 @@
 // ============================================================
 
 const Uploader = (() => {
-  console.log('✅ Uploader Module Loaded - MAX_PHOTOS: 10 (v7)');
+  console.log('✅ Uploader Module Loaded - MAX_PHOTOS: 12 (v8)');
 
 
   // ── Config ──────────────────────────────────────────────
-  const MAX_PHOTOS = 10;
+  const MAX_PHOTOS = 12;
   const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
   const MAX_DIMENSION = 1080; // Reduced from 1600 for performance
   const QUALITY = 0.6;        // Reduced from 0.75 for speed

@@ -416,6 +416,12 @@ const Studio = (() => {
           e.target.value = val;
         }
 
+        // NO SPACES for passwords
+        if (id === 'input-gift-password' || id === 'input-studio-password') {
+          val = val.replace(/\s+/g, '');
+          e.target.value = val;
+        }
+
         _state[key] = val;
         _triggerSaveAndPreview();
       });
