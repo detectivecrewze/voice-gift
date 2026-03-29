@@ -196,6 +196,14 @@ const _setupPasswordGate = (giftId, partialGift) => {
   const btn = document.getElementById('btn-unlock');
   const errorMsg = document.getElementById('password-error');
 
+  // Tampilkan hint jika ada
+  const hintBox = document.getElementById('password-hint-box');
+  const hintText = document.getElementById('password-hint-text');
+  if (hintBox && hintText && partialGift?.passwordHint && String(partialGift.passwordHint).trim().length > 0) {
+    hintText.textContent = partialGift.passwordHint.trim();
+    hintBox.classList.remove('hidden');
+  }
+
   if (!btn) {
     console.error('[Gift] Password UI elements missing.');
     return;

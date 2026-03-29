@@ -75,6 +75,7 @@ const Studio = (() => {
     voiceVolume: 1.0,      // Default 100%
     ambientVolume: 0.25,   // Default 25% (background)
     password: null,
+    passwordHint: null,
     studioPassword: null,
     polaroid_photo: null,
     polaroid_letter: '',
@@ -395,6 +396,7 @@ const Studio = (() => {
   const _initInputs = () => {
     const inputs = {
       'input-gift-password': 'password',
+      'input-gift-password-hint': 'passwordHint',
       'input-studio-password': 'studioPassword'
     };
 

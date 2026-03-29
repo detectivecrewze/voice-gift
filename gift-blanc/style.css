@@ -1702,3 +1702,45 @@ body::after {
 .polaroid-letter::-webkit-scrollbar {
   display: none;
 }
+/* == Password Hint Box == */
+.password-hint-box {
+  position: relative;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--primary);
+  border-radius: 0 4px 4px 0;
+  padding: 18px 16px 14px 20px;
+  margin-top: 28px;
+  opacity: 0;
+  animation: hint-appear 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0.3s;
+}
+
+.password-hint-label {
+  position: absolute;
+  top: -8px;
+  left: 12px;
+  background: var(--bg);
+  padding: 0 6px;
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--primary);
+}
+
+.password-hint-text {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+  margin: 0;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+@keyframes hint-appear {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

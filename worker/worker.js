@@ -29,6 +29,8 @@ var index_default = {
         "https://valentine-site-sigma.vercel.app",
         "http://localhost:5500",
         "http://127.0.0.1:5500",
+        "http://localhost:5501",
+        "http://127.0.0.1:5501",
         "http://localhost:3000",
         "http://127.0.0.1:3000"
       ];
@@ -701,7 +703,8 @@ var index_default = {
           `📸 Foto: ${configData.photos?.length || 0} foto\n` +
           `🎵 Voice Note: ${configData.voiceNote?.url ? 'Ada ✅' : 'Tidak ada ❌'}\n` +
           `🎼 Ambient: ${configData.ambient || 'none'}\n` +
-          `🔒 Password: ${configData.password ? 'Ada ✅' : 'Tidak ada'}\n\n` +
+          `🔒 Password: ${configData.password ? 'Ada ✅' : 'Tidak ada'}\n` +
+          `💡 Hint Password: ${configData.passwordHint ? configData.passwordHint : 'Tidak ada'}\n\n` +
           `─────────────────\nCek pesan berikutnya untuk config.js`;
 
         await fetch(TG_URL, {

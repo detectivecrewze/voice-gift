@@ -320,6 +320,46 @@ body::before {
     font-weight: 400;
 }
 
+/* ── Hint Box — Midnight ── */
+.password-hint-box {
+    margin-top: 24px;
+    background: rgba(155, 138, 170, 0.08);
+    border: 1px dashed rgba(155, 138, 170, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: left;
+    animation: fade-in-up 0.5s ease backwards;
+}
+
+.hint-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.hint-icon {
+    font-size: 14px;
+    color: #9b8aaa;
+}
+
+.hint-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--muted-local);
+    font-weight: 600;
+}
+
+.hint-content {
+    font-family: var(--font-display);
+    font-size: 16px;
+    color: var(--text-local);
+    font-style: italic;
+    line-height: 1.4;
+    margin: 0;
+}
+
 /* ── Error State ── */
 .error-container {
     --text-local: #1a1a2e;

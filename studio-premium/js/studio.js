@@ -76,6 +76,7 @@ const Studio = (() => {
     ambientVolume: 0.25,   // Default 25% (background)
     password: null,
     studioPassword: null,
+    passwordHint: '',
     polaroid_photo: null,
     polaroid_letter: '',
     requestDomain: '',
@@ -393,6 +394,7 @@ const Studio = (() => {
   const _initInputs = () => {
     const inputs = {
       'input-gift-password': 'password',
+      'input-gift-password-hint': 'passwordHint',
       'input-studio-password': 'studioPassword',
       'input-request-domain': 'requestDomain'
     };

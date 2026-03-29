@@ -167,6 +167,13 @@ Vercel Project Premium Template: fya-premium-kit
 - **Reset & Refund Quota:** Fitur bagi admin untuk menghapus proyek kado yang salah ketik namanya oleh customer, dengan mekanisme yang secara otomatis mengembalikan kuota token tersebut (+1).
 - **Worker & Routing:** Endpoint menggunakan KV `ARCADE_DATA`  (Prefix: `BNDL_`). Routing bersih melalui `vercel.json` dan endpoint admin terlindungi oleh `ADMIN_SECRET`.
 
+### 🔐 Feature Update — Password Hint System (Maret 29-30)
+- **Studio Premium UX:** Menambahkan input "Petunjuk Password" (opsional) di bagian Security/Akses agar pengirim bisa memberikan clue (misal: "Tanggal pertama kali ketemu"). Data disimpan secara aman dalam properti `passwordHint`.
+- **Telegram Flow:** Payload publikasi kado di Worker (`worker.js`) telah divalidasi untuk mem-parsing dan mengirimkan field `passwordHint` beserta data lainnya langsung ke Telegram Admin.
+- **Camera Themes Integration:** Menghapus blok teks statis (anjuran orientasi landscape) di state password, kemudian menggantinya dengan komponen UI dinamis `#password-hint-box`.
+  - **Applied to 5 Themes:** Silver, Midnight, Mossy, Rosewood, dan Magenta.
+  - **Theme-Specific Styling:** CSS di setiap tema dibangun unik menyesuaikan mood palet warna asli (misalnya nuansa *velvet* di Midnight, *brass* di Mossy, *sepia* di Rosewood, *dusty rose* di Magenta, dan *kraft/cream* di Silver).
+  - **JS Logic Integration:** Menambahkan modular helper `showPasswordStateWithHint()` di file `player.js` tiap tema yang secara otomatis menampilkan UI petunjuk hanya jika konfigurasi kado memiliki isi di `passwordHint`.
 ---
 
 ## 📁 Struktur File Penting
@@ -320,4 +327,4 @@ Dan copy `ambient-data.js` ke dalam tiap folder tema standalone.
 8. **Studio Premium sync** — beberapa perubahan studio regular belum di-sync ke premium
 9. **Marketing Deployment** — Strategi sudah siap (`marketing-strategy.md`), tinggal eksekusi.
 
-🚀 **Last Updated: March 27, 2026**
+🚀 **Last Updated: March 30, 2026**

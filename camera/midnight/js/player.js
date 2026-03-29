@@ -875,6 +875,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
     let giftIdParam = params.get('to');
 
+    // Helper to safely show password state with its hint if present
+    const showPasswordStateWithHint = (config) => {
+        if (config.passwordHint) {
+            const hintBox = document.getElementById('password-hint-box');
+            const hintText = document.getElementById('password-hint-text');
+            if (hintBox && hintText) {
+                hintBox.classList.remove('hidden');
+                hintText.textContent = config.passwordHint;
+            }
+        }
+        showState('password');
+    };
+
     // Fallback: baca gift ID dari path jika tidak ada ?to= (e.g., /camera/midnight/GIFT_ID)
     if (!giftIdParam) {
         const parts = window.location.pathname.split('/').filter(Boolean);
@@ -891,7 +904,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         giftConfig = window.STANDALONE_CONFIG;
         const isPreview = params.get('preview') === 'true';
         if (giftConfig.password && !isPreview) {
-            showState('password');
+            showPasswordStateWithHint(giftConfig);
         } else {
             handleAfterLoad();
         }
@@ -918,7 +931,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 giftConfig = fetched;
                 const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
                 if (giftConfig.password && !isPreview) {
-                    showState('password');
+                    showPasswordStateWithHint(giftConfig);
                 } else {
                     handleAfterLoad();
                 }
@@ -979,7 +992,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             giftConfig = fetched;
             if (giftConfig.password) {
-                showState('password');
+                showPasswordStateWithHint(giftConfig);
             } else {
                 showState('gift');
                 initPlayer(giftConfig);

@@ -78,6 +78,7 @@ const Publisher = (() => {
 
       // Password
       password: state.password || null,
+      passwordHint: state.passwordHint || '',
       requestDomain: state.requestDomain || '',
 
       // Internal (akan di-strip oleh Worker sebelum dikirim ke Telegram)
