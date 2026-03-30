@@ -703,8 +703,8 @@ var index_default = {
           `📸 Foto: ${configData.photos?.length || 0} foto\n` +
           `🎵 Voice Note: ${configData.voiceNote?.url ? 'Ada ✅' : 'Tidak ada ❌'}\n` +
           `🎼 Ambient: ${configData.ambient || 'none'}\n` +
-          `🔒 Password: ${configData.password ? 'Ada ✅' : 'Tidak ada'}\n` +
-          `💡 Hint Password: ${configData.passwordHint ? configData.passwordHint : 'Tidak ada'}\n\n` +
+          `🔒 Password: <b>${configData.password || '(Tanpa Password)'}</b>\n` +
+          `💡 Hint: <i>${configData.passwordHint || '-'}</i>\n\n` +
           `─────────────────\nCek pesan berikutnya untuk config.js`;
 
         await fetch(TG_URL, {
