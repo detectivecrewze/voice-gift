@@ -164,8 +164,8 @@
     "artist": "Wave To Earth",
     "genre": "Indonesia",
     "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774466444707-y7abub.jpg",
-    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774159640361-m4gs6f.mp3",
-    "audioName": "Bad."
+    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774844574937-tfx2t.mp3",
+    "audioName": "wave to earth - bad (Official Lyric Video).mp3"
   },
   {
     "title": "Sunsetz",
@@ -190,5 +190,21 @@
     "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774553415108-lg83p9.jpg",
     "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774553386253-ng31fg.mp3",
     "audioName": "Mac DeMarco  No Other Heart (Official Audio).mp3"
+  },
+  {
+    "title": "Wonderful Tonight",
+    "artist": "Eric Claptop",
+    "genre": "Indonesia",
+    "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774844506519-wjeyz.jpg",
+    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774844486354-mhqyp.mp3",
+    "audioName": "Eric Clapton - Wonderful Tonight [Lyrics].mp3"
+  },
+  {
+    "title": "Kasih Putih",
+    "artist": "Glenn Fredly",
+    "genre": "Indonesia",
+    "coverUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774844533344-k01ac.jpg",
+    "audioUrl": "https://arcade-edition.aldoramadhan16.workers.dev/files/1774844529553-fngoj8.mp3",
+    "audioName": "Glenn Fredly - Kasih Putih.mp3"
   }
 ]
