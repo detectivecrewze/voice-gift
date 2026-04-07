@@ -85,13 +85,13 @@ const Studio = (() => {
   // ── Music State ──────────────────────────────────────────
   let _musicUploading = false;
   let _musicMode = 'library'; // 'library' | 'upload'
-  
+
   // Library State
   let _libMusicTitle = '';
   let _libMusicArtist = '';
   let _libMusicCoverUrl = null;
   let _libMusicUrl = null;
-  
+
   // Upload State
   let _uplMusicTitle = '';
   let _uplMusicUrl = null;
@@ -124,7 +124,7 @@ const Studio = (() => {
     _previewAudio = new Audio(url);
     _previewAudio.volume = _state.ambientVolume;
     _currentPreviewId = id;
-    _previewAudio.play().catch(() => {});
+    _previewAudio.play().catch(() => { });
     _previewAudio.addEventListener('ended', () => { _currentPreviewId = null; _renderMusicTrack(); });
     _renderMusicTrack();
   };
@@ -513,10 +513,16 @@ const Studio = (() => {
     });
   };
 
+  // ── Helper: Count Words ────────────────────────────────
+  const _countWords = (str) => {
+    if (!str) return 0;
+    return str.trim().split(/\s+/).filter(Boolean).length;
+  };
+
   // ── Helper: Update karakter counter ──────────────────────
   const _updateCharCount = (elementId, count) => {
     const el = document.getElementById(elementId);
-    if (el) el.textContent = count;
+    if (el) el.textContent = `${count} kata`;
   };
 
   // ── Helper functions defined inside IIFE but outside init ──
@@ -607,7 +613,7 @@ const Studio = (() => {
     // Restore letter
     if (letterEl && _state.polaroid_letter) {
       letterEl.value = _state.polaroid_letter;
-      if (charCount) charCount.textContent = `${_state.polaroid_letter.length} / 1300`;
+      if (charCount) charCount.textContent = `${_countWords(_state.polaroid_letter)} kata`;
     }
 
     // Restore photo preview
@@ -620,9 +626,8 @@ const Studio = (() => {
     // Letter input handler
     if (letterEl) {
       letterEl.addEventListener('input', (e) => {
-        const text = e.target.value.slice(0, 1300);
-        e.target.value = text;
-        if (charCount) charCount.textContent = `${text.length} / 1300`;
+        const text = e.target.value; // Remove slice(0, 1300)
+        if (charCount) charCount.textContent = `${_countWords(text)} kata`;
         Studio.onPolaroidLetterChanged(text);
       });
     }
@@ -1012,11 +1017,11 @@ const Studio = (() => {
     let previewTimeout = null;
 
     // Close
-    const closeModal = () => { 
-        if (previewAudio) { previewAudio.pause(); previewAudio = null; }
-        if (previewTimeout) clearTimeout(previewTimeout);
-        modal.classList.add('hidden'); 
-        modal.style.display = 'none'; 
+    const closeModal = () => {
+      if (previewAudio) { previewAudio.pause(); previewAudio = null; }
+      if (previewTimeout) clearTimeout(previewTimeout);
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
     };
     document.getElementById('library-modal-close')?.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
@@ -1047,9 +1052,9 @@ const Studio = (() => {
         <div class="library-song-item" data-idx="${i}" style="display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;border-bottom:1px solid #fafafa;transition:background 0.15s;">
           <div style="width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#f3f4f6;position:relative;">
             ${song.coverUrl
-              ? `<img src="${song.coverUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:16px;\'>🎵</div>'">`
-              : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:16px;">🎵</div>'
-            }
+          ? `<img src="${song.coverUrl}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:16px;\'>🎵</div>'">`
+          : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:16px;">🎵</div>'
+        }
             <!-- Preview Button -->
             <button class="btn-song-preview" data-url="${song.audioUrl}" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:8px;background:transparent;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer; -webkit-tap-highlight-color:transparent;">
               <img class="preview-icon svg-play" src="/assets/icons/play.svg" width="14" height="14" style="filter:brightness(0) invert(1); drop-shadow:0 0 4px rgba(0,0,0,0.5);">
@@ -1072,43 +1077,43 @@ const Studio = (() => {
           e.stopPropagation(); // prevent selecting the song
           const url = btn.dataset.url;
           if (!url) return;
-          
+
           const iconPlay = btn.querySelector('.svg-play');
           const iconPause = btn.querySelector('.svg-pause');
           const isPlaying = iconPause.style.display === 'block';
-          
+
           if (previewAudio) {
             previewAudio.pause();
             previewAudio = null;
           }
           if (previewTimeout) clearTimeout(previewTimeout);
-          
-          list.querySelectorAll('.btn-song-preview').forEach(b => {
-             b.querySelector('.svg-play').style.display = 'block';
-             b.querySelector('.svg-pause').style.display = 'none';
-          });
-          
-          if (!isPlaying) {
-             previewAudio = new Audio(url);
-             previewAudio.volume = _state.ambientVolume;
-             previewAudio.play().catch(err => console.warn('Preview blocked:', err));
-             iconPlay.style.display = 'none';
-             iconPause.style.display = 'block';
-             
-             previewTimeout = setTimeout(() => {
-                if (previewAudio) {
-                   previewAudio.pause();
-                   previewAudio = null;
-                }
-                iconPlay.style.display = 'block';
-                iconPause.style.display = 'none';
-             }, 30000);
 
-             previewAudio.addEventListener('ended', () => {
-                iconPlay.style.display = 'block';
-                iconPause.style.display = 'none';
+          list.querySelectorAll('.btn-song-preview').forEach(b => {
+            b.querySelector('.svg-play').style.display = 'block';
+            b.querySelector('.svg-pause').style.display = 'none';
+          });
+
+          if (!isPlaying) {
+            previewAudio = new Audio(url);
+            previewAudio.volume = _state.ambientVolume;
+            previewAudio.play().catch(err => console.warn('Preview blocked:', err));
+            iconPlay.style.display = 'none';
+            iconPause.style.display = 'block';
+
+            previewTimeout = setTimeout(() => {
+              if (previewAudio) {
+                previewAudio.pause();
                 previewAudio = null;
-             });
+              }
+              iconPlay.style.display = 'block';
+              iconPause.style.display = 'none';
+            }, 30000);
+
+            previewAudio.addEventListener('ended', () => {
+              iconPlay.style.display = 'block';
+              iconPause.style.display = 'none';
+              previewAudio = null;
+            });
           }
         });
       });

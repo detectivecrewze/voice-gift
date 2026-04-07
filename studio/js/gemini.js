@@ -8,7 +8,7 @@ const GeminiAI = (() => {
 
   // Worker endpoint (same base as the rest of the Studio)
   const WORKER_URL = window.APP_CONFIG?.apiBaseUrl || 'https://valentine-upload.aldoramadhan16.workers.dev';
-  
+
   let currentTone = 'romantis'; // Default tone
 
   // ── Open modal ────────────────────────────────────────────
@@ -63,7 +63,7 @@ const GeminiAI = (() => {
       const response = await fetch(`${WORKER_URL}/generate-ai`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, tone: currentTone })
+        body: JSON.stringify({ prompt, tone: currentTone, maxWords: 800 })
       });
 
       const data = await response.json();
@@ -117,12 +117,12 @@ const GeminiAI = (() => {
     document.getElementById('btn-ai-retry')?.addEventListener('click', tryAgain);
 
     // Close on backdrop click
-    document.getElementById('modal-ai-generator')?.addEventListener('click', function(e) {
+    document.getElementById('modal-ai-generator')?.addEventListener('click', function (e) {
       if (e.target === this) closeModal();
     });
 
     // Allow Enter key to trigger generate
-    document.getElementById('ai-prompt-input')?.addEventListener('keydown', function(e) {
+    document.getElementById('ai-prompt-input')?.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         generate();
@@ -137,7 +137,7 @@ const GeminiAI = (() => {
         toneButtons.forEach(b => {
           b.className = 'px-4 py-2 text-[10px] rounded-full border border-gray-200 bg-white text-gray-500 font-bold transition-all hover:border-[#d4a373] hover:text-[#d4a373]';
         });
-        
+
         // Active button styling
         btn.className = 'px-4 py-2 text-[10px] rounded-full border border-[#d4a373] bg-[#d4a373] text-white font-bold transition-all';
         currentTone = btn.dataset.tone;
