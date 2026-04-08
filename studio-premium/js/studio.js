@@ -55,11 +55,11 @@ const Studio = (() => {
 
   // ── Silent Audio URLs (Supabase CDN) ─────────────────────
   const SILENT_AUDIO_URLS = {
-    10: 'https://bpahzgewtgfjwobjrpdk.supabase.co/storage/v1/object/public/assets/silent-10s.mp3',
-    15: 'https://bpahzgewtgfjwobjrpdk.supabase.co/storage/v1/object/public/assets/silent-15s.mp3',
-    30: 'https://bpahzgewtgfjwobjrpdk.supabase.co/storage/v1/object/public/assets/silent-30s.mp3',
-    45: 'https://bpahzgewtgfjwobjrpdk.supabase.co/storage/v1/object/public/assets/silent-45s.mp3',
-    60: 'https://bpahzgewtgfjwobjrpdk.supabase.co/storage/v1/object/public/assets/silent-60s.mp3',
+    10: 'https://cdn.for-you-always.my.id/1775618963384-avyllh.mp3',
+    15: 'https://cdn.for-you-always.my.id/1775618967770-p9cqne.mp3',
+    30: 'https://cdn.for-you-always.my.id/1775618972440-hswgjr.mp3',
+    45: 'https://cdn.for-you-always.my.id/1775618978144-qe9g9g.mp3',
+    60: 'https://cdn.for-you-always.my.id/1775618700042-1yinq9.mp3',
   };
 
   let _state = {
