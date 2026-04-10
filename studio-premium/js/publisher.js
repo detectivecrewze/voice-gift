@@ -89,13 +89,16 @@ const Publisher = (() => {
 
   const _handlePublish = async () => {
     const state = Studio.getState();
-    if (!state.requestDomain || !state.requestDomain.trim()) {
+    const domainInput = document.getElementById('input-request-domain');
+    const domainValue = domainInput ? domainInput.value.trim() : (state.requestDomain || '').trim();
+
+    if (!domainValue) {
       Studio.showToast('Nama domain Vercel wajib diisi agar kado bisa diproses! 🌐');
       return;
     }
     if (!validatedPayload) return;
 
-    validatedPayload.requestDomain = state.requestDomain.trim();
+    validatedPayload.requestDomain = domainValue;
     _toggleModal('modal-name', false);
 
     const btns = [document.getElementById('btn-publish'), document.getElementById('btn-publish-desktop')];
