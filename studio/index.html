@@ -684,24 +684,34 @@
       </section>
 
       <!-- Floating Action -->
-      <div id="publish-container" class="text-center">
-        <div class="mb-4 space-x-4 flex justify-center items-center">
+      <div id="publish-container" class="max-w-3xl mx-auto px-4 mt-12 mb-20">
+        <div class="mb-6 space-x-6 flex justify-center items-center">
           <span id="req-photo"
-            class="text-[8px] uppercase tracking-widest text-gray-600 font-bold flex items-center gap-1">📸 Foto min.
+            class="text-[9px] uppercase tracking-widest text-gray-500 font-bold flex items-center gap-1.5 transition-all">📸 Foto min.
             6</span>
           <span id="req-voice"
-            class="text-[8px] uppercase tracking-widest text-gray-600 font-bold flex items-center gap-1">🎙️ Suara min.
+            class="text-[9px] uppercase tracking-widest text-gray-500 font-bold flex items-center gap-1.5 transition-all">🎙️ Suara min.
             1</span>
         </div>
-        <button onclick="Preview.openPreview()"
-          class="w-full py-3 text-[9px] uppercase tracking-widest font-bold bg-gray-800 text-white rounded-full hover:bg-black transition-all shadow-sm mb-3">
-          Lihat Live Preview
-        </button>
-        <button id="btn-publish" class="btn-premium">Publikasikan Kado</button>
+
+        <div class="flex flex-col gap-3">
+          <!-- Button 1: LIHAT LIVE PREVIEW -->
+          <button onclick="Preview.openPreview()"
+            class="w-full py-4 text-[10px] uppercase tracking-[0.25em] font-bold bg-white text-black rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.04)] border border-gray-100 hover:scale-[1.01] active:scale-[0.98] transition-all duration-300">
+            Lihat Live Preview
+          </button>
+
+          <!-- Button 2: PUBLIKASIKAN KADO -->
+          <button id="btn-publish" 
+            class="w-full py-4 text-[10px] uppercase tracking-[0.25em] font-bold bg-[#111111] text-white rounded-full shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:scale-[1.01] active:scale-[0.98] transition-all duration-300">
+            Publikasikan Kado
+          </button>
+        </div>
+
         <div id="autosave-status"
-          class="text-[8px] uppercase tracking-[0.2em] text-gray-500 font-bold mt-4 opacity-0 transition-opacity">
-          Tersimpan
-          otomatis</div>
+          class="text-[8px] uppercase tracking-[0.2em] text-gray-400 font-bold mt-6 opacity-0 transition-opacity">
+          Tersimpan otomatis
+        </div>
       </div>
 
     </div>
