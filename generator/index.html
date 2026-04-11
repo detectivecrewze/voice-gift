@@ -113,6 +113,12 @@
             <p id="gate-error" class="text-[9px] text-rose-500 hidden font-bold">Password Salah</p>
         </div>
 
+        <!-- ── TAB NAVIGATION ── -->
+        <div id="generator-tabs" class="hidden flex gap-2 p-1 bg-white border border-gray-100 shadow-sm mx-auto max-w-sm w-full rounded-xl mb-6">
+            <button id="tab-btn-project" class="flex-1 py-2 px-2 text-[8px] uppercase tracking-widest font-bold bg-[#fcfaf7] border border-[#d4a373]/20 text-[#b58756] rounded-lg shadow-sm transition-all pointer-events-none">Project</button>
+            <button id="tab-btn-qr" class="flex-1 py-2 px-2 text-[8px] uppercase tracking-widest font-bold text-gray-400 hover:text-gray-900 rounded-lg transition-all">QR Code</button>
+        </div>
+
         <!-- ── MAIN CONTENT (GENERATOR) ── -->
         <div id="main-content" class="hidden space-y-8">
             <!-- 1. Create Project -->
@@ -268,6 +274,96 @@
 
             <p id="update-password-status" class="text-[9px] text-gray-500 mt-4 hidden"></p>
         </div>
+        <!-- ── QR CODE PANEL ── -->
+        <div id="panel-qr" class="hidden glass-panel p-10 space-y-6 mx-auto w-full max-w-md">
+            <p class="text-[11px] text-black font-bold uppercase tracking-widest mb-4">Buat Polaroid Barcode</p>
+            <div class="space-y-2 text-left">
+                <label class="text-[9px] uppercase tracking-widest text-gray-500 font-bold block ml-1">Link Website / Kado</label>
+                <input id="qr-input-link" type="text" placeholder="https://..."
+                    class="w-full text-center text-sm border-b border-gray-300 bg-transparent py-3 focus:outline-none focus:border-black transition-all placeholder:text-gray-400 text-black">
+            </div>
+            <button id="btn-create-qr" class="btn-premium w-full shadow-lg">Buat Barcode</button>
+
+            <!-- Aesthetic Polaroid Container -->
+            <div id="qr-result" class="hidden flex-col items-center mt-8">
+                <div id="qr-export-container"
+                    style="background: linear-gradient(160deg, #fffaf5 0%, #fff8f0 50%, #f5efe6 100%); padding: 28px 24px 20px; border-radius: 16px; border: 1px solid rgba(212,174,106,0.2); box-shadow: 0 20px 50px -15px rgba(0,0,0,0.12), 0 4px 12px rgba(212,174,106,0.08); position: relative; max-width: 220px; width: 100%;">
+                    <!-- Top accent line -->
+                    <div
+                        style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 40px; height: 3px; background: linear-gradient(90deg, transparent, #d4a373, transparent); border-radius: 0 0 4px 4px;">
+                    </div>
+                    <!-- Title -->
+                    <p
+                        style="font-family: 'Instrument Serif', serif; font-style: italic; font-size: 24px; color: #1a1a1a; margin-bottom: 2px; letter-spacing: -0.02em;">
+                        For You</p>
+                    <p
+                        style="font-size: 7px; text-transform: uppercase; letter-spacing: 0.35em; color: #d4a373; font-weight: 600; margin-bottom: 16px;">
+                        ✦ scan to open your gift ✦</p>
+                    <!-- QR Code -->
+                    <div id="qr-code-box"
+                        style="background: white; border-radius: 10px; padding: 10px; display: flex; justify-content: center; align-items: center; min-height: 148px; width: 148px; margin: 0 auto; border: 1px solid rgba(0,0,0,0.04); box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);">
+                    </div>
+                    <!-- Bottom branding -->
+                    <p
+                        style="font-size: 6px; text-transform: uppercase; letter-spacing: 0.4em; color: #c4b49a; margin-top: 14px; text-align: center;">
+                        voice edition</p>
+                </div>
+
+                <button id="btn-download-qr" class="w-full mt-6 py-3.5 text-[9px] uppercase tracking-[0.2em] font-bold rounded-lg transition-all flex items-center justify-center gap-2" style="background: linear-gradient(135deg, #d4a373 0%, #c4956a 100%); color: white; border: none; box-shadow: 0 4px 14px rgba(212,174,106,0.35);">
+                    Download Barcode
+                </button>
+            </div>
+        </div>
+
+        <!-- ── RESULT CARD ── -->
+        <div id="result-card" class="hidden glass-panel p-10 space-y-6 mx-auto max-w-sm w-full text-left">
+            <div class="flex items-center gap-2 mb-2">
+                <div class="w-2 h-2 rounded-full bg-green-400"></div>
+                <p id="result-title" class="text-[9px] uppercase tracking-widest text-[#d4a373] font-bold">Berhasil Dibuat!</p>
+            </div>
+            
+            <div>
+                <p class="text-[8px] uppercase tracking-widest text-gray-400 mb-2 font-bold block ml-1 text-left">ID Project</p>
+                <div class="flex gap-2">
+                    <p id="result-id" class="flex-1 text-sm font-mono text-black bg-white rounded-lg px-3 py-2 border border-gray-200 truncate"></p>
+                </div>
+            </div>
+            
+            <div>
+                <p class="text-[8px] uppercase tracking-widest text-gray-400 mb-2 font-bold block ml-1 text-left">Link Studio (Admin)</p>
+                <div class="flex gap-2 items-center">
+                    <p id="result-studio" class="flex-1 text-[10px] font-mono text-gray-600 bg-white rounded-lg px-3 py-2 border border-gray-200 break-all text-left"></p>
+                    <button class="btn-copy-link text-[8px] uppercase tracking-widest font-bold text-gray-500 hover:text-black transition-all whitespace-nowrap" data-target="result-studio">Salin</button>
+                </div>
+            </div>
+            
+            <div>
+                <p class="text-[8px] uppercase tracking-widest text-gray-400 mb-2 font-bold block ml-1 text-left">Link Kado (Penerima)</p>
+                <div class="flex gap-2 items-center">
+                    <p id="result-gift" class="flex-1 text-[10px] font-mono text-gray-600 bg-white rounded-lg px-3 py-2 border border-gray-200 break-all text-left"></p>
+                    <button class="btn-copy-link text-[8px] uppercase tracking-widest font-bold text-gray-500 hover:text-black transition-all whitespace-nowrap" data-target="result-gift">Salin</button>
+                </div>
+            </div>
+            
+            <button id="btn-jump-to-qr" class="w-full border border-gray-300 text-black py-3 rounded-md text-[9px] font-bold uppercase tracking-widest hover:bg-white transition-all shadow-sm mt-4 cursor-pointer">
+                + Buat Barcode (QR Code)
+            </button>
+            <a id="btn-go-to-studio" href="#" class="btn-premium w-full shadow-lg flex items-center justify-center cursor-pointer mt-2" style="text-decoration:none; box-sizing:border-box;">
+                Buka Studio Editor →
+            </a>
+            
+            <!-- Divider -->
+            <div class="relative py-2">
+                <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-gray-200"></span></div>
+                <div class="relative flex justify-center">
+                    <span class="bg-[#fcfaf7] px-4 text-[8px] text-gray-400 font-bold uppercase tracking-widest">Atau</span>
+                </div>
+            </div>
+            <button id="btn-create-another" class="w-full text-center text-[9px] uppercase tracking-widest text-gray-500 font-bold hover:text-black transition-all py-2 cursor-pointer">Buat Project Lain</button>
+        </div>
+
+        <div id="toast" class="hidden fixed bottom-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full text-[9px] uppercase tracking-widest font-bold shadow-lg z-50"></div>
+
         <!-- Footer -->
         <p class="mt-12 text-[9px] text-gray-500 font-medium uppercase tracking-[0.2em]">© 2026 For You Always</p>
 
@@ -276,6 +372,8 @@
         <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
             data-cf-beacon='{"token": "f1a9652a5cd742ebb421410de70c8527"}'></script>
         <!-- End Cloudflare Web Analytics -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </body>
 
 </html>

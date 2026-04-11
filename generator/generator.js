@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sessionStorage.getItem('generator_unlocked') === 'true') {
             gate.classList.add('hidden');
             mainContent.classList.remove('hidden');
+            document.getElementById('generator-tabs')?.classList.remove('hidden');
         }
     };
 
@@ -42,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 sessionStorage.setItem('generator_unlocked', 'true');
                 gate.classList.add('hidden');
                 mainContent.classList.remove('hidden');
+                document.getElementById('generator-tabs')?.classList.remove('hidden');
             } else {
                 gateError.innerText = result.error || 'Password salah';
                 gateError.classList.remove('hidden');
@@ -164,11 +166,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Delay to ensure KV propagation
         setTimeout(() => {
-            if (isPremium) {
-                window.location.href = `../studio-premium/${finalId}`;
-            } else {
-                window.location.href = `../studio/${finalId}`;
-            }
+            const currentUrl = new URL(window.location.href);
+            const baseUrl = `${currentUrl.protocol}//${currentUrl.host}`;
+            const studioLink = isPremium ? `${baseUrl}/studio-premium/${finalId}` : `${baseUrl}/studio/${finalId}`;
+            const giftLink = isPremium ? `${baseUrl}/gift-premium/?id=${finalId}` : `${baseUrl}/gift/?id=${finalId}`;
+
+            document.getElementById('result-id').textContent = finalId;
+            document.getElementById('result-studio').textContent = studioLink;
+            document.getElementById('result-gift').textContent = giftLink;
+            document.getElementById('btn-go-to-studio').href = studioLink;
+
+            document.getElementById('main-content').classList.add('hidden');
+            document.getElementById('form-access')?.classList.add('hidden');
+            document.getElementById('section-update-password')?.classList.add('hidden');
+            document.querySelectorAll('.relative.py-4').forEach(d => d.classList.add('hidden'));
+            
+            document.getElementById('result-card').classList.remove('hidden');
         }, 600);
     };
 
@@ -343,6 +356,129 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { btnCopyBundle.textContent = 'Salin Token'; }, 2000);
         }).catch(() => {
             prompt('Salin token ini:', token);
+        });
+    });
+
+    // ── Tabs Navigation ──────────────────────────────────────
+    const tabProject = document.getElementById('tab-btn-project');
+    const tabQr = document.getElementById('tab-btn-qr');
+    const panelStudio = document.getElementById('main-content');
+    const panelQr = document.getElementById('panel-qr');
+    const formAccessRef = document.getElementById('form-access');
+    const sectionUpdateRef = document.getElementById('section-update-password');
+    const dividers = document.querySelectorAll('.relative.py-4');
+
+    const showQRCodes = () => {
+        panelStudio.classList.add('hidden');
+        if(formAccessRef) formAccessRef.classList.add('hidden');
+        if(sectionUpdateRef) sectionUpdateRef.classList.add('hidden');
+        dividers.forEach(d => d.classList.add('hidden'));
+        document.getElementById('result-card').classList.add('hidden');
+        
+        panelQr.classList.remove('hidden');
+        
+        tabQr.classList.add('bg-[#fcfaf7]', 'border', 'border-[#d4a373]/20', 'text-[#b58756]', 'shadow-sm', 'pointer-events-none');
+        tabQr.classList.remove('text-gray-400', 'hover:text-gray-900');
+        
+        tabProject.classList.remove('bg-[#fcfaf7]', 'border', 'border-[#d4a373]/20', 'text-[#b58756]', 'shadow-sm', 'pointer-events-none');
+        tabProject.classList.add('text-gray-400', 'hover:text-gray-900');
+    };
+
+    const showProject = () => {
+        panelQr.classList.add('hidden');
+        document.getElementById('result-card').classList.add('hidden');
+        
+        panelStudio.classList.remove('hidden');
+        if(formAccessRef) formAccessRef.classList.remove('hidden');
+        if(sectionUpdateRef) sectionUpdateRef.classList.remove('hidden');
+        dividers.forEach(d => d.classList.remove('hidden'));
+        
+        tabProject.classList.add('bg-[#fcfaf7]', 'border', 'border-[#d4a373]/20', 'text-[#b58756]', 'shadow-sm', 'pointer-events-none');
+        tabProject.classList.remove('text-gray-400', 'hover:text-gray-900');
+        
+        tabQr.classList.remove('bg-[#fcfaf7]', 'border', 'border-[#d4a373]/20', 'text-[#b58756]', 'shadow-sm', 'pointer-events-none');
+        tabQr.classList.add('text-gray-400', 'hover:text-gray-900');
+    };
+
+    tabQr?.addEventListener('click', showQRCodes);
+    tabProject?.addEventListener('click', showProject);
+    document.getElementById('btn-create-another')?.addEventListener('click', showProject);
+
+    // ── QR Code Logic ────────────────────────────────────────
+    let qrcodeInstance = null;
+    document.getElementById('btn-create-qr')?.addEventListener('click', () => {
+        const link = document.getElementById('qr-input-link').value.trim();
+        if (!link) return alert('Masukkan link terlebih dahulu!');
+        
+        const qrBox = document.getElementById('qr-code-box');
+        const qrContainer = document.getElementById('qr-result');
+        
+        // Clear previous QR
+        qrBox.innerHTML = '';
+        qrContainer.classList.remove('hidden');
+        qrContainer.classList.add('flex');
+        
+        // Generate new
+        qrcodeInstance = new QRCode(qrBox, {
+            text: link,
+            width: 128,
+            height: 128,
+            colorDark: "#1a1a1a",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    });
+
+    document.getElementById('btn-download-qr')?.addEventListener('click', async () => {
+        const container = document.getElementById('qr-export-container');
+        if (!container) return;
+        
+        try {
+            const btn = document.getElementById('btn-download-qr');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Memproses...';
+            
+            const canvas = await html2canvas(container, {
+                scale: 3,
+                backgroundColor: null,
+                logging: false,
+                useCORS: true
+            });
+            
+            const link = document.createElement('a');
+            link.download = `polaroid-qr-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            btn.innerHTML = 'Berhasil Didownload! ✓';
+            setTimeout(() => btn.innerHTML = originalText, 2000);
+        } catch (err) {
+            console.error('Download QR failed:', err);
+            alert('Gagal mendownload QR code. Silakan coba lagi.');
+        }
+    });
+
+    document.getElementById('btn-jump-to-qr')?.addEventListener('click', () => {
+        const giftLink = document.getElementById('result-gift').textContent;
+        document.getElementById('generator-tabs').classList.remove('hidden');
+        showQRCodes();
+        document.getElementById('qr-input-link').value = giftLink;
+        document.getElementById('btn-create-qr').click();
+    });
+
+    // ── Utilities (Toast & Copy) ─────────────────────────────
+    const showToast = (msg) => {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 3000);
+    };
+
+    document.querySelectorAll('.btn-copy-link').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const targetId = e.target.getAttribute('data-target');
+            const url = document.getElementById(targetId).textContent;
+            navigator.clipboard.writeText(url).then(() => showToast('Link berhasil disalin!'));
         });
     });
 });
