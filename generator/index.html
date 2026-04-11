@@ -128,11 +128,15 @@
                 <input type="hidden" id="input-gift-type" value="classic">
 
                 <div class="space-y-2 text-left">
-                    <label class="text-[9px] uppercase tracking-widest text-gray-500 font-bold block ml-1">Nama
-                        Project
-                        (Slug)</label>
-                    <input id="input-new-token" type="text" placeholder="kado-mita (opsional)"
-                        class="w-full text-center text-sm border-b border-gray-300 bg-transparent py-3 focus:outline-none focus:border-black transition-all placeholder:text-gray-400 text-black">
+                    <label class="text-[9px] uppercase tracking-widest text-gray-500 font-bold block ml-1">Nama Project (Slug)</label>
+                    <div class="relative">
+                        <input id="input-new-token" type="text" placeholder="kado-mita (opsional)"
+                            class="w-full text-center text-sm border-b border-gray-300 bg-transparent py-3 focus:outline-none focus:border-black transition-all placeholder:text-gray-400 text-black pr-10">
+                        <button id="btn-random-name" class="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-black transition-all" title="Acak Angka">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                        </button>
+                    </div>
+                    <p class="text-[8px] text-gray-400 italic mt-1 text-center">Tip: Klik ikon dadu untuk generate ID angka acak (bagus untuk giveaway).</p>
                 </div>
 
                 <div class="space-y-4">

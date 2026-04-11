@@ -7,6 +7,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCreate = document.getElementById('btn-create');
     const formAccess = document.getElementById('form-access');
     const inputToken = document.getElementById('input-token');
+    const btnRandomName = document.getElementById('btn-random-name');
+
+    btnRandomName?.addEventListener('click', () => {
+        const randomNum = Math.floor(10000000 + Math.random() * 90000000); // 8 digits
+        const inputNewToken = document.getElementById('input-new-token');
+        if (inputNewToken) {
+            inputNewToken.value = 'auto-' + randomNum;
+            inputNewToken.classList.add('bg-amber-50');
+            setTimeout(() => inputNewToken.classList.remove('bg-amber-50'), 500);
+        }
+    });
 
     // ── Password Gate Logic ──────────────────────────────────
     const gate = document.getElementById('password-gate');
