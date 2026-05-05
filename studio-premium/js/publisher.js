@@ -242,16 +242,10 @@ const Publisher = (() => {
         colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.M
       });
-      setTimeout(() => {
-        const qrImg = qrContainer.querySelector('img');
-        const qrCanvas = qrContainer.querySelector('canvas');
-        if (qrImg) {
-          qrImg.style.margin = '0 auto';
-          qrImg.style.display = 'block';
-          qrImg.style.borderRadius = '4px';
-        }
-        if (qrCanvas) qrCanvas.style.display = 'none';
-      }, 100);
+      const qrImg = qrContainer.querySelector('img');
+      const qrCanvas = qrContainer.querySelector('canvas');
+      if (qrImg) qrImg.style.borderRadius = '4px';
+      if (qrCanvas) qrCanvas.style.borderRadius = '4px';
     }
 
     // Bind download QR button

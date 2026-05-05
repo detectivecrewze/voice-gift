@@ -192,18 +192,12 @@ const Publisher = (() => {
         correctLevel: QRCode.CorrectLevel.M
       });
 
-      // Center the generated image cleanly
-      setTimeout(() => {
-        const qrImg = qrContainer.querySelector('img');
-        const qrCanvas = qrContainer.querySelector('canvas');
-        if (qrImg) {
-          qrImg.style.margin = '0 auto';
-          qrImg.style.display = 'block';
-          qrImg.style.borderRadius = '4px';
-        }
-        // Hide redundant canvas (qrcode.js generates both)
-        if (qrCanvas) qrCanvas.style.display = 'none';
-      }, 100);
+      // Let qrcode.js handle image vs canvas fallback automatically.
+      // We just apply border-radius for aesthetic purposes.
+      const qrImg = qrContainer.querySelector('img');
+      const qrCanvas = qrContainer.querySelector('canvas');
+      if (qrImg) qrImg.style.borderRadius = '4px';
+      if (qrCanvas) qrCanvas.style.borderRadius = '4px';
     }
 
     // ── Bind Download QR Button ──
