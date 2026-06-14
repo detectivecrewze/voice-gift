@@ -661,6 +661,55 @@ var index_default = {
       }
     }
 
+    // ── POST /generate-link — (Midtrans Webhook) Generate gift entry ──
+    if (request.method === "POST" && url.pathname === "/generate-link") {
+      try {
+        const authHeader = request.headers.get("Authorization");
+        const secret = env.GENERATOR_SECRET || "digitalatelier2025";
+        if (!authHeader || authHeader !== `Bearer ${secret}`) {
+          return new Response(JSON.stringify({ success: false, error: "Akses ditolak." }), {
+            status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+        
+        const { id } = await request.json();
+        if (!id) {
+          return new Response(JSON.stringify({ success: false, error: "Missing id" }), {
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const cleanId = id.toLowerCase().trim();
+
+        const existingGift = await env.VALENTINE_DATA.get(cleanId);
+        if (existingGift) {
+          return new Response(JSON.stringify({ success: true, studioUrl: `https://voice.for-you-always.my.id/studio/${cleanId}` }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+
+        const emptyGift = {
+          recipientName: "",
+          status: "draft",
+          photos: [],
+          createdAt: new Date().toISOString(),
+          _meta: { theme: "classic", theme_folder: "gift" }
+        };
+        await env.VALENTINE_DATA.put(cleanId, JSON.stringify(emptyGift));
+
+        return new Response(JSON.stringify({ 
+          success: true, 
+          studioUrl: `https://voice.for-you-always.my.id/studio/${cleanId}` 
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, error: err.message }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+    }
+
     // ── POST /submit-premium — Terima order premium, kirim notif ke Telegram ─
     if (request.method === "POST" && url.pathname === "/submit-premium") {
       try {

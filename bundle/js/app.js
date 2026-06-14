@@ -5,7 +5,7 @@
 
 const WORKER_URL = 'https://valentine-upload.aldoramadhan16.workers.dev';
 const BASE_GIFT_URL = 'https://voice.for-you-always.my.id/gift/';
-const BASE_STUDIO_URL = 'https://voice.for-you-always.my.id/studio/';
+const BASE_STUDIO_URL = 'https://voice.for-you-always.my.id/studio-premium/';
 const SESSION_KEY = 'bundle_session';
 
 // ── DOM References ──
