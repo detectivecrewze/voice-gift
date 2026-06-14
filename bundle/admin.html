@@ -16,9 +16,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:italic&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        body {
+                        body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
+            background-color: #faf8f4;
+            background-image:
+                radial-gradient(at 0% 0%, hsla(35, 80%, 96%, 1) 0, transparent 60%),
+                radial-gradient(at 100% 100%, hsla(25, 60%, 93%, 1) 0, transparent 60%);
+            color: #111;
         }
         .serif-title {
             font-family: 'Instrument Serif', serif;
@@ -40,15 +44,15 @@
 
     <!-- ── GATEWAY LOGIN ── -->
     <div id="login-view" class="flex-1 flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm border border-slate-100 text-center">
-            <h1 class="text-4xl serif-title mb-1 text-slate-900">Ledger Admin</h1>
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm border border-[#e8e4dc] text-center">
+            <h1 class="text-4xl serif-title mb-1 text-stone-900">Ledger Admin</h1>
             <p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-8">Sistem Pemantauan Token</p>
             
             <form id="login-form" class="space-y-4">
                 <input id="input-admin-pass" type="password" placeholder="Password Admin" required
-                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-center focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors">
+                    class="w-full px-4 py-3 bg-white/80 border border-[#e8e4dc] rounded-lg text-sm text-center focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors">
                 <button type="submit" 
-                    class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-4 rounded-lg text-xs uppercase tracking-widest transition-colors shadow-md">
+                    class="w-full bg-[#b07860] hover:bg-[#8b5e45] text-white font-semibold py-3 px-4 rounded-lg text-xs uppercase tracking-widest transition-colors shadow-md">
                     Buka Brankas
                 </button>
             </form>
@@ -62,11 +66,11 @@
             <!-- Header -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
                 <div>
-                    <h1 class="text-4xl serif-title text-slate-900">Master Ledger</h1>
+                    <h1 class="text-4xl serif-title text-stone-900">Master Ledger</h1>
                     <p class="text-xs font-semibold uppercase tracking-widest text-slate-500 mt-1">Laporan Bundling Kado</p>
                 </div>
                 <div class="flex gap-3">
-                    <button onclick="fetchLedgerData()" class="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-md text-xs font-bold uppercase tracking-wider hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2">
+                    <button onclick="fetchLedgerData()" class="px-4 py-2 bg-white border border-[#e8e4dc] text-slate-600 rounded-md text-xs font-bold uppercase tracking-wider hover:bg-white/80 transition-colors shadow-sm flex items-center gap-2">
                         <span>↻ Refresh</span>
                     </button>
                     <button id="btn-logout" class="px-4 py-2 bg-rose-50 text-rose-600 border border-rose-100 rounded-md text-xs font-bold uppercase tracking-wider hover:bg-rose-100 transition-colors shadow-sm">
@@ -77,26 +81,26 @@
 
             <!-- Stats Overview -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+                <div class="bg-white p-5 rounded-xl border border-[#e8e4dc] shadow-sm text-center">
                     <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Total Token</p>
                     <p id="stat-total-tokens" class="text-3xl font-bold text-slate-800">0</p>
                 </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+                <div class="bg-white p-5 rounded-xl border border-[#e8e4dc] shadow-sm text-center">
                     <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Total Kado Terjual</p>
                     <p id="stat-total-capacity" class="text-3xl font-bold text-slate-800">0</p>
                 </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+                <div class="bg-white p-5 rounded-xl border border-[#e8e4dc] shadow-sm text-center">
                     <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Kado Diredeem</p>
                     <p id="stat-total-used" class="text-3xl font-bold text-indigo-600">0</p>
                 </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm text-center">
+                <div class="bg-white p-5 rounded-xl border border-[#e8e4dc] shadow-sm text-center">
                     <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Sisa Kuota Global</p>
                     <p id="stat-total-sisa" class="text-3xl font-bold text-emerald-600">0</p>
                 </div>
             </div>
 
             <!-- Table Card -->
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
+            <div class="bg-white rounded-xl shadow-sm border border-[#e8e4dc] overflow-hidden relative">
                 
                 <!-- Loader -->
                 <div id="loading-overlay" class="absolute inset-0 z-10 flex flex-col items-center justify-center hidden">
@@ -107,7 +111,7 @@
                 <div class="table-scroll overflow-x-auto w-full">
                     <table class="w-full text-left border-collapse min-w-[800px]">
                         <thead>
-                            <tr class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200">
+                            <tr class="bg-white/80 text-[10px] uppercase tracking-wider text-slate-500 font-bold border-b border-[#e8e4dc]">
                                 <th class="py-4 px-5">Tgl Dibuat</th>
                                 <th class="py-4 px-5">Kode Token</th>
                                 <th class="py-4 px-5">Pemilik / Catatan</th>
@@ -116,7 +120,7 @@
                                 <th class="py-4 px-5">Daftar Link Kado</th>
                             </tr>
                         </thead>
-                        <tbody id="ledger-table-body" class="text-sm text-slate-700 divide-y divide-slate-100 bg-white">
+                        <tbody id="ledger-table-body" class="text-sm text-slate-700 divide-y divide-[#e8e4dc] bg-white">
                             <!-- Rows injected via JS -->
                         </tbody>
                     </table>
@@ -271,7 +275,7 @@
                         : `<span class="text-slate-400 text-xs italic">Belum buat kado</span>`;
 
                     return `
-                        <tr class="hover:bg-slate-50 transition-colors group">
+                        <tr class="hover:bg-white/80 transition-colors group">
                             <td class="py-4 px-5 text-xs text-slate-500 align-top">${formatDate(t.created_at)}</td>
                             <td class="py-4 px-5 align-top">
                                 <div class="flex items-center gap-2">
@@ -282,10 +286,10 @@
                                 </div>
                             </td>
                             <td class="py-4 px-5 align-top">
-                                <p class="text-sm font-medium text-slate-900">${t.note || '<span class="text-slate-300 italic">Tanpa nama</span>'}</p>
+                                <p class="text-sm font-medium text-stone-900">${t.note || '<span class="text-slate-300 italic">Tanpa nama</span>'}</p>
                             </td>
                             <td class="py-4 px-5 text-center align-top">
-                                <div class="flex flex-col border-r border-slate-100 last:border-0 px-2">
+                                <div class="flex flex-col border-r border-[#e8e4dc] last:border-0 px-2">
                                     <span class="text-lg font-bold ${sisa===0?'text-slate-400':'text-slate-800'}">${t.used} <span class="text-xs text-slate-400 font-medium">/ ${t.max_limit}</span></span>
                                 </div>
                             </td>

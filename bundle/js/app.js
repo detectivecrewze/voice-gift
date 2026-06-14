@@ -119,22 +119,27 @@ function renderDashboard(data) {
         showAlert(quotaAlert, 'Kuota kado Anda sudah habis. Hubungi admin untuk pembelian token baru.', 'info');
     } else {
         btnNewGift.disabled = false;
-        btnNewGift.textContent = '✦ Buat Kado Baru';
+        btnNewGift.textContent = '✦ Buat Undangan Baru';
         hideAlert(quotaAlert);
     }
 
     // Render gift list
     const items = data.created_gifts || [];
     if (items.length === 0) {
-        giftList.innerHTML = `<li class="empty-list">Anda belum membuat kado apapun.<br>Klik "Buat Kado Baru" untuk memulai.</li>`;
+        giftList.innerHTML = `<li class="empty-list">Anda belum membuat undangan apapun.<br>Klik "Buat Undangan Baru" untuk memulai.</li>`;
     } else {
         giftList.innerHTML = items.map(giftId => `
             <li class="gift-item">
+                <div class="gift-icon">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path></svg>
+                </div>
                 <div class="gift-item-left">
                     <span class="gift-item-name">${giftId}</span>
                     <span class="gift-item-status">Tersimpan di Studio</span>
                 </div>
-                <a href="${BASE_STUDIO_URL}${giftId}" target="_blank">Buka Studio →</a>
+                <div class="gift-actions">
+                    <a href="${BASE_STUDIO_URL}${giftId}" target="_blank" class="btn-view">Buka</a>
+                </div>
             </li>
         `).join('');
     }
