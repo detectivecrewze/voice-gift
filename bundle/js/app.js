@@ -119,14 +119,14 @@ function renderDashboard(data) {
         showAlert(quotaAlert, 'Kuota kado Anda sudah habis. Hubungi admin untuk pembelian token baru.', 'info');
     } else {
         btnNewGift.disabled = false;
-        btnNewGift.textContent = '✦ Buat Undangan Baru';
+        btnNewGift.textContent = '✦ Buat Gift Baru';
         hideAlert(quotaAlert);
     }
 
     // Render gift list
     const items = data.created_gifts || [];
     if (items.length === 0) {
-        giftList.innerHTML = `<li class="empty-list">Anda belum membuat undangan apapun.<br>Klik "Buat Undangan Baru" untuk memulai.</li>`;
+        giftList.innerHTML = `<li class="empty-list">Anda belum membuat gift apapun.<br>Klik "Buat Gift Baru" untuk memulai.</li>`;
     } else {
         giftList.innerHTML = items.map(giftId => `
             <li class="gift-item">

@@ -1,24 +1,9 @@
-<!DOCTYPE html>
-<html lang="id">
+import re
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bundle Studio | For You, Always</title>
-    <meta name="description" content="Masuk ke portal bundling kado Anda dan mulai buat kenangan indah.">
+with open('bundle/index.html', 'r', encoding='utf-8') as f:
+    content = f.read()
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+new_css = """        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
             --cream: #faf8f4;
@@ -44,7 +29,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             padding: 2rem 1rem;
             position: relative;
             overflow-x: hidden;
@@ -143,130 +127,14 @@
         .delay-2 { animation-delay: 0.2s; opacity: 0; }
         .delay-3 { animation-delay: 0.3s; opacity: 0; }
         
-        .footer { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gray-text); text-align: center; padding-top: 1rem; }
-    </style>
-</head>
+        .footer { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gray-text); text-align: center; padding-top: 1rem; }"""
 
-<body>
-        <div class="grain"></div>
-        <div class="blob-2"></div>
-    </div>
+content = re.sub(r'<style>.*?</style>', f'<style>\n{new_css}\n    </style>', content, flags=re.DOTALL)
 
-    <div class="container">
-        <!-- ── VIEW 1: LOGIN ── -->
-        <div id="view-login" class="w-full" style="width:100%">
-            <div class="panel animate-up delay-1" style="text-align: center;">
-                <p class="panel-title">Masuk dengan Token</p>
-                <p class="panel-subtitle">Masukkan kode token bundling yang sudah Anda terima. Token Anda berisi kuota untuk membuat beberapa link kado spesial.</p>
+# Revert Ambient Blobs to Grain
+content = re.sub(r'<div class="ambient-blobs">.*?</div>', '<div class="grain"></div>', content, flags=re.DOTALL)
 
-                <div class="input-group">
-                    <label class="label" for="input-token">Kode Token Bundling</label>
-                    <input id="input-token" class="input-field" type="text" placeholder="BNDL-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false">
-                </div>
+with open('bundle/index.html', 'w', encoding='utf-8') as f:
+    f.write(content)
 
-                <button id="btn-login" class="btn btn-dark">Masuk Portal</button>
-                <div id="login-alert" class="hidden"></div>
-            </div>
-        </div>
-
-        <!-- ── VIEW 2: DASHBOARD ── -->
-        <div id="view-dashboard" class="hidden w-full" style="width:100%">
-
-            <!-- Quota Card -->
-                        <div class="animate-up delay-1" style="text-align: center;">
-                <div class="quota-badge">
-                    <div class="quota-text">TOKEN: <span id="token-display">...</span> <span style="margin:0 0.5rem; color:#ccc;">|</span> KUOTA: <span id="quota-display" style="display:inline;">—</span></div>
-                </div>
-            </div>
-
-            <button id="btn-new-gift" class="btn btn-gold animate-up delay-1" style="margin-bottom: 2rem;">✦ Buat Gift Baru</button>
-            <div id="quota-alert" class="hidden"></div>
-
-            <!-- My Gifts -->
-                        <div class="animate-up delay-2">
-                <span class="section-title">Kado Saya</span>
-                <ul class="gift-list" id="gift-list">
-                    <li class="empty-list">Memuat daftar kado...</li>
-                </ul>
-            </div>
-
-            <!-- Logout -->
-            <button id="btn-logout" class="btn btn-outline animate-up delay-2" style="margin-top:0.5rem;">Keluar</button>
-        </div>
-
-        <!-- ── VIEW 3: CREATE FORM ── -->
-        <div id="view-create" class="hidden w-full" style="width:100%">
-            <div class="panel animate-up">
-                <p class="panel-title">Buat Link Kado Baru</p>
-                <p class="panel-subtitle">Pilih nama link yang unik dan bermakna. Nama ini akan menjadi bagian dari URL yang Anda bagikan ke penerima kado.</p>
-
-                <div class="input-group">
-                    <label class="label" for="input-gift-name">Pilih ID / Nama Kado Anda</label>
-                    <div class="url-preview">
-                        <span class="url-prefix">voice.for-you-always.my.id/.../</span>
-                        <input id="input-gift-name" class="url-input" type="text" placeholder="kado-spesial" autocomplete="off" spellcheck="false">
-                    </div>
-                    <div id="avail-status" class="avail-indicator"></div>
-                </div>
-
-                <div style="display:flex;flex-direction:column;gap:0.6rem;margin-top:1rem;">
-                    <button id="btn-claim" class="btn btn-gold" disabled>Pesan Link Ini</button>
-                    <button id="btn-cancel-create" class="btn btn-outline">Kembali</button>
-                </div>
-
-                <div id="create-alert" class="hidden"></div>
-            </div>
-        </div>
-
-        <!-- ── VIEW 4: SUCCESS ── -->
-        <div id="view-success" class="hidden w-full" style="width:100%">
-            <div class="panel animate-up text-center">
-                <svg style="width: 4.5rem; height: 4.5rem; color: var(--green-soft); margin: 0 auto 1rem auto;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <p class="panel-title">Kado Berhasil Dibuat!</p>
-                <p class="panel-subtitle">Nama link eksklusif Anda sudah terkunci. Anda bisa langsung masuk Studio untuk mengedit kadonya sekarang atau nanti.</p>
-                
-                <div style="margin: 1.5rem 0; padding: 1.25rem; background: var(--cream-dark); border-radius: 8px;">
-                    <p style="font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gray-text); font-weight: 700; margin-bottom: 0.5rem;">Link Studio Kado Anda</p>
-                    <p id="success-gift-url" style="color: var(--black); font-family: monospace; font-size: 0.9rem; word-break: break-all; margin-bottom: 1.5rem; font-weight: 700;">Loading...</p>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 0.6rem;">
-                        <button id="btn-copy-success" class="btn btn-outline" style="background:#fff;">Salin Link</button>
-                        <button id="btn-open-success" class="btn btn-gold">Buka Studio Sekarang →</button>
-                    </div>
-                </div>
-
-                <div style="margin-top: 1.5rem;">
-                    <button id="btn-success-back" class="btn btn-outline">Kembali ke Dashboard</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer animate-up delay-3">© 2026 For You, Always</div>
-    </div>
-
-        <!-- ── MODAL KONFIRMASI ── -->
-        <div id="confirm-modal" class="modal-overlay hidden">
-            <div class="panel modal-content animate-up text-center">
-                <svg style="width: 3.5rem; height: 3.5rem; color: var(--brown); margin: 0 auto 1rem auto;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                </svg>
-                <p class="panel-title">Yakin dengan nama ini?</p>
-                <p class="panel-subtitle" style="margin-bottom: 1rem;">Pastikan nama kado Anda sudah benar. Setelah dipesan, Anda tidak dapat mengubah nama link-nya lagi.</p>
-                
-                <div style="margin: 1rem 0; padding: 1.25rem; background: var(--cream-dark); border-radius: 8px;">
-                    <p style="font-size: 0.55rem; letter-spacing: 0.2rem; text-transform: uppercase; color: var(--gray-text); font-weight: 700; margin-bottom: 0.4rem;">Nama yang dipilih:</p>
-                    <p id="confirm-gift-name" style="color: var(--black); font-size: 1.1rem; word-break: break-all; font-weight: 700;">...</p>
-                </div>
-
-                <div class="flex-gap" style="margin-top: 1.5rem;">
-                    <button id="btn-modal-cancel" class="btn btn-outline flex-1">Batal</button>
-                    <button id="btn-modal-confirm" class="btn btn-gold flex-1">Lanjutkan</button>
-                </div>
-            </div>
-        </div>
-
-    <script src="/bundle/js/app.js?v=3"></script>
-</body>
-</html>
+print('Updated bundle/index.html with classic aesthetic!')
