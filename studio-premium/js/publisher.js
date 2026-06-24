@@ -140,7 +140,7 @@ const Publisher = (() => {
       const domainSuffix = state.requestDomain ? `%20.%20Domain%3A%20${state.requestDomain}.vercel.app` : '';
       const waMessage = `Halo%20admin%2C%20saya%20sudah%20publish%20kado%20VIP%20saya.%0AID%3A%20${token}${domainSuffix}`;
       const waBtn = document.getElementById('btn-contact-admin');
-      if (waBtn) waBtn.href = `https://wa.me/6281381543981?text=${waMessage}`;
+      if (waBtn) waBtn.href = `https://wa.me/6281936109076?text=${waMessage}`;
       modal.classList.remove('hidden');
     } else {
       Studio.showToast('Data berhasil dikirim! 🎁 Admin akan memproses kado kamu segera.');
