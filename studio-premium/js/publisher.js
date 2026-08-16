@@ -231,6 +231,18 @@ const Publisher = (() => {
       whatsappBtn.href = `https://wa.me/?text=${message}`;
     }
 
+    const unboxWaBtn = document.getElementById('btn-unbox-whatsapp-regular');
+    if (unboxWaBtn) {
+      const token = (typeof Auth !== 'undefined' && Auth.getToken) ? Auth.getToken() : '';
+      const message = encodeURIComponent(
+        `Halo admin For You, Always! ✨\n\n` +
+        `Saya sudah selesai mengedit Voices Gift saya (ID: ${token}).\n` +
+        `Link Kado: ${giftUrl}\n\n` +
+        `Mohon kado fisik / hampers Gift Box saya segera dirakit dan dikirimkan yaa. Terima kasih! 🙏`
+      );
+      unboxWaBtn.href = `https://wa.me/6281381543981?text=${message}`;
+    }
+
     // Generate QR Code
     if (qrContainer && typeof QRCode !== 'undefined') {
       qrContainer.innerHTML = '';
